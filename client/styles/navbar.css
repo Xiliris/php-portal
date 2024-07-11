@@ -1,0 +1,62 @@
+#main-nav {
+  width: 100%;
+  height: 5em;
+
+  display: flex;
+  align-items: center;
+}
+
+#main-nav section {
+  width: 95%;
+  margin: 0 auto;
+
+  display: flex;
+  align-items: end;
+}
+
+#main-nav h2 {
+  font-size: 2em;
+  font-weight: 500;
+}
+
+#main-nav .item-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 1.5em;
+  gap: 1.5em;
+  height: 100%;
+  color: slategrey;
+}
+
+#main-nav .item-section a {
+  font-size: 1.2em;
+}
+
+#main-nav .button-section {
+  margin-left: auto;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1em;
+}
+
+#main-nav .button-section .button {
+  padding: 0.5em 1em;
+  border: none;
+  border-radius: 5px;
+  background-color: #f1f1f1;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#main-nav .button-section .primary {
+  background-color: red;
+  color: white;
+}
+
+#main-nav .button-section .secondary {
+  background-color: gray;
+  color: white;
+}
