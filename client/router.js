@@ -1,31 +1,35 @@
-const route = (event) => {
-  event = event || window.event;
-  event.preventDefault();
+document.addEventListener("DOMContentLoaded", () => {
+  const app = document.getElementById("app");
 
-  window.history.pushState({}, "", event.target.href);
-  handleLocation();
-};
+  const routes = {
+    404: "/php-portal/client/pages/404.html",
+    "/php-portal/client/": "/php-portal/client/pages/home.html",
+    "/": "/php-portal/client/pages/home.html",
+    "/about": "/php-portal/client/pages/about.html",
+    "/contact": "/php-portal/client/pages/contact.html",
+  };
 
-const routes = {
-  404: "./pages/errors/404.html",
-  "/client/": "./pages/home.html",
-  "/client/about": "./pages/about.html",
-  "/client/contact": "./pages/contact.html",
-};
+  const navigateTo = (url) => {
+    history.pushState(null, null, url);
+    router();
+  };
 
-const handleLocation = async () => {
-  const path = window.location.pathname;
-  const route = routes[path] || routes[404];
+  const router = async () => {
+    const request = routes[location.pathname] || routes[404];
+    const response = await fetch(request);
+    const html = await response.text();
 
-  console.log("path", path);
+    app.innerHTML = html;
+  };
 
-  console.log(routes[path]);
+  document.body.addEventListener("click", (e) => {
+    if (e.target.matches("[data-link]")) {
+      e.preventDefault();
+      navigateTo(e.target.href);
+    }
+  });
 
-  const html = await fetch(route).then((response) => response.text());
+  window.addEventListener("popstate", router);
 
-  document.getElementById("root").innerHTML = html;
-};
-
-window.onpopstate = handleLocation;
-window.onload = handleLocation;
-window.route = route;
+  router();
+});
