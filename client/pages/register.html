@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="container">
+    <form id="registerForm" action="../../api/routes/register.php" method="post">
+<div class="form-group">
+        <input type="text" name="username" placeholder="Username"/>
+        </div>
+        <br>
+        <div class="form-group">
+        <input type="text" name="name" placeholder="Name"/>
+        </div>
+        <br>
+        <div class="form-group">
+        <input type="text" name="surname" placeholder="Surname"/>
+        </div>
+        <br>
+        <div class="form-group">
+        <input type="email" name="email" placeholder="Email"/>
+        </div>
+        <br>
+        <div class="form-group">
+        <input type="password" name="password" placeholder="Password"/>
+        </div>
+        <br>
+        <div class="form-group">
+        <input type="password" name="confirm_password" placeholder="Confirm Password"/>
+        </div>
+        <br>
+        <button type="submit">Register</button>
+    </form>
+    </div>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            fetch('/php-portal/api/routes/register.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        window.location.href = "/php-portal/client";
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to register. Please try again later.');
+                });
+        });
+    </script>
+</body>
+</html>
