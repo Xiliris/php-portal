@@ -1,0 +1,22 @@
+<form id="loginForm" action="../../api/routes/login.php" method="post">
+  <input type="email" name="email" placeholder="Email" />
+  <input type="password" name="password" placeholder="Password" />
+  <button type="submit">Login</button>
+</form>
+<script>
+  document.getElementById('loginForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    fetch('/php-portal/api/routes/login.php', {
+      method: 'POST',
+      body: formData
+    }).then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert(data.message);
+        } else {
+          alert(data.message);
+        }
+      });
+  });
+</script>
