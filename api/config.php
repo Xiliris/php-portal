@@ -3,7 +3,7 @@
 $host = 'localhost';
 $dbname = 'php-portal';
 $username = 'php-portal-user';
-$password = 'YY[67q4L_2@!8yWZ';
+$password = '7r4dd!6P)0zvOLej';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);

@@ -1,3 +1,6 @@
+import handleLogin from "./module/handleLogin.js";
+import handleRegister from "./module/handleRegister.js";
+
 document.addEventListener("DOMContentLoaded", () => {
   const app = document.getElementById("app");
 
@@ -12,6 +15,8 @@ document.addEventListener("DOMContentLoaded", () => {
     "/": "/php-portal/client/pages/home.html",
     "/about": "/php-portal/client/pages/about.html",
     "/contact": "/php-portal/client/pages/contact.html",
+    "/login": "/php-portal/client/pages/login.html",
+    "/register": "/php-portal/client/pages/register.html",
   };
 
   const navigateTo = (url) => {
@@ -35,6 +40,13 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       app.innerHTML = html;
+
+      if (location.pathname === "/login") {
+        handleLogin();
+      }
+      if (location.pathname === "/register") {
+        handleRegister();
+      }
     } catch (error) {
       console.error("Fetch error:", error);
       app.innerHTML = "<h1>Failed to load the page.</h1>";

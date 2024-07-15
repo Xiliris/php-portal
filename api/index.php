@@ -8,10 +8,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     exit();
 }
 
-require_once './routes/home.php';
-require_once './routes/user.php';
-require_once './routes/post.php';
-
 function router($method, $route, $callback) {
     $request_uri = rtrim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
     $request_method = $_SERVER['REQUEST_METHOD'];
