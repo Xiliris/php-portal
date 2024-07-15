@@ -65,3 +65,8 @@
   background-color: rgb(92, 114, 125);
   color: white;
 }
+
+#main-nav .button-section .success {
+  background-color: #198754;
+  color: white;
+}
