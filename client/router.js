@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const components = {
     "{{footer}}": "/php-portal/client/components/footer.html",
+    "{{navbar}}": "/php-portal/client/components/navbar.html",
   };
 
   const routes = {
@@ -20,15 +21,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const router = async () => {
     const request = routes[location.pathname] || routes[404];
-    const response = await fetch(request);
-    let html = await response.text();
+    try {
+      const response = await fetch(request);
+      if (!response.ok) throw new Error("Network response was not ok.");
+      let html = await response.text();
 
-    for (const [component, componentPath] of Object.entries(components)) {
-      const componentResponse = await fetch(componentPath);
-      const componentHtml = await componentResponse.text();
-      html = html.replace(new RegExp(component, "g"), componentHtml);
-      console.log(html);
+      for (const [component, componentPath] of Object.entries(components)) {
+        const componentResponse = await fetch(componentPath);
+        if (!componentResponse.ok)
+          throw new Error("Network response was not ok.");
+        const componentHtml = await componentResponse.text();
+        html = html.replace(new RegExp(component, "g"), componentHtml);
+      }
+
       app.innerHTML = html;
+    } catch (error) {
+      console.error("Fetch error:", error);
+      app.innerHTML = "<h1>Failed to load the page.</h1>";
     }
   };
 
