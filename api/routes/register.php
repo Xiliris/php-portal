@@ -20,22 +20,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
             $stmt->execute([$email]);
-            $user = $stmt->fetch();
+            $userByEmail = $stmt->fetch();
 
-            if ($user) {
-                $response['message'] = "User with this email already exists";
+            if ($userByEmail) {
+                $response['message'] = "User with this email already exists.";
             } else {
+                $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
+                $stmt->execute([$username]);
+                $userByUsername = $stmt->fetch();
 
-                $hashed_password = password_hash($password, PASSWORD_BCRYPT);
-
-                $stmt = $pdo->prepare("INSERT INTO users (username, name, surname, email, password) VALUES (?, ?, ?, ?, ?)");
-                $stmt->execute([$username, $name, $surname, $email, $hashed_password]);
-
-                if ($stmt->rowCount() === 1) {
-                    $response['success'] = true;
-                    $response['message'] = "Registration successful!";
+                if ($userByUsername) {
+                    $response['message'] = "Username already exists.";
                 } else {
-                    $response['message'] = "Failed to register. Please try again later.";
+                    $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+
+                    $stmt = $pdo->prepare("INSERT INTO users (username, name, surname, email, password) VALUES (?, ?, ?, ?, ?)");
+                    $stmt->execute([$username, $name, $surname, $email, $hashed_password]);
+
+                    if ($stmt->rowCount() === 1) {
+                        $response['success'] = true;
+                        $response['message'] = "Registration successful!";
+                    } else {
+                        $response['message'] = "Failed to register. Please try again later.";
+                    }
                 }
             }
         }
