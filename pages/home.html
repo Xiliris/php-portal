@@ -1,8 +1,8 @@
 {{navbar}}
 <main id="home">
   <div class="input-search">
-    <input placeholder="Search Keywords" type="text" />
-    <i class="fa-solid fa-magnifying-glass"></i>
+    <input placeholder="Search Keywords" type="text" id="search-keywords" />
+    <i class="fa-solid fa-magnifying-glass" id="openInput"></i>
   </div>
   <section>
     <div class="article-container">
@@ -66,3 +66,85 @@
   </section>
 </main>
 {{footer}}
+
+<script>
+  document.getElementById("openInput").addEventListener("click", () => {
+    document.getElementById("search-keywords").focus();
+  });
+</script>
+<style>
+  #home {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    padding-top: 10em;
+  }
+
+  #home .input-search {
+    width: 70%;
+    padding: 0.5em 1em;
+    font-size: 1.2em;
+    border: 1px solid gray;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+  }
+
+  #home .input-search input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: none;
+    font-size: 1.2em;
+    color: gray;
+  }
+
+  #home .input-search i {
+    cursor: pointer;
+  }
+
+  #home section {
+    margin-top: 6em;
+    margin-bottom: 10em;
+    width: 100%;
+  }
+
+  #home .article-container {
+    margin: 1em auto;
+    width: 70%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1em;
+  }
+
+  #home .article-container article {
+    position: relative;
+  }
+
+  #home .article-container article img {
+    width: 200px;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 5px;
+  }
+
+  #home .article-container article h3 {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 0.5em;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-size: 1.2em;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+
+    text-align: center;
+  }
+</style>

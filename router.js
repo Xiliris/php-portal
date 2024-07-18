@@ -2,18 +2,25 @@ document.addEventListener("DOMContentLoaded", () => {
   const app = document.getElementById("app");
 
   const components = {
-    "{{footer}}": "/components/footer.html",
     "{{navbar}}": "/components/navbar.html",
+    "{{footer}}": "/components/footer.html",
   };
 
   const routes = {
-    404: "/pages/404.html",
+    404: "/pages/error/404.html",
+    401: "/pages/error/401.html",
     "/": "/pages/home.html",
+    "/person-of-interest": "/pages/person-of-interest.html",
+    "/comming": "/pages/comming.html",
+    "/news": "/pages/news.html",
     "/about": "/pages/about.html",
-    "/contact": "/pages/contact.html",
-    "/login": "/pages/login.html",
-    "/register": "/pages/register.html",
-    "/dashboard": "/pages/dashboard.html",
+    "/partners": "/pages/partners.html",
+    "/shop": "/pages/shop.html",
+    "/donate": "/pages/donate.html",
+    "/submit": "/pages/submit.html",
+    "/login": "/pages/auth/login.html",
+    "/register": "/pages/auth/register.html",
+    "/dashboard": "/pages/admin/dashboard.html",
   };
 
   const colors = {

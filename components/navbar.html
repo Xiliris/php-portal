@@ -2,14 +2,96 @@
   <section>
     <a href="/" data-link class="nav--logo"> Company Logo </a>
     <div class="item-section">
-      <a href="/leaks" data-link>Leaks</a>
+      <a href="/person-of-interest" data-link>Person of Interest</a>
+      <a href="/comming" data-link>Comming</a>
       <a href="/news" data-link>News</a>
       <a href="/about" data-link>About</a>
       <a href="/partners" data-link>Partners</a>
     </div>
     <div class="button-section">
-      <a class="button primary" href="/login" data-link>Login</a>
+      <a class="button primary" href="/shop" data-link>Shop</a>
       <a class="button secondary" href="/donate" data-link>Donate</a>
+      <a class="button tertiary" href="/submit" data-link>Submit</a>
+      <a class="button fortiary" href="/login" data-link>Login</a>
     </div>
   </section>
 </nav>
+<style>
+  #main-nav {
+    width: 100%;
+    height: 5em;
+
+    display: flex;
+    align-items: center;
+    background-color: white;
+    position: fixed;
+    top: 0;
+    z-index: 100;
+  }
+
+  #main-nav section {
+    width: 95%;
+    margin: 0 auto;
+
+    display: flex;
+    align-items: end;
+  }
+
+  .nav--logo {
+    font-size: 2em;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  #main-nav .item-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 1.5em;
+    gap: 1.5em;
+    height: 100%;
+    color: slategrey;
+  }
+
+  #main-nav .item-section a {
+    font-size: 1.2em;
+  }
+
+  #main-nav .button-section {
+    margin-left: auto;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+  }
+
+  #main-nav .button-section .button {
+    padding: 0.5em 1em;
+    border: none;
+    border-radius: 5px;
+    background-color: #f1f1f1;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+  #main-nav .button-section .primary {
+    background-color: #ffd500;
+    color: white;
+  }
+
+  #main-nav .button-section .secondary {
+    background-color: red;
+    color: white;
+  }
+
+  #main-nav .button-section .tertiary {
+    background-color: rgb(92, 114, 125);
+    color: white;
+  }
+
+  #main-nav .button-section .fortiary {
+    background-color: green;
+    color: white;
+  }
+</style>

@@ -1,0 +1,71 @@
+{{navbar}}
+<div class="login--container">
+  <form id="loginForm" action="../api/routes/login.php" method="post">
+    <h2>Login</h2>
+    <div>
+      <label for="email">Email</label>
+      <input type="email" name="email" placeholder="Email" />
+    </div>
+    <div>
+      <label for="password">Password</label>
+      <input type="password" name="password" placeholder="Password" />
+    </div>
+    <a href="/register" data-link> Don't have an account? </a>
+    <button type="submit" class="btn-primary">Login</button>
+  </form>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      fetch('/api/routes/login.php', {
+        method: 'POST',
+        body: formData
+      }).then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            alert(data.message);
+            window.location.href = "/";
+          } else {
+            alert(data.message);
+          }
+        });
+    });
+  </script>
+
+  <style>
+    .login--container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    #loginForm {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      padding: 2rem;
+      width: 400px;
+    }
+
+    #loginForm h2 {
+      text-align: center;
+    }
+
+    #loginForm input {
+      margin-top: 0.2rem;
+      padding: 0.7rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1.1rem;
+    }
+
+    #loginForm div {
+      display: flex;
+      flex-direction: column;
+    }
+  </style>
+</div>
