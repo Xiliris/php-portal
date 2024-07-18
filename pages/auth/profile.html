@@ -1,0 +1,37 @@
+{{navbar}}
+<div id="profile">
+  <h1>Profile</h1>
+  <p>This is the profile page.</p>
+</div>
+{{footer}}
+
+<script>
+    if (document.cookie) {
+    const user = decodeURIComponent(document.cookie)
+      .split(";")
+      .find((cookie) => cookie.trim().startsWith("PHPSESSID"))
+      .split("=")[1];
+
+    const resposne = await fetch("/api/routes/user.php", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await response.json();
+
+    console.log(data);
+  }
+</script>
+
+<style>
+  #profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    height: 100vh;
+  }
+</style>
