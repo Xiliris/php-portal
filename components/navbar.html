@@ -12,10 +12,21 @@
       <a class="button primary" href="/shop" data-link>Shop</a>
       <a class="button secondary" href="/donate" data-link>Donate</a>
       <a class="button tertiary" href="/submit" data-link>Submit</a>
-      <a class="button fortiary" href="/login" data-link>Login</a>
+      <a class="button fortiary" href="/login" id="login" data-link>Login</a>
     </div>
   </section>
 </nav>
+<script>
+  if (document.cookie) {
+    const user = decodeURIComponent(document.cookie)
+      .split(";")
+      .find((cookie) => cookie.trim().startsWith("PHPSESSID"))
+      .split("=")[1];
+
+    document.getElementById("login").innerText = "Profile";
+    document.getElementById("login").href = "/profile";
+  }
+</script>
 <style>
   #main-nav {
     width: 100%;

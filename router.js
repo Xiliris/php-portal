@@ -18,7 +18,9 @@ document.addEventListener("DOMContentLoaded", () => {
     "/shop": "/pages/shop.html",
     "/donate": "/pages/donate.html",
     "/submit": "/pages/submit.html",
+    "/profile": "/pages/profile.html",
     "/login": "/pages/auth/login.html",
+    "/logout": "/pages/auth/logout.html",
     "/register": "/pages/auth/register.html",
     "/dashboard": "/pages/admin/dashboard.html",
   };
