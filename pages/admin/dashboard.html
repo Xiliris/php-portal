@@ -1,28 +1,17 @@
 {{navbar}}
-<div>
-  <h1>Dashboard</h1>
-  <form id="dashboardForm">
-    <input type="text" placeholder="Enter your name" name="name" />
-    <button type="submit">Submit</button>
-  </form>
+<div id="dashboard">
+  <h1>Admin Dashboard</h1>
+  <p>This is the admin dashboard page.</p>
 </div>
 {{footer}}
 
-<script>
-  document.getElementById("dashboardForm").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    async function getData() {
-      const response = await fetch("../api/routes/routes.php", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const data = await response.json();
-
-      console.log(data);
-    }
-    getData();
-  });
-</script>
+<style>
+  #dashboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    height: 100vh;
+  }
+</style>
