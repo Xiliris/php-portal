@@ -3,7 +3,7 @@
     <a href="/" data-link class="nav--logo"> Company Logo </a>
     <div class="item-section">
       <a href="/person-of-interest" data-link>Person of Interest</a>
-      <a href="/comming" data-link>Comming</a>
+      <a href="/coming" data-link>Coming</a>
       <a href="/news" data-link>News</a>
       <a href="/about" data-link>About</a>
       <a href="/partners" data-link>Partners</a>
@@ -16,22 +16,35 @@
     </div>
   </section>
 </nav>
-<script>
-  if (document.cookie) {
-    const user = decodeURIComponent(document.cookie)
-      .split(";")
-      .find((cookie) => cookie.trim().startsWith("PHPSESSID"))
-      .split("=")[1];
 
-    document.getElementById("login").innerText = "Profile";
-    document.getElementById("login").href = "/profile";
+<script>
+  async function updateLoginButton() {
+    try {
+      const response = await fetch('/api/routes/user.php');
+      const data = await response.json();
+
+
+      const loginButton = document.getElementById('login');
+
+      if (data.success && data.user && Object.keys(data.user).length > 0) {
+        loginButton.innerText = 'Profile';
+        loginButton.href = '/profile';
+      } else {
+        loginButton.innerText = 'Login';
+        loginButton.href = '/login';
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
   }
+
+  updateLoginButton();
 </script>
+
 <style>
   #main-nav {
     width: 100%;
     height: 5em;
-
     display: flex;
     align-items: center;
     background-color: white;
@@ -43,7 +56,6 @@
   #main-nav section {
     width: 95%;
     margin: 0 auto;
-
     display: flex;
     align-items: end;
   }
