@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
     401: "/pages/error/401.html",
     "/": "/pages/home.html",
     "/person-of-interest": "/pages/person-of-interest.html",
-    "/comming": "/pages/comming.html",
+    "/coming": "/pages/coming.html",
     "/news": "/pages/news.html",
     "/about": "/pages/about.html",
     "/partners": "/pages/partners.html",
