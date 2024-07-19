@@ -10,30 +10,37 @@
       <label for="password">Password</label>
       <input type="password" name="password" placeholder="Password" />
     </div>
+    <p id="error-message"></p>
     <a href="/register" data-link> Don't have an account? </a>
     <button type="submit" class="btn-primary">Login</button>
   </form>
 
   <script>
-    document.getElementById('loginForm').addEventListener('submit', function (e) {
-      e.preventDefault();
-      const formData = new FormData(this);
-      fetch('/api/routes/login.php', {
-        method: 'POST',
-        body: formData
-      }).then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            alert(data.message);
-            window.location.href = "/";
-          } else {
-            alert(data.message);
-          }
-        });
-    });
+    document
+      .getElementById("loginForm")
+      .addEventListener("submit", function (e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        fetch("/api/routes/login.php", {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              window.location.href = "/";
+            } else {
+              document.getElementById("error-message").innerText = data.message;
+            }
+          });
+      });
   </script>
 
   <style>
+    #error-message {
+      color: red;
+    }
+
     .login--container {
       display: flex;
       justify-content: center;
