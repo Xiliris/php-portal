@@ -47,3 +47,23 @@ a {
   background-color: #d22b2b;
   color: white;
 }
+
+.btn-tertiary {
+  padding: 1em 1.5em;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  background-color: #ffd500;
+  color: white;
+}
+
+.btn-fortiary {
+  padding: 1em 1.5em;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  background-color: green;
+  color: white;
+}

@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const routes = {
     404: "/pages/error/404.html",
-    401: "/pages/error/401.html",
+    "/401": "/pages/error/401.html",
     "/": "/pages/home.html",
     "/person-of-interest": "/pages/person-of-interest.html",
     "/coming": "/pages/coming.html",
@@ -19,10 +19,21 @@ document.addEventListener("DOMContentLoaded", () => {
     "/donate": "/pages/donate.html",
     "/submit": "/pages/submit.html",
     "/profile": "/pages/auth/profile.html",
+    "/change-password": "/pages/auth/change-password.html",
+    "/forgot-password": "/pages/auth/forgot-password.html",
     "/login": "/pages/auth/login.html",
     "/logout": "/pages/auth/logout.html",
     "/register": "/pages/auth/register.html",
     "/dashboard": "/pages/admin/dashboard.html",
+    "/master-panel": "/pages/admin/master-panel.html",
+  };
+
+  const routePermissions = {
+    "/dashboard": ["admin", "owner"],
+    "/profile": ["user", "admin", "owner"],
+    "/logout": ["user", "admin", "owner"],
+    "/master-panel": ["owner"],
+    "/change-password": ["user", "admin", "owner"],
   };
 
   const colors = {
@@ -50,14 +61,33 @@ document.addEventListener("DOMContentLoaded", () => {
     router();
   };
 
+  const checkPermissions = (user, path) => {
+    if (routePermissions[path]) {
+      const requiredRoles = routePermissions[path];
+      if (!user || !requiredRoles.includes(user.role)) {
+        return false;
+      }
+    }
+    return true;
+  };
+
   const router = async () => {
-    const request = routes[location.pathname] || routes[404];
+    const path = location.pathname;
+    const request = routes[path] || routes[404];
+
     try {
+      const user = await checkAuth();
+      const hasPermission = checkPermissions(user, path);
+
+      if (!hasPermission) {
+        navigateTo("/401");
+        return;
+      }
+
       let html = await fetchAndCache(request);
 
       for (const [component, componentPath] of Object.entries(components)) {
         const componentHtml = await fetchAndCache(componentPath);
-        console.log(`Component HTML (${componentPath}):`, componentHtml);
         html = html.replace(new RegExp(component, "g"), componentHtml);
       }
 
@@ -87,7 +117,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (style.includes("</style>")) {
           const styleContent = style.split("</style>")[0];
           const styleElement = document.createElement("style");
-          styleElement.id = `style-${index}`; // Unique ID for each style element
+          styleElement.id = `style-${index}`;
           styleElement.innerHTML = styleContent;
           document.head.appendChild(styleElement);
         }
@@ -111,3 +141,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   router();
 });
+
+async function checkAuth() {
+  const response = await fetch("/api/routes/user.php", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    return data.user;
+  } else {
+    return null;
+  }
+}
