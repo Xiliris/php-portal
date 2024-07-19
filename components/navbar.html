@@ -20,21 +20,20 @@
 <script>
   async function updateLoginButton() {
     try {
-      const response = await fetch('/api/routes/user.php');
+      const response = await fetch("/api/routes/user.php");
       const data = await response.json();
 
-
-      const loginButton = document.getElementById('login');
+      const loginButton = document.getElementById("login");
 
       if (data.success && data.user && Object.keys(data.user).length > 0) {
-        loginButton.innerText = 'Profile';
-        loginButton.href = '/profile';
+        loginButton.innerText = "Profile";
+        loginButton.href = "/profile";
       } else {
-        loginButton.innerText = 'Login';
-        loginButton.href = '/login';
+        loginButton.innerText = "Login";
+        loginButton.href = "/login";
       }
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      console.error("Error fetching user data:", error);
     }
   }
 
