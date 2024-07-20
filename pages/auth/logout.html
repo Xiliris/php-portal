@@ -1,5 +1,13 @@
 <script>
-  document.cookie =
-    "PHPSESSID=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-  window.location.href = "/";
+  fetch("/api/routes/logout.php", {
+    method: "POST",
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        window.location.href = "/";
+      } else {
+        console.error("Error logging out:", data.message);
+      }
+    });
 </script>

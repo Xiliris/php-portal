@@ -8,11 +8,9 @@
       <a href="/about" data-link>About</a>
       <a href="/partners" data-link>Partners</a>
     </div>
-    <div class="button-section">
+    <div class="button-section" id="nav-options">
       <a class="button primary" href="/shop" data-link>Shop</a>
       <a class="button secondary" href="/donate" data-link>Donate</a>
-      <a class="button tertiary" href="/submit" data-link>Submit</a>
-      <a class="button fortiary" href="/login" id="login" data-link>Login</a>
     </div>
   </section>
 </nav>
@@ -23,14 +21,16 @@
       const response = await fetch("/api/routes/user.php");
       const data = await response.json();
 
-      const loginButton = document.getElementById("login");
+      if (data.success) {
+        document.getElementById("nav-options").innerHTML += `
+          <a class="button tertiary" href="/dashboard" data-link>Dashboard</a>
+        `;
 
-      if (data.success && data.user && Object.keys(data.user).length > 0) {
-        loginButton.innerText = "Profile";
-        loginButton.href = "/profile";
-      } else {
-        loginButton.innerText = "Login";
-        loginButton.href = "/login";
+        if (data.user.role === "owner") {
+          document.getElementById("nav-options").innerHTML += `
+          <a class="button fortiary" href="/master-panel" data-link>Master Panel</a>
+          `;
+        }
       }
     } catch (error) {
       console.error("Error fetching user data:", error);

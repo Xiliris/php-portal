@@ -8,14 +8,14 @@ ini_set('display_errors', 1);
 $response = ["success" => false, "message" => ""];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $email = $_POST['email'];
+    $username = $_POST['username'];
     $password = $_POST['password'];
 
-    if (empty($email) || empty($password)) {
+    if (empty($username) || empty($password)) {
         $response['message'] = "Please fill in all fields.";
     } else {
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
-        $stmt->execute([$email]);
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
+        $stmt->execute([$username]);
         $user = $stmt->fetch();
 
         if ($user && password_verify($password, $user['password'])) {
@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $response['success'] = true;
             $response['message'] = "Login successful! Welcome! " . $user['username'];
         } else {
-            $response['message'] = "Invalid email or password.";
+            $response['message'] = "Invalid username or password.";
         }
     }
     echo json_encode($response);
