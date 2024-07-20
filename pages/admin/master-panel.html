@@ -1,17 +1,326 @@
 {{navbar}}
 <div id="master-panel">
   <h1>Master Panel</h1>
-  <p>This is the master panel page.</p>
+  <div class="master-panel-container">
+    <section class="master-panel-admins">
+      <div class="master-panel-header">
+        <h2>Admins</h2>
+        <button class="button-admin" id="toggle-overlay">Add Admin</button>
+      </div>
+      <hr />
+      <ul></ul>
+    </section>
+    <section class="master-panel-routes">
+      <h2>Routes</h2>
+      <hr />
+      <ul>
+        <li>Route 1</li>
+        <li>Route 2</li>
+        <li>Route 3</li>
+      </ul>
+    </section>
+  </div>
 </div>
 {{footer}}
+
+<div class="master-panel-overlay" id="master-panel-overlay">
+  <div class="master-panel-modal">
+    <h2>Add Admin</h2>
+    <hr />
+    <label for="admin-name">Admin Username</label>
+    <input
+      type="text"
+      placeholder="Admin Username"
+      id="admin-name"
+      name="admin-name"
+    />
+    <label for="admin-password">Admin Password</label>
+    <input
+      type="password"
+      placeholder="Admin Password"
+      id="admin-password"
+      name="admin-password"
+    />
+    <label for="admin-confirm-password">Confirm Password</label>
+    <input
+      type="password"
+      placeholder="Confirm Password"
+      id="admin-confirm-password"
+      name="admin-confirm-password"
+    />
+    <button class="button-admin" id="add-admin">Add Admin</button>
+  </div>
+</div>
+
+<script>
+  document.querySelector("#toggle-overlay").addEventListener("click", () => {
+    document.querySelector("#master-panel-overlay").classList.toggle("show");
+  });
+
+  document.querySelector("#add-admin").addEventListener("click", () => {
+    const adminName = document.querySelector("#admin-name");
+    const adminPassword = document.querySelector("#admin-password");
+    const adminConfirmPassword = document.querySelector(
+      "#admin-confirm-password"
+    );
+
+    if (
+      !adminName.value.trim() ||
+      !adminPassword.value.trim() ||
+      !adminConfirmPassword.value.trim()
+    ) {
+      alert("Please fill in all fields!");
+      return;
+    }
+
+    if (adminPassword.value.trim() !== adminConfirmPassword.value.trim()) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("username", adminName.value);
+    formData.append("password", adminPassword.value);
+    formData.append("confirm_password", adminConfirmPassword.value);
+
+    const saveAdmin = addAdmin(formData);
+
+    if (!saveAdmin) {
+      alert("Failed to add admin!");
+      return;
+    }
+
+    appendAdmin({
+      username: adminName.value,
+      changed: false,
+    });
+
+    adminName.value = "";
+    adminPassword.value = "";
+    adminConfirmPassword.value = "";
+    document.querySelector("#master-panel-overlay").classList.remove("show");
+  });
+
+  async function addAdmin(formData) {
+    const resposne = await fetch("/api/routes/register.php", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await resposne.json();
+
+    if (data.success) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  async function getAdminList() {
+    const response = await fetch("/api/routes/admins.php");
+    const data = await response.json();
+
+    if (data.success) {
+      data.users.forEach((admin) => {
+        appendAdmin(admin);
+      });
+    }
+  }
+
+  function appendAdmin({ username, changed }) {
+    const adminList = document.querySelector(".master-panel-admins ul");
+    const admin = document.createElement("li");
+
+    if (changed) {
+      admin.innerHTML = `
+      <div>
+        <i class="fa-solid fa-x"></i>
+        <p>${username}</p>
+      </div>
+      <p class="success">Active</p>
+    `;
+    } else {
+      admin.innerHTML = `
+      <div>
+        <i class="fa-solid fa-x"></i>
+        <p>${username}</p>
+      </div>
+      <p class="pending">Pending</p>
+    `;
+    }
+
+    adminList.appendChild(admin);
+  }
+
+  document
+    .querySelector(".master-panel-admins ul")
+    .addEventListener("click", (e) => {
+      if (e.target.classList.contains("fa-x")) {
+        e.target.parentElement.parentElement.remove();
+        const username = e.target.nextElementSibling.innerText;
+        const userData = new FormData();
+        userData.append("username", username);
+
+        fetch("/api/routes/removeAdmin.php", {
+          method: "POST",
+          body: userData,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (!data.success) {
+              alert("Failed to remove admin!");
+            }
+          })
+          .catch((error) => {
+            console.error("Error removing admin:", error);
+          });
+      }
+    });
+
+  getAdminList();
+</script>
 
 <style>
   #master-panel {
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
     margin: 0 auto;
     height: 100vh;
+  }
+
+  #master-panel h1 {
+    font-size: 2em;
+    margin-bottom: 1em;
+  }
+
+  .master-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 0.5em;
+  }
+
+  .master-panel-routes h2 {
+    margin-bottom: 0.5em;
+  }
+
+  .button-admin {
+    padding: 0.5em 1em;
+    background-color: green;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .master-panel-container {
+    display: flex;
+    justify-content: center;
+    align-self: center;
+    flex-direction: column;
+    width: 80%;
+    margin: 0 auto;
+  }
+
+  .master-panel-container section {
+    flex-grow: 1;
+    margin: 1em 0;
+    border: 1px solid gray;
+    border-radius: 5px;
+    padding: 1em;
+  }
+
+  .master-panel-container section ul {
+    padding-top: 1em;
+  }
+
+  .master-panel-container section ul li {
+    padding: 0.5em 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 60px;
+  }
+
+  .master-panel-container section ul li div {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    width: 100%;
+  }
+
+  .master-panel-container section ul li div i {
+    cursor: pointer;
+  }
+
+  .master-panel-container section ul li div input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 1em;
+    color: gray;
+  }
+
+  .master-panel-admin-password {
+    padding: 0.5em 1em;
+    border: 1px solid gray;
+    border-radius: 5px;
+  }
+
+  .master-panel-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    display: none;
+  }
+
+  .master-panel-modal {
+    background-color: white;
+    padding: 1.5em;
+    border-radius: 5px;
+  }
+
+  .master-panel-modal hr {
+    margin: 0.5em 0;
+  }
+
+  .master-panel-modal input {
+    width: 100%;
+    padding: 0.5em 1em;
+    border: 1px solid gray;
+    margin-bottom: 1em;
+    border-radius: 5px;
+  }
+
+  .master-panel-modal button {
+    padding: 0.5em 1em;
+    background-color: green;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    float: right;
+  }
+
+  .pending {
+    color: #ffd500;
+  }
+
+  .success {
+    color: green;
+  }
+
+  .show {
+    display: flex;
   }
 </style>

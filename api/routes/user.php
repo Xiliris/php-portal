@@ -17,10 +17,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             $response['success'] = true;
             $response['message'] = "User found.";
             $response['user'] = [
-                "id" => $user['id'],
                 "username" => $user['username'],
-                "email" => $user['email'],
-                "role" => $user['role']
+                "role" => $user['role'],
+                "changed" => $user['changed']
             ];
         } else {
             $response['message'] = "User not found.";
