@@ -71,6 +71,16 @@
   document.getElementById("openInput").addEventListener("click", () => {
     document.getElementById("search-keywords").focus();
   });
+
+  fetch("/api/routes/user.php")
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        if (!data.user.changed) {
+          window.location.href = "/change-password";
+        }
+      }
+    });
 </script>
 <style>
   #home {

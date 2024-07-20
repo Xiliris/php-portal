@@ -20,7 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
     "/submit": "/pages/submit.html",
     "/profile": "/pages/auth/profile.html",
     "/change-password": "/pages/auth/change-password.html",
-    "/forgot-password": "/pages/auth/forgot-password.html",
     "/login": "/pages/auth/login.html",
     "/logout": "/pages/auth/logout.html",
     "/register": "/pages/auth/register.html",
@@ -30,8 +29,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const routePermissions = {
     "/dashboard": ["admin", "owner"],
-    "/profile": ["user", "admin", "owner"],
-    "/logout": ["user", "admin", "owner"],
+    "/profile": ["admin", "owner"],
+    "/logout": ["admin", "owner"],
     "/master-panel": ["owner"],
     "/change-password": ["user", "admin", "owner"],
   };
@@ -153,6 +152,7 @@ async function checkAuth() {
 
   if (response.ok) {
     const data = await response.json();
+
     return data.user;
   } else {
     return null;

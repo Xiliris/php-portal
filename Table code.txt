@@ -1,11 +1,17 @@
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
-    name VARCHAR(50) NOT NULL,
-    surname VARCHAR(50) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
-    role ENUM('user', 'admin', 'owner') DEFAULT 'user',
-    is_active BOOLEAN DEFAULT 0,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    changed BOOLEAN DEFAULT false,
+    role ENUM('admin', 'owner') DEFAULT 'admin'
 );
+
+
+CREATE TABLE routes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    route VARCHAR(255) NOT NULL
+);
+
+/*
+    $2y$10$xauI0yft2RmI8QM7xXkGMOFq/4dpUBWYlqHy1Reh/yw5ZrdHrr7.i
+*/
