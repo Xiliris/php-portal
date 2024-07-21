@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/about": "http://php-portal.local/pages/about.html",
     "/partners": "http://php-portal.local/pages/partners.html",
     "/shop": "http://php-portal.local/pages/shop.html",
-    "/donate/admin": "http://php-portal.local/pages/donate.html",
+    "/donate": "http://php-portal.local/pages/donate.html",
     "/submit": "http://php-portal.local/pages/submit.html",
     "/change-password":
       "http://php-portal.local/pages/auth/change-password.html",
@@ -28,7 +28,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/register": "http://php-portal.local/pages/auth/register.html",
     "/dashboard": "http://php-portal.local/pages/admin/dashboard.html",
     "/master-panel": "http://php-portal.local/pages/admin/master-panel.html",
-    "/test/test/test": "http://php-portal.local/pages/test.html",
+    "/master-panel/users":
+      "http://php-portal.local/pages/admin/master-panel-users.html",
   };
 
   const routePermissions = {
@@ -106,6 +107,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       app.innerHTML = html;
+      window.scrollTo(0, 0);
 
       html.split("<script>").forEach((script) => {
         if (script.includes("</script>")) {

@@ -12,7 +12,6 @@
     </section>
     <section class="master-panel-routes">
       <h2>Routes</h2>
-      <hr />
       <ul>
         <li>
           <div class="left">
@@ -20,6 +19,29 @@
           </div>
           <div class="right">
             <h4>Changed Route</h4>
+          </div>
+        </li>
+        <hr />
+      </ul>
+    </section>
+
+    <section class="master-panel-data">
+      <div class="master-panel-header">
+        <h2>User Data</h2>
+        <a class="button-admin" href="/master-panel/users" data-link
+          >View All</a
+        >
+      </div>
+      <ul>
+        <li>
+          <div class="left">
+            <h4>IP Address</h4>
+          </div>
+          <div class="center">
+            <h4>Country</h4>
+          </div>
+          <div class="right">
+            <h4>Internet Provider</h4>
           </div>
         </li>
         <hr />
@@ -75,6 +97,31 @@
 <script>
   document.querySelector("#toggle-overlay").addEventListener("click", () => {
     document.querySelector("#master-panel-overlay").classList.toggle("show");
+  });
+
+  fetch("/api/routes/getInitalUserData.php").then((response) => {
+    response.json().then((res) => {
+      const userData = res.data;
+
+      const userDataList = document.querySelector(".master-panel-data ul");
+
+      userData.forEach((data) => {
+        const userDataItem = document.createElement("li");
+        userDataItem.innerHTML = `
+          <div class="left">
+            <p>${data.ip}</p>
+          </div>
+          <div class="center">
+            <p>${data.country}</p>
+          </div>
+          <div class="right">
+            <p>${data.isp}</p>
+          </div>
+        `;
+
+        userDataList.appendChild(userDataItem);
+      });
+    });
   });
 
   fetch("/api/routes/router.php")

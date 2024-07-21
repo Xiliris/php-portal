@@ -32,3 +32,10 @@ INSERT INTO routes (route, changedRoute) VALUES
 ("/register", "/register"),
 ("/dashboard", "/dashboard"),
 ("/master-panel", "/master-panel");
+
+CREATE TABLE userdata (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    ip VARCHAR(50) NOT NULL UNIQUE,
+    country VARCHAR(255) NOT NULL,
+    isp VARCHAR(255) NOT NULL
+)
