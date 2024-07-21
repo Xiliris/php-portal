@@ -1,13 +1,22 @@
-<?php
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
+<?php 
+require __DIR__ . '/../config.php';
 
-if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-    $data = array(
-        "message" => "GET request received",
-        "status" => 200
-    ); 
-    echo json_encode($data);   
-};
+$resposne = ["success" => false, "message" => "", "data" => []];
+
+if($_SERVER["REQUEST_METHOD"] == 'GET') {
+    $stmt = $pdo->prepare("SELECT * FROM routes");
+    $stmt->execute();
+    $routes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if($routes) {
+        $response['success'] = true;
+        $response['message'] = "Routes found.";
+        $response['data'] = $routes;
+    } else {
+        $response['message'] = "Routes not found.";
+    }
+
+    echo json_encode($response);
+}
+
 ?>
