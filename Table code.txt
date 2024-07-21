@@ -9,9 +9,26 @@ CREATE TABLE users (
 
 CREATE TABLE routes (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    route VARCHAR(255) NOT NULL
+    route VARCHAR(255) NOT NULL,
+    changedRoute VARCHAR(255) NOT NULL
 );
 
-/*
-    $2y$10$xauI0yft2RmI8QM7xXkGMOFq/4dpUBWYlqHy1Reh/yw5ZrdHrr7.i
-*/
+
+INSERT INTO routes (route, changedRoute) VALUES
+("/404", "/404"),
+("/401", "/401"),
+("/", "/"),
+("/person-of-interest", "/person-of-interest"),
+("/coming", "/coming"),
+("/news", "/news"),
+("/about", "/about"),
+("/partners", "/partners"),
+("/shop", "/shop"),
+("/donate", "/donate"),
+("/submit", "/submit"),
+("/change-password", "/change-password"),
+("/login", "/login"),
+("/logout", "/logout"),
+("/register", "/register"),
+("/dashboard", "/dashboard"),
+("/master-panel", "/master-panel");

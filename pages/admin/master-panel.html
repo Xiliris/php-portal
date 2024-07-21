@@ -14,9 +14,15 @@
       <h2>Routes</h2>
       <hr />
       <ul>
-        <li>Route 1</li>
-        <li>Route 2</li>
-        <li>Route 3</li>
+        <li>
+          <div class="left">
+            <h4>Main Route</h4>
+          </div>
+          <div class="right">
+            <h4>Changed Route</h4>
+          </div>
+        </li>
+        <hr />
       </ul>
     </section>
   </div>
@@ -52,10 +58,99 @@
   </div>
 </div>
 
+<div class="master-panel-overlay" id="master-panel-confirm">
+  <div class="master-panel-modal confirm-remove">
+    <p>Are you sure you want to remove admin <span id="set-user"></span>?</p>
+    <div>
+      <button class="button-admin btn-secondary" id="remove-admin">
+        Remove Admin
+      </button>
+      <button class="button-admin btn-primary" id="cancel-remove">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
 <script>
   document.querySelector("#toggle-overlay").addEventListener("click", () => {
     document.querySelector("#master-panel-overlay").classList.toggle("show");
   });
+
+  fetch("/api/routes/router.php")
+    .then((response) =>
+      response.json().then((res) => {
+        const routes = res.data;
+
+        const routeList = document.querySelector(".master-panel-routes ul");
+
+        routes.forEach((route) => {
+          const routeItem = document.createElement("li");
+          routeItem.classList.add("route-item");
+          routeItem.innerHTML = `
+          <div class="left">
+            <p>${route.route}</p>
+          </div>
+          <div class="center">
+            <i class="fa-solid fa-arrow-right"></i>
+          </div>
+          <div class="right">
+            <div class="route-item-input">
+              <input type="text" value="${route.changedRoute}" />
+              <button class="button-admin">Save</button>
+            </div>
+          </div>
+        `;
+
+          routeList.appendChild(routeItem);
+        });
+
+        document.querySelectorAll(".route-item button").forEach((button) => {
+          button.addEventListener("click", (e) => {
+            const route =
+              e.target.parentElement.parentElement.parentElement
+                .firstElementChild.innerText;
+            const changedRoute = e.target.previousElementSibling.value;
+
+            console.log(route, changedRoute);
+
+            const splitRoute = route.split("/");
+            const splitChangedRoute = changedRoute.split("/");
+
+            if (splitRoute.length !== splitChangedRoute.length) {
+              alert("Route paths must be the same length!");
+              return;
+            }
+
+            const formData = new FormData();
+
+            formData.append("route", route);
+            formData.append("changedRoute", changedRoute);
+
+            fetch("/api/routes/updateRoute.php", {
+              method: "POST",
+              body: formData,
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.success) {
+                  e.target.innerText = "Saved!";
+                  e.target.style.backgroundColor = "gray";
+
+                  setTimeout(() => {
+                    e.target.innerText = "Save";
+                    e.target.style.backgroundColor = "green";
+                  }, 2000);
+                } else {
+                  alert("Failed to update route!");
+                }
+              })
+              .catch((error) => console.error("Error updating route:", error));
+          });
+        });
+      })
+    )
+    .catch((error) => console.error("Error fetching routes:", error));
 
   document.querySelector("#add-admin").addEventListener("click", () => {
     const adminName = document.querySelector("#admin-name");
@@ -102,12 +197,12 @@
   });
 
   async function addAdmin(formData) {
-    const resposne = await fetch("/api/routes/register.php", {
+    const response = await fetch("/api/routes/register.php", {
       method: "POST",
       body: formData,
     });
 
-    const data = await resposne.json();
+    const data = await response.json();
 
     if (data.success) {
       return true;
@@ -134,7 +229,7 @@
     if (changed) {
       admin.innerHTML = `
       <div>
-        <i class="fa-solid fa-x"></i>
+        <i class="fa-solid fa-x border-fa"></i>
         <p>${username}</p>
       </div>
       <p class="success">Active</p>
@@ -142,7 +237,7 @@
     } else {
       admin.innerHTML = `
       <div>
-        <i class="fa-solid fa-x"></i>
+        <i class="fa-solid fa-x border-fa"></i>
         <p>${username}</p>
       </div>
       <p class="pending">Pending</p>
@@ -156,26 +251,51 @@
     .querySelector(".master-panel-admins ul")
     .addEventListener("click", (e) => {
       if (e.target.classList.contains("fa-x")) {
-        e.target.parentElement.parentElement.remove();
         const username = e.target.nextElementSibling.innerText;
-        const userData = new FormData();
-        userData.append("username", username);
 
-        fetch("/api/routes/removeAdmin.php", {
-          method: "POST",
-          body: userData,
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            if (!data.success) {
-              alert("Failed to remove admin!");
-            }
-          })
-          .catch((error) => {
-            console.error("Error removing admin:", error);
+        document.querySelector("#set-user").innerText = username;
+        document.querySelector("#master-panel-confirm").classList.add("show");
+
+        document
+          .querySelector("#remove-admin")
+          .addEventListener("click", () => {
+            removeAdmin(username);
+            document
+              .querySelector("#master-panel-confirm")
+              .classList.remove("show");
+            e.target.parentElement.parentElement.remove();
           });
+
+        document
+          .querySelector("#cancel-remove")
+          .addEventListener("click", () =>
+            document
+              .querySelector("#master-panel-confirm")
+              .classList.remove("show")
+          );
+
+        return;
       }
     });
+
+  function removeAdmin(username) {
+    const userData = new FormData();
+    userData.append("username", username);
+
+    fetch("/api/routes/removeAdmin.php", {
+      method: "POST",
+      body: userData,
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (!data.success) {
+          alert("Failed to remove admin!");
+        }
+      })
+      .catch((error) => {
+        console.error("Error removing admin:", error);
+      });
+  }
 
   getAdminList();
 </script>
@@ -186,8 +306,8 @@
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    margin: 0 auto;
-    height: 100vh;
+    margin: 10em auto;
+    min-height: 100vh;
   }
 
   #master-panel h1 {
@@ -251,22 +371,10 @@
     width: 100%;
   }
 
-  .master-panel-container section ul li div i {
+  .border-fa {
+    border-right: 1px solid gray;
+    padding-right: 1em;
     cursor: pointer;
-  }
-
-  .master-panel-container section ul li div input {
-    width: 100%;
-    border: none;
-    outline: none;
-    font-size: 1em;
-    color: gray;
-  }
-
-  .master-panel-admin-password {
-    padding: 0.5em 1em;
-    border: 1px solid gray;
-    border-radius: 5px;
   }
 
   .master-panel-overlay {
@@ -278,10 +386,8 @@
     height: 100%;
     background-color: rgba(0, 0, 0, 0.8);
     z-index: 100;
-    display: flex;
     justify-content: center;
     align-items: center;
-    display: none;
   }
 
   .master-panel-modal {
@@ -312,6 +418,45 @@
     float: right;
   }
 
+  .left {
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    align-items: center;
+  }
+
+  .right {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+  }
+
+  .center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+
+  .btn-primary {
+    background-color: grey !important;
+  }
+
+  .btn-secondary {
+    background-color: red !important;
+    margin-left: 1em;
+  }
+
+  .confirm-remove p {
+    margin-bottom: 1em;
+  }
+
+  .confirm-remove p span {
+    font-weight: bold;
+    color: red;
+  }
+
   .pending {
     color: #ffd500;
   }
@@ -322,5 +467,18 @@
 
   .show {
     display: flex;
+  }
+
+  .route-item-input {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+  }
+
+  .route-item-input input {
+    border: none;
+    border-bottom: 1px solid gray;
+    width: 100%;
+    font-size: 1em;
   }
 </style>

@@ -1,5 +1,7 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const app = document.getElementById("app");
+
+  const hrefReplace = {};
 
   const components = {
     "{{navbar}}": "/components/navbar.html",
@@ -7,24 +9,26 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const routes = {
-    404: "/pages/error/404.html",
-    "/401": "/pages/error/401.html",
-    "/": "/pages/home.html",
-    "/person-of-interest": "/pages/person-of-interest.html",
-    "/coming": "/pages/coming.html",
-    "/news": "/pages/news.html",
-    "/about": "/pages/about.html",
-    "/partners": "/pages/partners.html",
-    "/shop": "/pages/shop.html",
-    "/donate": "/pages/donate.html",
-    "/submit": "/pages/submit.html",
-    "/profile": "/pages/auth/profile.html",
-    "/change-password": "/pages/auth/change-password.html",
-    "/login": "/pages/auth/login.html",
-    "/logout": "/pages/auth/logout.html",
-    "/register": "/pages/auth/register.html",
-    "/dashboard": "/pages/admin/dashboard.html",
-    "/master-panel": "/pages/admin/master-panel.html",
+    404: "http://php-portal.local/pages/error/404.html",
+    "/401": "http://php-portal.local/pages/error/401.html",
+    "/": "http://php-portal.local/pages/home.html",
+    "/person-of-interest":
+      "http://php-portal.local/pages/person-of-interest.html",
+    "/coming": "http://php-portal.local/pages/coming.html",
+    "/news": "http://php-portal.local/pages/news.html",
+    "/about": "http://php-portal.local/pages/about.html",
+    "/partners": "http://php-portal.local/pages/partners.html",
+    "/shop": "http://php-portal.local/pages/shop.html",
+    "/donate/admin": "http://php-portal.local/pages/donate.html",
+    "/submit": "http://php-portal.local/pages/submit.html",
+    "/change-password":
+      "http://php-portal.local/pages/auth/change-password.html",
+    "/login/random": "http://php-portal.local/pages/auth/login.html",
+    "/logout": "http://php-portal.local/pages/auth/logout.html",
+    "/register": "http://php-portal.local/pages/auth/register.html",
+    "/dashboard": "http://php-portal.local/pages/admin/dashboard.html",
+    "/master-panel": "http://php-portal.local/pages/admin/master-panel.html",
+    "/test/test/test": "http://php-portal.local/pages/test.html",
   };
 
   const routePermissions = {
@@ -97,6 +101,10 @@ document.addEventListener("DOMContentLoaded", () => {
         );
       }
 
+      for (const [oldHref, newHref] of Object.entries(hrefReplace)) {
+        html = html.replace(new RegExp(oldHref, "g"), newHref);
+      }
+
       app.innerHTML = html;
 
       html.split("<script>").forEach((script) => {
@@ -138,7 +146,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.addEventListener("popstate", router);
 
-  router();
+  await fetch("/api/routes/router.php")
+    .then((response) => {
+      if (response.ok) {
+        response.json().then((res) => {
+          const dataRoutes = res.data;
+
+          dataRoutes.forEach(({ route, changedRoute }) => {
+            if (route !== changedRoute) {
+              if (routes[route]) {
+                routes[changedRoute] = routes[route];
+                delete routes[route];
+                hrefReplace[route] = changedRoute;
+              }
+            }
+          });
+          router();
+        });
+      } else {
+        throw new Error("Failed to fetch router.php");
+      }
+    })
+    .catch((error) => {
+      console.error("Failed to fetch router.php", error);
+    });
 });
 
 async function checkAuth() {
