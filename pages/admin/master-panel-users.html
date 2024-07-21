@@ -1,0 +1,105 @@
+{{navbar}}
+<div id="master-panel-users">
+  <h1>User Data</h1>
+  <div class="master-panel-container">
+    <ul>
+      <li>
+        <div class="left">
+          <h4>IP Address</h4>
+        </div>
+        <div class="center">
+          <h4>Country</h4>
+        </div>
+        <div class="right">
+          <h4>Internet Provider</h4>
+        </div>
+      </li>
+      <hr />
+    </ul>
+  </div>
+</div>
+
+<style>
+  #master-panel-users {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin: 10em auto;
+    min-height: 100vh;
+  }
+
+  .master-panel-container {
+    width: 80%;
+    margin: 0 auto;
+    flex-grow: 1;
+    margin: 1em 0;
+    border: 1px solid gray;
+    border-radius: 5px;
+    padding: 1em;
+  }
+
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+
+  li {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+  }
+
+  hr {
+    border: 0;
+    border-top: 1px solid #ccc;
+  }
+
+  .left {
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    align-items: center;
+  }
+
+  .right {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+  }
+
+  .center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+</style>
+<script>
+  fetch("/api/routes/getUserData.php").then((response) => {
+    response.json().then((res) => {
+      const userData = res.data;
+
+      const userDataList = document.querySelector(".master-panel-container ul");
+
+      userData.forEach((data) => {
+        const userDataItem = document.createElement("li");
+        userDataItem.innerHTML = `
+          <div class="left">
+            <p>${data.ip}</p>
+          </div>
+          <div class="center">
+            <p>${data.country}</p>
+          </div>
+          <div class="right">
+            <p>${data.isp}</p>
+          </div>
+        `;
+
+        userDataList.appendChild(userDataItem);
+      });
+    });
+  });
+</script>
+{{footer}}
