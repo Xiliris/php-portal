@@ -27,7 +27,7 @@ INSERT INTO routes (route, changedRoute) VALUES
 ("/donate", "/donate"),
 ("/submit", "/submit"),
 ("/change-password", "/change-password"),
-("/login", "/login"),
+("/login/random", "/login/random"),
 ("/logout", "/logout"),
 ("/register", "/register"),
 ("/dashboard", "/dashboard"),
