@@ -1,9 +1,54 @@
 {{navbar}}
 <div id="dashboard">
-  <h1>Admin Dashboard</h1>
-  <p>This is the admin dashboard page.</p>
+  <div>
+    <h1 id="h1el">Admin Dashboard</h1>
+  </div>
+  <br>
+
+  <body>
+    <h1>Upload a Document</h1>
+    <br>
+    <form id="upload-form" enctype="multipart/form-data" action="/api/routes/upload.php" method="post">
+      <input type="file" name="file" id="file" accept=".doc,.docx,.pdf">
+      <input type="hidden" name="submit" value="Upload">
+      <input type="submit" name="submit" value="Upload">
+    </form>
+    <div id="error-message"></div>
+  </body>
 </div>
 {{footer}}
+
+<script>
+  document.getElementById('upload-form').addEventListener('submit', async function (event) {
+    event.preventDefault();
+
+    const form = event.target;
+    const formData = new FormData(form);
+
+    try {
+      const response = await fetch('/api/routes/upload.php', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const result = await response.json();
+
+        if (result.status === 'success') {
+          document.getElementById('error-message').textContent = `Success: ${result.message}`;
+          window.location.href = "/documents";
+        } else {
+          document.getElementById('error-message').textContent = result.message ? `${result.message}` : 'An unknown error occurred.';
+        }
+      } else {
+        throw new Error('Invalid JSON response');
+      }
+    } catch (error) {
+      document.getElementById('error-message').textContent = `${error.message}`;
+    }
+  });
+</script>
 
 <style>
   #dashboard {
@@ -11,7 +56,21 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin: 0 auto;
-    height: 100vh;
+    margin-top: 0 auto;
+  }
+
+  #h1el {
+    margin-top: 55%;
+    margin-bottom: 40%;
+    text-align: center;
+  }
+
+  #upload-form {
+    margin-bottom: 1%;
+  }
+
+  #error-message {
+    color: red;
+    margin-bottom: 20%;
   }
 </style>
