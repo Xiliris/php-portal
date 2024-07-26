@@ -36,6 +36,8 @@ INSERT INTO routes (route, changedRoute) VALUES
 ("/dashboard", "/dashboard"),
 ("/master-panel", "/master-panel"),
 ("/master-panel/users", "/master-panel/users");
+("/master-panel", "/master-panel");
+("/documents", "/documents");
 
 CREATE TABLE userdata (
     id INT AUTO_INCREMENT PRIMARY KEY,
