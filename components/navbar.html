@@ -1,6 +1,6 @@
 <nav id="main-nav">
   <section>
-    <a href="/" data-link class="nav--logo"> Company Logo </a>
+    <a href="/" data-link class="nav--logo"> PHP Portal </a>
     <div class="item-section">
       <a href="/person-of-interest" data-link>Person of Interest</a>
       <a href="/coming" data-link>Coming</a>
@@ -9,35 +9,54 @@
       <a href="/partners" data-link>Partners</a>
     </div>
     <div class="button-section" id="nav-options">
-      <a class="button primary" href="/shop" data-link>Shop</a>
       <a class="button secondary" href="/donate" data-link>Donate</a>
     </div>
   </section>
 </nav>
 
 <script>
-  async function updateLoginButton() {
-    try {
-      const response = await fetch("/api/routes/user.php");
-      const data = await response.json();
+  async function handleUserRole() {
+    const res = await fetch("/api/routes/user.php");
+    const data = await res.json();
 
-      if (data.success) {
-        document.getElementById("nav-options").innerHTML += `
+    const permissionLevel = {
+      null: 0,
+      user: 1,
+      moderator: 2,
+      admin: 3,
+      owner: 4,
+    };
+
+    if (data.success && data.user) {
+      const role = data.user.role;
+
+      if (permissionLevel[role] >= permissionLevel["user"]) {
+        const navOptions = document.getElementById("nav-options");
+
+        navOptions.innerHTML += `
+          <a class="button primary" href="/shop" data-link>Shop</a>
+        `;
+      }
+
+      if (permissionLevel[role] >= permissionLevel["admin"]) {
+        const navOptions = document.getElementById("nav-options");
+
+        navOptions.innerHTML += `
           <a class="button tertiary" href="/dashboard" data-link>Dashboard</a>
         `;
-
-        if (data.user.role === "owner") {
-          document.getElementById("nav-options").innerHTML += `
-          <a class="button fortiary" href="/master-panel" data-link>Master Panel</a>
-          `;
-        }
       }
-    } catch (error) {
-      console.error("Error fetching user data:", error);
+
+      if (permissionLevel[role] >= permissionLevel["owner"]) {
+        const navOptions = document.getElementById("nav-options");
+
+        navOptions.innerHTML += `
+          <a class="button fortiary" href="/master-panel" data-link>Master Panel</a>
+        `;
+      }
     }
   }
 
-  updateLoginButton();
+  handleUserRole();
 </script>
 
 <style>
@@ -63,6 +82,7 @@
     font-size: 2em;
     font-weight: 500;
     cursor: pointer;
+    line-height: 0.81em;
   }
 
   #main-nav .item-section {
@@ -73,6 +93,7 @@
     gap: 1.5em;
     height: 100%;
     color: slategrey;
+    line-height: 1em;
   }
 
   #main-nav .item-section a {
