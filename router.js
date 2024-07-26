@@ -30,6 +30,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/master-panel": "http://php-portal.local/pages/admin/master-panel.html",
     "/master-panel/users":
       "http://php-portal.local/pages/admin/master-panel-users.html",
+      "/documents": "http://php-portal.local/pages/documents.html",
   };
 
   const routePermissions = {
@@ -38,6 +39,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/logout": ["admin", "owner"],
     "/master-panel": ["owner"],
     "/change-password": ["user", "admin", "owner"],
+    "/display": ["user", "admin", "owner"],
   };
 
   const colors = {
