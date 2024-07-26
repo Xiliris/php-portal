@@ -27,19 +27,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/logout": "http://php-portal.local/pages/auth/logout.html",
     "/register": "http://php-portal.local/pages/auth/register.html",
     "/dashboard": "http://php-portal.local/pages/admin/dashboard.html",
-    "/master-panel": "http://php-portal.local/pages/admin/master-panel.html",
+    "/master-panel":
+      "http://php-portal.local/pages/master-panel/master-panel.html",
+    "/master-panel/routes":
+      "http://php-portal.local/pages/master-panel/routes.html",
     "/master-panel/users":
-      "http://php-portal.local/pages/admin/master-panel-users.html",
-      "/documents": "http://php-portal.local/pages/documents.html",
+      "http://php-portal.local/pages/master-panel/users.html",
   };
 
   const routePermissions = {
-    "/dashboard": ["admin", "owner"],
-    "/profile": ["admin", "owner"],
-    "/logout": ["admin", "owner"],
-    "/master-panel": ["owner"],
-    "/change-password": ["user", "admin", "owner"],
-    "/display": ["user", "admin", "owner"],
+    "/logout": 1,
+    "/change-password": 1,
+    "/shop": 1,
+    "/dashboard": 3,
+    "/master-panel": 4,
+    "/master-panel/routes": 4,
+    "/master-panel/users": 4,
   };
 
   const colors = {
@@ -70,9 +73,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   const checkPermissions = (user, path) => {
     if (routePermissions[path]) {
       const requiredRoles = routePermissions[path];
-      if (!user || !requiredRoles.includes(user.role)) {
-        return false;
-      }
+      if (!user) return false;
+      const userPermission = permissionLevel(user.role);
+      if (userPermission < requiredRoles) return false;
+
+      return true;
     }
     return true;
   };
@@ -179,17 +184,23 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function checkAuth() {
   const response = await fetch("/api/routes/user.php", {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-    },
   });
 
-  if (response.ok) {
-    const data = await response.json();
+  const data = await response.json();
 
+  if (data.success) {
     return data.user;
   } else {
     return null;
   }
+}
+
+function permissionLevel(role) {
+  if (!role) return 0;
+  return {
+    user: 1,
+    moderator: 2,
+    admin: 3,
+    owner: 4,
+  }[role];
 }

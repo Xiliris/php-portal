@@ -9,14 +9,21 @@ $response = ["success" => false, "message" => "", "users" => []];
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     if (isset($_SESSION['user_id'])) {
-        $stmt = $pdo->prepare("SELECT username, changed FROM users");
+        $stmt = $pdo->prepare("SELECT * FROM users");
         $stmt->execute();
-        $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $users = $stmt->fetchAll();
 
         if ($users) {
             $response['success'] = true;
             $response['message'] = "Users found.";
-            $response['users'] = $users;
+            foreach ($users as $user) {
+                $response['users'][] = [
+                    "id" => $user['id'],
+                    "username" => $user['username'],
+                    "role" => $user['role'],
+                    "changed" => $user['changed']
+                ];
+            }
         } else {
             $response['message'] = "Users not found.";
         }
@@ -25,3 +32,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     }
     echo json_encode($response);
 }
+
+?>

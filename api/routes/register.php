@@ -5,6 +5,7 @@ $response = ["success" => false, "message" => ""];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username']);
+    $role = $_POST['role'];
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
 
@@ -23,8 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
-                $stmt = $pdo->prepare("INSERT INTO users (username, password) VALUES (?, ?)");
-                $stmt->execute([strtolower($username), $hashed_password]);
+                $stmt = $pdo->prepare("INSERT INTO users (username, role, password) VALUES (?, ?, ?)");
+                $stmt->execute([strtolower($username), strtolower($role), $hashed_password]);
 
                 if ($stmt->rowCount() === 1) {
                     $response['success'] = true;

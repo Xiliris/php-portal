@@ -22,6 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($user && password_verify($old_password, $user['password'])) {
             if ($new_password !== $confirm_password) {
                 $response['message'] = "Passwords do not match.";
+            } else if (password_verify($new_password, $user['password'])) {
+                $response['message'] = "New password cannot be the same as the old password.";
             } else {
                 $hashed_password = password_hash($new_password, PASSWORD_BCRYPT);
 
