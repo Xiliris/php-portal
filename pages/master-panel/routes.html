@@ -1,0 +1,195 @@
+{{navbar}}
+<main id="master-panel">
+  <h1>Master Panel</h1>
+  <div>
+    <div class="master-panel__header">
+      <h2>Routes</h2>
+      <a class="btn" href="/master-panel" data-link>Back</a>
+    </div>
+    <hr />
+    <section id="routes-container">
+      <!-- Routes will be added here -->
+    </section>
+  </div>
+</main>
+
+<script>
+  async function getRoutes() {
+    const response = await fetch("/api/routes/router.php");
+    const data = await response.json();
+
+    const routesContainer = document.getElementById("routes-container");
+
+    data.data.forEach((route) => {
+      const routeName = route.route;
+      const changedRoute = route.changedRoute;
+
+      const article = document.createElement("article");
+      article.innerHTML = `
+          <p>${routeName}</p>
+          <div>
+            <input type="text" value="${changedRoute}" />
+            <button>Save</button>
+          </div>
+        `;
+
+      routesContainer.appendChild(article);
+
+      const saveButton = article.querySelector("button");
+
+      saveButton.addEventListener("click", async (e) => {
+        const routeName = article.querySelector("p").textContent;
+        const newRoute = article.querySelector("input").value;
+
+        const validate = validateRoute(newRoute, routeName);
+
+        if (!validate) {
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("route", routeName);
+        formData.append("changedRoute", newRoute);
+
+        const response = await fetch("/api/routes/updateRoute.php", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          e.target.innerHTML = "Saved!";
+          e.target.style.backgroundColor = "green";
+
+          setTimeout(() => {
+            e.target.innerHTML = "Save";
+            e.target.style.backgroundColor = "rgb(92, 114, 125)";
+          }, 1500);
+        } else {
+          alert("Failed to update route.");
+        }
+      });
+    });
+  }
+
+  function validateRoute(route, routeName) {
+    const oldRouteLength = routeName.split("/").length;
+    const newRouteLength = route.split("/").length;
+
+    if (oldRouteLength !== newRouteLength) {
+      alert("Route length cannot be changed.");
+      return null;
+    }
+
+    if (route === "") {
+      alert("Route cannot be empty.");
+      return null;
+    }
+
+    return true;
+  }
+
+  getRoutes();
+</script>
+
+<style>
+  #master-panel {
+    margin: 0 auto;
+    padding: 10em 0;
+    width: 80%;
+    min-height: 100vh;
+    text-align: center;
+  }
+
+  #master-panel h2 {
+    text-align: left;
+  }
+
+  .master-panel__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
+
+  .btn {
+    padding: 0.5em 1.5em;
+    border-radius: 0.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+    background-color: green;
+    color: white;
+  }
+
+  #routes-container {
+    text-align: left;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    margin-top: 1em;
+    gap: 1em;
+  }
+
+  #routes-container article {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 1em;
+    border: 1px solid black;
+    border-left: 10px solid green;
+    border-radius: 0.5em;
+  }
+
+  #routes-container article p {
+    font-weight: 500;
+    font-size: 1.2em;
+  }
+
+  #routes-container article div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5em;
+    width: 100%;
+  }
+
+  #routes-container article input {
+    width: 100%;
+    padding: 0.5em;
+    border-radius: 0.5em;
+    margin-top: 1em;
+    outline: none;
+    color: black;
+    font-size: 1em;
+  }
+
+  #routes-container article div input:focus {
+    border-left: 5px solid green;
+  }
+
+  #routes-container article div input::placeholder {
+    color: black;
+  }
+
+  #routes-container article div button {
+    padding: 0.5em 1em;
+    font-size: 1em;
+    border-radius: 0.5em;
+    background-color: rgb(92, 114, 125);
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-top: 1em;
+    border: 2px solid green;
+  }
+
+  @media screen and (max-width: 480px) {
+    #master-panel {
+      width: 95%;
+    }
+  }
+</style>

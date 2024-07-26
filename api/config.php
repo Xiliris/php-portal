@@ -1,9 +1,9 @@
 <?php
 // Database connection details
-$host = 'localhost';
+$host = '127.0.0.1';
 $dbname = 'php-portal';
-$username = 'php-portal-user';
-$password = '7r4dd!6P)0zvOLej';
+$username = 'root';
+$password = '';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
