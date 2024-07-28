@@ -7,9 +7,12 @@
 
 <script>
     async function fetchDocuments() {
+        const queryParams = new URLSearchParams(window.location.search);
+        const profileId = queryParams.get("id");
+
         const errorMessageDiv = document.getElementById('error-message');
         try {
-            const response = await fetch('/api/routes/documents.php');
+            const response = await fetch(`/api/routes/documents.php?id=${profileId}`);
             if (!response.ok) {
                 const errorData = await response.text();
                 throw new Error(errorData);

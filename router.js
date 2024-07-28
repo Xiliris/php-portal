@@ -34,6 +34,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       "http://php-portal.local/pages/master-panel/users.html",
     "/master-panel/sensitive-data":
       "http://php-portal.local/pages/master-panel/sensitive-data.html",
+      "/documents": "http://php-portal.local/pages/documents.html",
+    "/profile": "http://php-portal.local/pages/profile.html",
   };
 
   const routePermissions = {
