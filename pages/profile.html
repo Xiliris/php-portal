@@ -1,0 +1,152 @@
+{{navbar}}
+<div class="profile-container">
+    <h1 id="h1el">Celebrity Profile</h1>
+    <div class="profile-row">
+        <div id="profile-picture" class="profile-picture">
+            {{profile-picture}}
+            <div id="profile-documents">
+                {{profile-documents}}
+            </div>
+        </div>
+        <div class="profile-details">
+            <div id="profile-description">{{profile-description}}</div>
+            <div id="profile-created-at">{{profile-created-at}}</div>
+        </div>
+    </div>
+    <div id="profile-documents-link">
+        <a href="#" id="show-documents">Documents</a>
+    </div>
+</div>
+{{footer}}
+
+<script>
+    async function loadProfile() {
+        const queryParams = new URLSearchParams(window.location.search);
+        const profileId = queryParams.get("id");
+        if (profileId) {
+            const profileUrl = `/api/routes/profile.php?id=${profileId}`;
+            const profileResponse = await fetch(profileUrl);
+            const profileData = await profileResponse.json();
+            const app = document.getElementById("app");
+
+            if (profileData.status === "success") {
+                const profile = profileData.profile;
+
+                const profilePicturePath = profile.profile_picture.replace("../routes/uploads/", "");
+                const profilePictureHtml = `<img src="/api/routes/uploads/${profilePicturePath}" alt="Profile Picture">`;
+                app.innerHTML = app.innerHTML.replace("{{profile-picture}}", profilePictureHtml);
+
+                app.innerHTML = app.innerHTML.replace("{{profile-description}}", profile.description);
+                app.innerHTML = app.innerHTML.replace(
+                    "{{profile-created-at}}",
+                    `Created on: ${profile.created_at}`
+                );
+
+                let documentLinks = "";
+                try {
+                    const profileDocuments = JSON.parse(profile.profile_documents);
+                    documentLinks = profileDocuments
+                        .map((doc) => {
+                            const docPath = doc.replace("../routes/uploads/", "");
+                            const docName = docPath.split("/").pop();
+                            return `<a href="/api/routes/uploads/${docPath}" target="_blank">${docName}</a>`;
+                        })
+                        .join("<br>");
+                } catch (e) {
+                    documentLinks = "<p>No documents available.</p>";
+                }
+
+                app.innerHTML = app.innerHTML.replace("{{profile-documents}}", documentLinks);
+
+                document.getElementById("show-documents").addEventListener("click", function (e) {
+                    e.preventDefault();
+                    window.location.href = `/documents?id=${profileId}`;
+                });
+            } else {
+                app.innerHTML = `<p>${profileData.message}</p>`;
+            }
+        }
+    }
+
+    loadProfile();
+</script>
+
+<style>
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+    }
+
+    #h1el {
+        margin-top: 10%;
+        margin-bottom: 5%;
+        text-align: center;
+    }
+
+    .profile-container {
+        padding: 0 10%;
+        margin-bottom: 50px;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+    }
+
+    .profile-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    #profile-picture {
+        flex-shrink: 0;
+        position: relative;
+    }
+
+    #profile-picture img {
+        width: 200px;
+        height: 270px;
+        object-fit: cover;
+    }
+
+    .profile-details {
+        flex: 1;
+    }
+
+    #profile-description {
+        margin-bottom: 20px;
+    }
+
+    #profile-documents {
+        margin-top: 20px;
+    }
+
+    #profile-documents a {
+        color: blue;
+        text-decoration: none;
+        display: block;
+    }
+
+    #profile-documents a:hover {
+        text-decoration: underline;
+    }
+
+    #profile-documents-link {
+        margin-top: 150px;
+    }
+
+    #profile-documents-link a {
+        color: blue;
+        text-decoration: none;
+    }
+
+    #profile-documents-link a:hover {
+        text-decoration: underline;
+    }
+
+    #profile-created-at {
+        text-align: end;
+        font-weight: bold;
+    }
+</style>
