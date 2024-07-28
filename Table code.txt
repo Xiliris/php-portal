@@ -59,3 +59,13 @@ INSERT INTO userdata (username, role, ip, country, isp) VALUES
 ('tony_stark', 'user', '192.168.1.8', 'United States', 'AT&T'),
 ('natasha_romanoff', 'user', '192.168.1.9', 'Russia', 'Rostelecom'),
 ('steve_rogers', 'moderator', '192.168.1.10', 'United States', 'Spectrum');
+
+CREATE TABLE celebrity_profiles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    profile_picture VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    profile_documents TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);

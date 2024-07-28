@@ -1,11 +1,11 @@
 <?php
-require '../../vendor/autoload.php';
+require_once '../config.php';
+require_once '../../vendor/autoload.php';
 
 use PhpOffice\PhpWord\IOFactory;
 use PhpOffice\PhpWord\Shared\Html;
 
-$upload_dir = 'uploads/';
-$media_dir = 'uploads/media/';
+$upload_dir = 'uploads/profile_documents/';
 
 function read_file_docx_as_html($filename) {
     if (!file_exists($filename)) {
@@ -57,40 +57,63 @@ if (isset($_GET['file'])) {
                 echo 'Preview not supported for this file type.';
             }
         } elseif ($action === 'download') {
+            header('Content-Description: File Transfer');
             header('Content-Type: application/octet-stream');
             header('Content-Disposition: attachment; filename="' . basename($full_path) . '"');
-            header('Content-Transfer-Encoding: binary');
-            header('Accept-Ranges: bytes');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate');
+            header('Pragma: public');
+            header('Content-Length: ' . filesize($full_path));
             readfile($full_path);
+            exit;
         }
-        exit;
     } else {
         http_response_code(404);
-        echo "File not found.";
-        exit;
+        echo 'File not found.';
     }
-}
+    exit;
+} elseif (isset($_GET['id'])) {
+    $profileId = intval($_GET['id']);
 
-$documents = [];
-if (is_dir($upload_dir)) {
-    if ($dh = opendir($upload_dir)) {
-        while (($file = readdir($dh)) !== false) {
-            if ($file != "." && $file != "..") {
-                $fileType = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-                $documents[] = [
-                    'name' => $file,
-                    'type' => $fileType
-                ];
+    try {
+        $stmt = $pdo->prepare("SELECT profile_documents FROM celebrity_profiles WHERE id = :id");
+        $stmt->execute(['id' => $profileId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) {
+            $profileDocumentsJson = $row['profile_documents'];
+            error_log("profile_documents JSON: $profileDocumentsJson");
+
+            $profileDocuments = json_decode($profileDocumentsJson, true);
+            error_log("Decoded profile_documents: " . print_r($profileDocuments, true));
+
+            if ($profileDocuments) {
+                $documents = [];
+
+                foreach ($profileDocuments as $document) {
+                    $fileType = strtolower(pathinfo($document, PATHINFO_EXTENSION));
+                    $documents[] = [
+                        'name' => basename($document),
+                        'type' => $fileType
+                    ];
+                }
+
+                header('Content-Type: application/json');
+                echo json_encode($documents);
+            } else {
+                echo json_encode([]);
             }
+        } else {
+            header('Content-Type: application/json');
+            echo json_encode([]);
         }
-        closedir($dh);
+    } catch (PDOException $e) {
+        error_log("Database query error: " . $e->getMessage());
+        header('HTTP/1.1 500 Internal Server Error');
+        echo 'Database query error: ' . $e->getMessage();
     }
-}
-
-header('Content-Type: application/json');
-if (empty($documents)) {
-    echo json_encode(['message' => 'No documents uploaded.']);
 } else {
-    echo json_encode($documents);
+    header('HTTP/1.1 400 Bad Request');
+    echo 'Invalid request';
 }
 ?>
