@@ -33,14 +33,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (!str_starts_with(mime_content_type($profilePicture['tmp_name']), 'image/')) {
             $response['message'] = "Invalid profile picture format. Only image files are allowed.";
         } else {
-            $target_dir = "../routes/uploads/profile_pictures/";
+            $uploads_dir = "../routes/uploads/";
+            if (!is_dir($uploads_dir)) {
+                mkdir($uploads_dir, 0777, true);
+            }
+
+            $target_dir = $uploads_dir . "profile_pictures/";
             if (!is_dir($target_dir)) {
                 mkdir($target_dir, 0777, true);
             }
+
             $target_file = $target_dir . basename($profilePicture["name"]);
             if (move_uploaded_file($profilePicture["tmp_name"], $target_file)) {
                 $documentPaths = [];
                 $allowedExtensions = ['doc', 'docx', 'pdf'];
+
+                $documents_dir = $uploads_dir . "profile_documents/";
+                if (!is_dir($documents_dir)) {
+                    mkdir($documents_dir, 0777, true);
+                }
+
                 for ($i = 0; $i < count($profileDocuments['name']); $i++) {
                     $documentName = $profileDocuments['name'][$i];
                     $documentTmpName = $profileDocuments['tmp_name'][$i];
@@ -60,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         echo json_encode($response);
                         exit;
                     } else {
-                        $documentPath = '../routes/uploads/profile_documents/' . basename($documentName);
+                        $documentPath = $documents_dir . basename($documentName);
                         if (move_uploaded_file($documentTmpName, $documentPath)) {
                             $documentPaths[] = $documentPath;
                         } else {
