@@ -25,7 +25,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       "http://php-portal.local/pages/auth/change-password.html",
     "/login/random": "http://php-portal.local/pages/auth/login.html",
     "/logout": "http://php-portal.local/pages/auth/logout.html",
-    "/register": "http://php-portal.local/pages/auth/register.html",
     "/dashboard": "http://php-portal.local/pages/admin/dashboard.html",
     "/master-panel":
       "http://php-portal.local/pages/master-panel/master-panel.html",
@@ -33,6 +32,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       "http://php-portal.local/pages/master-panel/routes.html",
     "/master-panel/users":
       "http://php-portal.local/pages/master-panel/users.html",
+    "/master-panel/sensitive-data":
+      "http://php-portal.local/pages/master-panel/sensitive-data.html",
   };
 
   const routePermissions = {
