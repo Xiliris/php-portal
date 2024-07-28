@@ -10,16 +10,23 @@
         $country = $_POST['country'];
         $isp = $_POST['isp'];
 
-        if (empty($ip) || empty($country) || empty($isp)) {
+        if (empty($username) || empty($role) || empty($ip) || empty($country) || empty($isp)) {
             $response['message'] = "Please fill in all fields.";
         } else {
-            $checkStmt = $pdo->prepare("SELECT COUNT(*) FROM userdata WHERE ip = ?");
-            $checkStmt->execute([$ip]);
-            $ipExists = $checkStmt->fetchColumn();
+            $checkIpStmt = $pdo->prepare("SELECT COUNT(*) FROM userdata WHERE ip = ?");
+            $checkIpStmt->execute([$ip]);
+            $ipExists = $checkIpStmt->fetchColumn();
+
+            $checkUsernameStmt = $pdo->prepare("SELECT COUNT(*) FROM userdata WHERE username = ?");
+            $checkUsernameStmt->execute([$username]);
+            $usernameExists = $checkUsernameStmt->fetchColumn();
 
             if ($ipExists) {
                 $response['message'] = "IP address already exists.";
+            } elseif ($usernameExists) {
+                $response['message'] = "Username already exists.";
             } else {
+                // Insert the new data
                 $stmt = $pdo->prepare("INSERT INTO userdata (ip, country, isp, username, role) VALUES (?, ?, ?, ?, ?)");
                 $stmt->execute([$ip, $country, $isp, $username, $role]);
 

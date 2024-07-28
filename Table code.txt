@@ -6,36 +6,11 @@ CREATE TABLE users (
     role ENUM('owner', 'admin', 'moderator', 'user') DEFAULT 'user'
 );
 
-
 CREATE TABLE routes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     route VARCHAR(255) NOT NULL,
     changedRoute VARCHAR(255) NOT NULL
 );
-
-INSERT INTO users (id, username, password, changed, role) VALUES
-("1", "owner", "$2y$10$JaBePlAFAuLAp..QgqGQGuvVaZSwdKNiJZR3H1HwyIQ7fmhNj.U8q", "true", "owner")
-
-
-INSERT INTO routes (route, changedRoute) VALUES
-("/404", "/404"),
-("/401", "/401"),
-("/", "/"),
-("/person-of-interest", "/person-of-interest"),
-("/coming", "/coming"),
-("/news", "/news"),
-("/about", "/about"),
-("/partners", "/partners"),
-("/shop", "/shop"),
-("/donate", "/donate"),
-("/submit", "/submit"),
-("/change-password", "/change-password"),
-("/login/random", "/login/random"),
-("/logout", "/logout"),
-("/register", "/register"),
-("/dashboard", "/dashboard"),
-("/master-panel", "/master-panel"),
-("/master-panel/users", "/master-panel/users");
 
 CREATE TABLE userdata (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -46,14 +21,12 @@ CREATE TABLE userdata (
     isp VARCHAR(255) NOT NULL
 )
 
-INSERT INTO userdata (username, role, ip, country, isp) VALUES
-('john_doe', 'user', '192.168.1.1', 'United States', 'Comcast'),
-('jane_smith', 'admin', '192.168.1.2', 'Canada', 'Bell Canada'),
-('sam_wilson', 'moderator', '192.168.1.3', 'United Kingdom', 'BT Group'),
-('lisa_martin', 'owner', '192.168.1.4', 'Australia', 'Telstra'),
-('peter_parker', 'user', '192.168.1.5', 'United States', 'Verizon'),
-('bruce_wayne', 'moderator', '192.168.1.6', 'France', 'Orange S.A.'),
-('clark_kent', 'admin', '192.168.1.7', 'Germany', 'Deutsche Telekom'),
-('tony_stark', 'user', '192.168.1.8', 'United States', 'AT&T'),
-('natasha_romanoff', 'user', '192.168.1.9', 'Russia', 'Rostelecom'),
-('steve_rogers', 'moderator', '192.168.1.10', 'United States', 'Spectrum');
+CREATE TABLE footer (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    file_path VARCHAR(255) NOT NULL,
+    file_name VARCHAR(255) NOT NULL,
+    upload_time DATETIME NOT NULL,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    title VARCHAR(255) DEFAULT NULL,
+    description VARCHAR(255) NOT NULL;
+);

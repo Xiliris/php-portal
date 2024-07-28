@@ -34,6 +34,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       "http://php-portal.local/pages/master-panel/users.html",
     "/master-panel/sensitive-data":
       "http://php-portal.local/pages/master-panel/sensitive-data.html",
+    "/master-panel/donations":
+      "http://php-portal.local/pages/master-panel/donations.html",
   };
 
   const routePermissions = {
@@ -44,6 +46,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/master-panel": 4,
     "/master-panel/routes": 4,
     "/master-panel/users": 4,
+    "/master-panel/sensitive-data": 4,
+    "/master-panel/donations": 4,
   };
 
   const colors = {
