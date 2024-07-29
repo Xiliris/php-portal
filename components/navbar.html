@@ -11,10 +11,37 @@
     <div class="button-section" id="nav-options">
       <a class="button secondary" href="/donate" data-link>Donate</a>
     </div>
+    <i class="fa-solid fa-bars" id="menu"></i>
   </section>
 </nav>
+<aside id="sidebar">
+  <i class="fa-solid fa-times" id="close"></i>
+  <section>
+    <a href="/person-of-interest" data-link>Person of Interest</a>
+    <a href="/coming" data-link>Coming</a>
+    <a href="/news" data-link>News</a>
+    <a href="/about" data-link>About</a>
+    <a href="/partners" data-link>Partners</a>
+  </section>
+  <section id="aside-options">
+    <a href="/donate" class="button secondary">Donate</a>
+  </section>
+</aside>
 
 <script>
+  const menu = document.getElementById("menu");
+  const close = document.getElementById("close");
+
+  menu.addEventListener("click", () => {
+    const sidebar = document.getElementById("sidebar");
+    sidebar.style.display = "flex";
+  });
+
+  close.addEventListener("click", () => {
+    const sidebar = document.getElementById("sidebar");
+    sidebar.style.display = "none";
+  });
+
   async function handleUserRole() {
     const res = await fetch("/api/routes/user.php");
     const data = await res.json();
@@ -29,27 +56,32 @@
 
     if (data.success && data.user) {
       const role = data.user.role;
+      const navOptions = document.getElementById("nav-options");
+      const asideOptions = document.getElementById("aside-options");
 
       if (permissionLevel[role] >= permissionLevel["user"]) {
-        const navOptions = document.getElementById("nav-options");
-
         navOptions.innerHTML += `
+          <a class="button primary" href="/shop" data-link>Shop</a>
+        `;
+        asideOptions.innerHTML += `
           <a class="button primary" href="/shop" data-link>Shop</a>
         `;
       }
 
       if (permissionLevel[role] >= permissionLevel["admin"]) {
-        const navOptions = document.getElementById("nav-options");
-
         navOptions.innerHTML += `
+          <a class="button tertiary" href="/dashboard" data-link>Dashboard</a>
+        `;
+        asideOptions.innerHTML += `
           <a class="button tertiary" href="/dashboard" data-link>Dashboard</a>
         `;
       }
 
       if (permissionLevel[role] >= permissionLevel["owner"]) {
-        const navOptions = document.getElementById("nav-options");
-
         navOptions.innerHTML += `
+          <a class="button fortiary" href="/master-panel" data-link>Master Panel</a>
+        `;
+        asideOptions.innerHTML += `
           <a class="button fortiary" href="/master-panel" data-link>Master Panel</a>
         `;
       }
@@ -111,7 +143,8 @@
     gap: 1em;
   }
 
-  #main-nav .button-section .button {
+  #main-nav .button-section .button,
+  #sidebar .button {
     padding: 0.5em 1em;
     border: none;
     border-radius: 5px;
@@ -120,23 +153,112 @@
     font-weight: bold;
   }
 
-  #main-nav .button-section .primary {
+  #main-nav .button-section .primary,
+  #sidebar .button.primary {
     background-color: #ffd500;
     color: white;
   }
 
-  #main-nav .button-section .secondary {
+  #main-nav .button-section .secondary,
+  #sidebar .button.secondary {
     background-color: red;
     color: white;
   }
 
-  #main-nav .button-section .tertiary {
+  #main-nav .button-section .tertiary,
+  #sidebar .button.tertiary {
     background-color: rgb(92, 114, 125);
     color: white;
   }
 
-  #main-nav .button-section .fortiary {
+  #main-nav .button-section .fortiary,
+  #sidebar .button.fortiary {
     background-color: green;
     color: white;
+  }
+
+  #sidebar {
+    display: none;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 100%;
+    max-width: 300px;
+    height: 100vh;
+    background-color: white;
+    z-index: 101;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  #sidebar i {
+    font-size: 2em;
+    margin: 0.8em 0.5em;
+    cursor: pointer;
+    margin-left: auto;
+  }
+
+  #sidebar section {
+    width: 100%;
+    padding: 1em;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+    border-top: 1px solid #f1f1f1;
+  }
+
+  #sidebar .button {
+    text-align: center;
+  }
+
+  #sidebar a {
+    display: block;
+    padding: 0 1em;
+    font-size: 1.2em;
+    color: slategrey;
+    text-decoration: none;
+  }
+
+  #main-nav #menu {
+    display: none;
+    font-size: 2em;
+    margin-left: 1em;
+    cursor: pointer;
+  }
+
+  @media (max-width: 1265px) {
+    #main-nav section {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    #main-nav #menu {
+      display: block;
+    }
+
+    #main-nav .item-section {
+      display: none;
+    }
+
+    #main-nav .button-section {
+      margin-left: auto;
+    }
+  }
+
+  @media (max-width: 768px) {
+    #main-nav .item-section {
+      display: none;
+    }
+
+    #main-nav .button-section {
+      display: none;
+    }
+  }
+
+  @media screen and (max-width: 480px) {
+    #main-nav section {
+      width: 95%;
+    }
   }
 </style>
