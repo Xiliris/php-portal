@@ -133,7 +133,7 @@
       formData.append("confirm_password", confirmPassword);
       formData.append("role", role);
 
-      const res = await fetch("/api/routes/register.php", {
+      const res = await fetch("/api/routes/auth/register.php", {
         method: "POST",
         body: formData,
       });
@@ -148,7 +148,7 @@
     });
 
     async function getUsers() {
-      const res = await fetch("/api/routes/users.php");
+      const res = await fetch("/api/routes/auth/users.php");
       const data = await res.json();
 
       if (data.success) {

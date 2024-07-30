@@ -21,7 +21,7 @@ async function fetchLocationData(ip) {
 }
 
 async function fetchUserAccount() {
-  const response = await fetch("/api/routes/user.php", {
+  const response = await fetch("/api/routes/auth/user.php", {
     method: "GET",
   });
 
@@ -57,7 +57,7 @@ async function getUserData() {
     formData.append("isp", userData.isp);
     formData.append("country", userData.country);
 
-    await fetch("/api/routes/userData.php", {
+    await fetch("/api/routes/data/userData.php", {
       method: "POST",
       body: formData,
     });

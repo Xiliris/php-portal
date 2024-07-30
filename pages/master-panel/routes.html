@@ -15,7 +15,7 @@
 
 <script>
   async function getRoutes() {
-    const response = await fetch("/api/routes/router.php");
+    const response = await fetch("/api/routes/router/router.php");
     const data = await response.json();
 
     const routesContainer = document.getElementById("routes-container");
@@ -51,7 +51,7 @@
         formData.append("route", routeName);
         formData.append("changedRoute", newRoute);
 
-        const response = await fetch("/api/routes/updateRoute.php", {
+        const response = await fetch("/api/routes/router/updateRoute.php", {
           method: "POST",
           body: formData,
         });

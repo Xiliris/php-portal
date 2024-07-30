@@ -26,3 +26,5 @@ INSERT INTO userdata (username, role, ip, country, isp) VALUES
 
 INSERT INTO users (id, username, password, changed, role) VALUES
 ("1", "owner", "$2y$10$JaBePlAFAuLAp..QgqGQGuvVaZSwdKNiJZR3H1HwyIQ7fmhNj.U8q", "true", "owner")
+
+composer require phpoffice/phpword

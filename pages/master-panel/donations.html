@@ -7,9 +7,157 @@
       <a class="btn" href="/master-panel" data-link>Back</a>
     </div>
     <hr />
-    <section id="routes-container"></section>
+    <section class="donations-add">
+      <input type="text" id="donation-header" placeholder="Header" />
+      <input type="text" id="donation-title" placeholder="Title" />
+      <input type="text" id="donation-button" placeholder="Button" />
+      <input type="text" id="donation-link" placeholder="Link" />
+      <textarea id="donation-description" placeholder="Description"></textarea>
+      <input type="file" id="donation-image" accept="image/*" />
+
+      <button class="btn" id="donation-submit">Add</button>
+    </section>
+    <hr />
+    <section id="donations-container"></section>
   </div>
 </main>
+
+<script>
+  const donationHeader = document.getElementById("donation-header");
+  const donationTitle = document.getElementById("donation-title");
+  const donationButton = document.getElementById("donation-button");
+  const donationLink = document.getElementById("donation-link");
+  const donationDescription = document.getElementById("donation-description");
+  const donationImage = document.getElementById("donation-image");
+  const donationSubmit = document.getElementById("donation-submit");
+  const donationsContainer = document.getElementById("donations-container");
+
+  donationSubmit.addEventListener("click", async () => {
+    const header = donationHeader.value.trim();
+    const title = donationTitle.value.trim();
+    const button = donationButton.value.trim();
+    const link = donationLink.value.trim();
+    const description = donationDescription.value.trim();
+    const image = donationImage.files[0];
+
+    let errorMessage = "";
+
+    if (!header) {
+      errorMessage += "Header is required.\n";
+    }
+    if (!title) {
+      errorMessage += "Title is required.\n";
+    }
+    if (!description) {
+      errorMessage += "Description is required.\n";
+    }
+
+    if (errorMessage) {
+      alert(errorMessage);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("header", header);
+    formData.append("title", title);
+    formData.append("button", button);
+    formData.append("link", link);
+    formData.append("description", description);
+    if (image) {
+      formData.append("image", image);
+    }
+
+    try {
+      const response = await fetch("/api/routes/donations/add-donation.php", {
+        method: "POST",
+        body: formData,
+      });
+
+      const resData = await response.json();
+
+      if (resData.success) {
+        appendDonation(resData.data.header, resData.data.id);
+
+        donationHeader.value = "";
+        donationTitle.value = "";
+        donationButton.value = "";
+        donationLink.value = "";
+        donationDescription.value = "";
+        donationImage.value = "";
+      } else {
+        alert("Failed to add donation");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("An error occurred while adding the donation.");
+    }
+  });
+
+  async function getDonations() {
+    try {
+      const response = await fetch("/api/routes/donations/get-donation.php");
+      if (!response.ok) {
+        throw new Error("Network response was not ok.");
+      }
+      const data = await response.json();
+      if (data.data && Array.isArray(data.data)) {
+        data.data.forEach((donation) => {
+          appendDonation(donation.header, donation.id);
+        });
+      } else {
+        console.error("Unexpected data format", data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch donations:", error);
+    }
+  }
+
+  async function handleRemoveDonation(id, article) {
+    const formData = new FormData();
+    formData.append("action", "delete");
+    formData.append("id", id);
+
+    try {
+      const response = await fetch(
+        `/api/routes/donations/remove-donation.php`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        article.remove();
+      } else {
+        alert("Failed to remove donation: " + data.message);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("An error occurred while removing the donation.");
+    }
+  }
+
+  function appendDonation(header, id) {
+    const article = document.createElement("article");
+
+    article.innerHTML = `
+      <i class="fa-solid fa-xmark remove"></i>
+      <h2>${header || "No Header"}</h2>
+    `;
+    article.id = id;
+
+    const removeIcon = article.querySelector(".remove");
+    removeIcon.addEventListener("click", () => {
+      handleRemoveDonation(id, article);
+    });
+
+    donationsContainer.appendChild(article);
+  }
+
+  getDonations();
+</script>
 
 <style>
   #master-panel {
@@ -40,6 +188,61 @@
     justify-content: center;
     gap: 1em;
     background-color: green;
+    border: 1px solid green;
     color: white;
+    font-size: 1em;
+    cursor: pointer;
+  }
+
+  .donations-add h2 {
+    margin: 1em 0;
+  }
+
+  .donations-add {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    margin: 1em 0;
+  }
+
+  .donations-add label {
+    font-weight: bold;
+  }
+
+  .donations-add input,
+  .donations-add textarea {
+    padding: 0.5em 1em;
+    border: 1px solid gray;
+    border-radius: 5px;
+    resize: none;
+    font-size: 1em;
+  }
+
+  .donations-add textarea {
+    height: 200px;
+  }
+
+  #donations-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1em;
+    margin-top: 1em;
+  }
+
+  #donations-container article {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 1em;
+    border: 1px solid black;
+    border-left: 10px solid green;
+    border-radius: 0.5em;
+    gap: 0.5em;
+  }
+
+  #donations-container article i {
+    transform: scale(1.5);
+    cursor: pointer;
+    color: red;
   }
 </style>
