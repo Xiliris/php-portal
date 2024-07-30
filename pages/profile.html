@@ -2,10 +2,10 @@
 <div class="profile-container">
     <h1 id="h1el">Celebrity Profile</h1>
     <div class="profile-row">
-        <div id="profile-picture" class="profile-picture">
-            {{profile-picture}}
+        <div class="profile-picture-documents">
+            <div id="profile-picture" class="profile-picture">
+            </div>
             <div id="profile-documents">
-                {{profile-documents}}
             </div>
         </div>
         <div class="profile-details">
@@ -13,8 +13,10 @@
             <div id="profile-created-at">{{profile-created-at}}</div>
         </div>
     </div>
-    <div id="profile-documents-link">
-        <a href="#" id="show-documents">Documents</a>
+    <div id="profile-links">
+        <a href="#" id="show-documents" class="profile-link">Documents</a>
+        <a href="#" id="show-videos" class="profile-link">Video</a>
+        <a href="#" id="show-audio" class="profile-link">Audio</a>
     </div>
 </div>
 {{footer}}
@@ -27,21 +29,13 @@
             const profileUrl = `/api/routes/profile.php?id=${profileId}`;
             const profileResponse = await fetch(profileUrl);
             const profileData = await profileResponse.json();
-            const app = document.getElementById("app");
-
             if (profileData.status === "success") {
                 const profile = profileData.profile;
-
                 const profilePicturePath = profile.profile_picture.replace("../routes/uploads/", "");
                 const profilePictureHtml = `<img src="/api/routes/uploads/${profilePicturePath}" alt="Profile Picture">`;
-                app.innerHTML = app.innerHTML.replace("{{profile-picture}}", profilePictureHtml);
-
-                app.innerHTML = app.innerHTML.replace("{{profile-description}}", profile.description);
-                app.innerHTML = app.innerHTML.replace(
-                    "{{profile-created-at}}",
-                    `Created on: ${profile.created_at}`
-                );
-
+                document.getElementById("profile-picture").innerHTML = profilePictureHtml;
+                document.getElementById("profile-description").innerHTML = profile.description;
+                document.getElementById("profile-created-at").innerHTML = `Created on: ${profile.created_at}`;
                 let documentLinks = "";
                 try {
                     const profileDocuments = JSON.parse(profile.profile_documents);
@@ -56,14 +50,21 @@
                     documentLinks = "<p>No documents available.</p>";
                 }
 
-                app.innerHTML = app.innerHTML.replace("{{profile-documents}}", documentLinks);
-
+                document.getElementById("profile-documents").innerHTML = documentLinks;
                 document.getElementById("show-documents").addEventListener("click", function (e) {
                     e.preventDefault();
                     window.location.href = `/documents?id=${profileId}`;
                 });
+                document.getElementById("show-videos").addEventListener("click", function (e) {
+                    e.preventDefault();
+                    window.location.href = `/videos?id=${profileId}`;
+                });
+                document.getElementById("show-audio").addEventListener("click", function (e) {
+                    e.preventDefault();
+                    window.location.href = `/audio?id=${profileId}`;
+                });
             } else {
-                app.innerHTML = `<p>${profileData.message}</p>`;
+                document.getElementById("app").innerHTML = `<p>${profileData.message}</p>`;
             }
         }
     }
@@ -76,20 +77,22 @@
     body {
         height: 100%;
         margin: 0;
+        font-family: Arial, sans-serif;
     }
 
     #h1el {
-        margin-top: 10%;
+        padding-top: 10%;
         margin-bottom: 5%;
         text-align: center;
     }
 
     .profile-container {
-        padding: 0 10%;
+        padding: 20px 10%;
         margin-bottom: 50px;
         display: flex;
         flex-direction: column;
-        height: 100vh;
+        min-height: 100vh;
+        box-sizing: border-box;
     }
 
     .profile-row {
@@ -108,6 +111,7 @@
         width: 200px;
         height: 270px;
         object-fit: cover;
+        border-radius: 3%;
     }
 
     .profile-details {
@@ -132,21 +136,101 @@
         text-decoration: underline;
     }
 
-    #profile-documents-link {
-        margin-top: 150px;
+    #profile-links {
+        margin-top: auto;
+        padding-top: 20px;
+
     }
 
-    #profile-documents-link a {
-        color: blue;
+    .profile-link {
+        color: black;
         text-decoration: none;
+        display: inline-block;
+        margin-right: 10px;
+        padding: 10px;
+        border: 1px solid black;
+        border-radius: 5px;
+        transition: background-color 0.3s;
     }
 
-    #profile-documents-link a:hover {
-        text-decoration: underline;
+    .profile-link:hover {
+        background-color: lightgray;
     }
 
     #profile-created-at {
         text-align: end;
         font-weight: bold;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+        .profile-container {
+            padding: 20px 5%;
+        }
+
+        .profile-row {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #profile-picture {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #profile-picture img {
+            margin: 0 auto;
+        }
+
+        #profile-created-at {
+            text-align: center;
+        }
+
+        #profile-links {
+            text-align: center;
+        }
+
+        .profile-link {
+            margin: 5px 0;
+            display: block;
+        }
+
+        .profile-link:hover {
+            background-color: lightgray;
+        }
+
+        .profile-link::after {
+            right: 10px;
+        }
+    }
+
+    @media (max-width: 540px) {
+        #h1el {
+            font-size: 1.5em;
+            margin-top: 20%;
+        }
+
+        #profile-picture img {
+            width: 150px;
+            height: 200px;
+        }
+
+        #profile-links {
+            text-align: center;
+        }
+
+        .profile-link {
+            margin: 5px 0;
+            display: block;
+        }
+
+        .profile-link:hover {
+            background-color: lightgray;
+        }
+
+        .profile-link::after {
+            right: 10px;
+        }
     }
 </style>

@@ -23,6 +23,7 @@ CREATE TABLE userdata (
 
 CREATE TABLE donations (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    header VARCHAR(255) NOT NULL,
     title VARCHAR(255) NOT NULL,
     button_text VARCHAR(255) DEFAULT NULL,
     link VARCHAR(255) DEFAULT NULL,
@@ -39,7 +40,7 @@ CREATE TABLE footer (
     upload_time DATETIME NOT NULL,
     name VARCHAR(255) NOT NULL UNIQUE,
     title VARCHAR(255) DEFAULT NULL,
-    description VARCHAR(255) NOT NULL;
+    description VARCHAR(255) NOT NULL
 );
 
 

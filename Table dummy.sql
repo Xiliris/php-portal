@@ -10,7 +10,7 @@ INSERT INTO routes (route, changedRoute) VALUES
 ("/donate", "/donate"),
 ("/change-password", "/change-password"),
 ("/login/random", "/login/random"),
-("/logout", "/logout"),
+("/logout", "/logout")
 
 INSERT INTO userdata (username, role, ip, country, isp) VALUES
 ('john_doe', 'user', '192.168.1.1', 'United States', 'Comcast'),
