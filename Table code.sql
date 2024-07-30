@@ -19,7 +19,7 @@ CREATE TABLE userdata (
     ip VARCHAR(50) NOT NULL UNIQUE,
     country VARCHAR(255) NOT NULL,
     isp VARCHAR(255) NOT NULL
-)
+);
 
 CREATE TABLE donations (
     id INT AUTO_INCREMENT PRIMARY KEY,
