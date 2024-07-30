@@ -72,7 +72,7 @@
     document.getElementById("search-keywords").focus();
   });
 
-  fetch("/api/routes/user.php")
+  fetch("/api/routes/auth/user.php")
     .then((response) => response.json())
     .then((data) => {
       if (data.success) {

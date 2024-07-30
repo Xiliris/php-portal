@@ -43,7 +43,7 @@
   });
 
   async function handleUserRole() {
-    const res = await fetch("/api/routes/user.php");
+    const res = await fetch("/api/routes/auth/user.php");
     const data = await res.json();
 
     const permissionLevel = {
@@ -184,7 +184,7 @@
     top: 0;
     right: 0;
     width: 100%;
-    max-width: 300px;
+    max-width: 350px;
     height: 100vh;
     background-color: white;
     z-index: 101;
@@ -257,6 +257,10 @@
   }
 
   @media screen and (max-width: 480px) {
+    #sidebar {
+      min-width: 100%;
+    }
+
     #main-nav section {
       width: 95%;
     }

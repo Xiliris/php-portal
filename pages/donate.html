@@ -1,17 +1,180 @@
 {{navbar}}
 <div id="donate">
-  <h1>Donate</h1>
-  <p>This is the donate page.</p>
+  <h1>Donate to PHP Portal</h1>
+  <p>
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod<br />
+    tempor incididunt ut labore et dolore magna aliqua.
+  </p>
+  <div id="donate-container">
+    <!-- Donations will be added here -->
+  </div>
 </div>
 {{footer}}
 
+<script>
+  const container = document.getElementById("donate-container");
+
+  async function getDonations() {
+    try {
+      const response = await fetch("/api/routes/donations/get-donation.php");
+      if (!response.ok) {
+        throw new Error("Network response was not ok.");
+      }
+      const data = await response.json();
+      if (data.data && Array.isArray(data.data)) {
+        data.data.forEach((donation) => {
+          appendDonation(donation);
+        });
+      } else {
+        console.error("Unexpected data format", data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch donations:", error);
+    }
+  }
+
+  function appendDonation({
+    header,
+    title,
+    link = "",
+    button_text = "",
+    description,
+    image_path = "",
+  }) {
+    const article = document.createElement("article");
+
+    article.innerHTML = `
+      <h2>${header || "No Header"}</h2>
+      <div class="donate__inner-container">
+        <div>
+          <h3>${title || "No Title"}</h3>
+          <p>${description || "No Description"}</p>
+          ${
+            link
+              ? `<a href="${link}" target="_blank">${
+                  button_text || "Learn More"
+                }</a>`
+              : ""
+          }
+        </div>
+        ${
+          image_path
+            ? `<img src="${image_path}" alt="${title || "Image"}" />`
+            : ""
+        }
+      </div>
+    `;
+
+    container.appendChild(article);
+  }
+
+  getDonations();
+</script>
+
 <style>
   #donate {
+    margin: 0 auto;
+    padding: 10em 0;
+    width: 80%;
+    min-height: 100vh;
+    text-align: left;
+  }
+
+  #donate h1 {
+    margin-bottom: 0.5em;
+  }
+
+  #donate p {
+    margin-bottom: 2em;
+  }
+
+  #donate-container {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-    height: 100vh;
+    width: 100%;
+    gap: 1em;
+  }
+
+  article {
+    margin-top: 1em;
+  }
+
+  #donate-container h2 {
+    width: 100%;
+    background-color: lightblue;
+    color: darkblue;
+    border: 1px solid darkblue;
+    border-radius: 0.2em;
+    padding: 24px;
+    font-weight: 500;
+  }
+
+  .donate__inner-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 2em;
+    margin-top: 1em;
+    padding: 1em;
+    padding-left: 24px;
+    padding-right: 0;
+    border-bottom: darkblue 1px solid;
+    border-left: darkblue 1px solid;
+    border-bottom-left-radius: 0.2em;
+    height: 100%;
+  }
+  .donate__inner-container div {
+    height: 100%;
+    min-height: 200px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-direction: column;
+    gap: 1em;
+    flex-grow: 1;
+  }
+
+  .donate__inner-container h3 {
+    font-size: 1.5em;
+  }
+
+  .donate__inner-container p {
+    font-size: 1em;
+  }
+
+  .donate__inner-container a {
+    margin-top: auto;
+    padding: 0.5em 1em;
+    border-radius: 0.5em;
+    background-color: green;
+    color: white;
+    text-decoration: none;
+  }
+
+  .donate__inner-container img {
+    width: 200px;
+    height: 200px;
+    object-fit: contain;
+  }
+
+  @media (max-width: 768px) {
+    .donate__inner-container {
+      flex-direction: column;
+      border-right: darkblue 1px solid;
+      border-bottom-right-radius: darkblue 0.2em;
+      padding-left: 1em;
+      padding-right: 1em;
+      text-align: center;
+      gap: 1em;
+    }
+
+    .donate__inner-container div {
+      padding: 1em;
+      align-items: center;
+    }
+
+    .donate__inner-container img {
+      width: 100%;
+      height: 200px;
+    }
   }
 </style>
