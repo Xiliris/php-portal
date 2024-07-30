@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       "http://php-portal.local/pages/master-panel/sensitive-data.html",
     "/master-panel/donations":
       "http://php-portal.local/pages/master-panel/donations.html",
-      "/documents": "http://php-portal.local/pages/documents.html",
+    "/documents": "http://php-portal.local/pages/documents.html",
     "/profile": "http://php-portal.local/pages/profile.html",
   };
 
@@ -162,7 +162,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   window.addEventListener("popstate", router);
 
-  await fetch("/api/routes/router.php")
+  await fetch("/api/routes/router/router.php")
     .then((response) => {
       if (response.ok) {
         response.json().then((res) => {
@@ -189,7 +189,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 async function checkAuth() {
-  const response = await fetch("/api/routes/user.php", {
+  const response = await fetch("/api/routes/auth/user.php", {
     method: "GET",
   });
 

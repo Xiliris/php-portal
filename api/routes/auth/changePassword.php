@@ -1,5 +1,5 @@
 <?php 
-require __DIR__ . '/../config.php';
+    require __DIR__ . '/../../config.php';
 
 session_start();
 error_reporting(E_ALL);

@@ -1,6 +1,6 @@
 {{navbar}}
 <div class="login--container">
-  <form id="loginForm" action="../../api/routes/login.php" method="post">
+  <form id="loginForm" action="../../api/routes/auth/login.php" method="post">
     <h2>Login</h2>
     <div>
       <label for="username">Username</label>
@@ -22,7 +22,7 @@
       .addEventListener("submit", function (e) {
         e.preventDefault();
         const formData = new FormData(this);
-        fetch("/api/routes/login.php", {
+        fetch("/api/routes/auth/login.php", {
           method: "POST",
           body: formData,
         })

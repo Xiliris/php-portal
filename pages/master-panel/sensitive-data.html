@@ -27,7 +27,7 @@
   let usersData = [];
 
   async function fetchUsers() {
-    const res = await fetch("/api/routes/getInitialUserData.php");
+    const res = await fetch("/api/routes/data/getInitialUserData.php");
     const data = await res.json();
     usersData = data.data;
     displayUsers(usersData);
