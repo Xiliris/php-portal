@@ -7,9 +7,159 @@
       <a class="btn" href="/master-panel" data-link>Back</a>
     </div>
     <hr />
-    <section class="master-panel__container"></section>
+    <section class="footer-add">
+      <input type="text" id="footer-header" placeholder="Title" />
+      <input type="text" id="footer-link" placeholder="Link" />
+      <input type="file" id="footer-image" accept="image/*" />
+      <textarea id="footer-description" placeholder="Description"></textarea>
+      <button class="btn" id="footer-submit">Add</button>
+    </section>
+    <section id="footer-container">
+      <!-- Footer items will be displayed here -->
+    </section>
   </div>
 </main>
+
+<script>
+  const footerHeader = document.getElementById("footer-header");
+  const footerLink = document.getElementById("footer-link");
+  const footerImage = document.getElementById("footer-image");
+  const footerDescription = document.getElementById("footer-description");
+  const footerContainer = document.getElementById("footer-container");
+  const footerSubmit = document.getElementById("footer-submit");
+
+  footerSubmit.addEventListener("click", async () => {
+    const description = footerDescription.value.trim();
+    const link = footerLink.value.trim();
+    const header = footerHeader.value.trim();
+    const image = footerImage.files[0];
+
+    let errorMessage = "";
+
+    if (!description) {
+      errorMessage += "Description is required.\n";
+    }
+
+    if (!link) {
+      errorMessage += "Link is required.\n";
+    }
+
+    if (!header) {
+      errorMessage += "Title is required.\n";
+    }
+
+    if (!image) {
+      errorMessage += "Image is required.\n";
+    }
+
+    if (errorMessage) {
+      alert(errorMessage);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("title", header);
+    formData.append("link", link);
+    formData.append("description", description);
+    formData.append("image", image);
+
+    try {
+      const response = await fetch("/api/routes/footer/add-footer.php", {
+        method: "POST",
+        body: formData,
+      });
+
+      const res = await response.json();
+      const data = res.data;
+
+      if (response.ok) {
+        if (data && data.title && data.id) {
+          footerHeader.value = "";
+          footerLink.value = "";
+          footerDescription.value = "";
+          footerImage.value = "";
+
+          appendFooterItem(data.title, data.id);
+        } else {
+          console.error("Invalid response data:", data);
+        }
+      } else {
+        console.error("Failed to add footer item. Status:", response.status);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  });
+
+  function appendFooterItem(title, id) {
+    const article = document.createElement("article");
+    article.innerHTML = `
+      <i class="fas fa-trash remove"></i>
+      <h2>${title}</h2>
+    `;
+
+    article.id = id;
+
+    article
+      .querySelector(".remove")
+      .addEventListener("click", () => handleRemove(id));
+
+    footerContainer.appendChild(article);
+  }
+
+  async function handleRemove(id) {
+    const formData = new FormData();
+    formData.append("id", id);
+
+    try {
+      const response = await fetch("/api/routes/footer/remove-footer.php", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          document.getElementById(id).remove();
+        } else {
+          alert("Failed to remove footer item: " + data.message);
+        }
+      } else {
+        console.error("Failed to remove footer item. Status:", response.status);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
+
+  async function getFooterItems() {
+    try {
+      const response = await fetch("/api/routes/footer/get-footer.php");
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.data && Array.isArray(data.data)) {
+          data.data.forEach((item) => {
+            if (item.title && item.id) {
+              appendFooterItem(item.title, item.id);
+            } else {
+              console.error("Invalid item data:", item);
+            }
+          });
+        } else {
+          console.error("Unexpected data format:", data);
+        }
+      } else {
+        console.error("Failed to fetch footer items. Status:", response.status);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
+
+  getFooterItems();
+</script>
+
 <style>
   #master-panel {
     margin: 0 auto;
@@ -43,7 +193,62 @@
     justify-content: center;
     gap: 1em;
     background-color: green;
+    border: 1px solid green;
     color: white;
+    cursor: pointer;
+    font-size: 1em;
+  }
+
+  .footer-add h2 {
+    margin: 1em 0;
+  }
+
+  .footer-add {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    margin: 1em 0;
+  }
+
+  .footer-add label {
+    font-weight: bold;
+  }
+
+  .footer-add input,
+  .footer-add textarea {
+    padding: 0.5em 1em;
+    border: 1px solid gray;
+    border-radius: 5px;
+    resize: none;
+    font-size: 1em;
+  }
+
+  .footer-add textarea {
+    height: 200px;
+  }
+
+  #footer-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1em;
+    margin-top: 1em;
+  }
+
+  #footer-container article {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 1em;
+    border: 1px solid black;
+    border-left: 10px solid green;
+    border-radius: 0.5em;
+    gap: 0.5em;
+  }
+
+  #footer-container article i {
+    transform: scale(1.5);
+    cursor: pointer;
+    color: red;
   }
 
   @media screen and (max-width: 480px) {

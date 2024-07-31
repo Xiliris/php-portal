@@ -3,52 +3,8 @@
     <i class="fa-solid fa-chevron-up"></i>
     <p>Top</p>
   </a>
-  <section class="footer--container">
-    <article>
-      <img src="http://php-portal.local/assets/img1.png" alt="Placeholder" />
-      <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod,
-        velit ac tincidunt ultrices, justo nunc lacinia nisl, sed luctus justo
-        nunc id nunc. Sed euismod, nisl id consectetur tincidunt, nunc nunc
-        lacinia nisl, sed luctus justo nunc id nunc.
-      </p>
-    </article>
-    <article>
-      <img src="http://php-portal.local/assets/img2.png" alt="Placeholder" />
-      <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod,
-        velit ac tincidunt ultrices, justo nunc lacinia nisl, sed luctus justo
-        nunc id nunc. Sed euismod, nisl id consectetur tincidunt, nunc nunc
-        lacinia nisl, sed luctus justo nunc id nunc.
-      </p>
-    </article>
-    <article>
-      <img src="http://php-portal.local/assets/img3.png" alt="Placeholder" />
-      <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod,
-        velit ac tincidunt ultrices, justo nunc lacinia nisl, sed luctus justo
-        nunc id nunc. Sed euismod, nisl id consectetur tincidunt, nunc nunc
-        lacinia nisl, sed luctus justo nunc id nunc.
-      </p>
-    </article>
-    <article>
-      <img src="http://php-portal.local/assets/img4.png" alt="Placeholder" />
-      <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod,
-        velit ac tincidunt ultrices, justo nunc lacinia nisl, sed luctus justo
-        nunc id nunc. Sed euismod, nisl id consectetur tincidunt, nunc nunc
-        lacinia nisl, sed luctus justo nunc id nunc.
-      </p>
-    </article>
-    <article>
-      <img src="http://php-portal.local/assets/img5.png" alt="Placeholder" />
-      <p>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam euismod,
-        velit ac tincidunt ultrices, justo nunc lacinia nisl, sed luctus justo
-        nunc id nunc. Sed euismod, nisl id consectetur tincidunt, nunc nunc
-        lacinia nisl, sed luctus justo nunc id nunc.
-      </p>
-    </article>
+  <section id="footer--container">
+    <!-- Footer items will be appended here -->
   </section>
   <section class="footer--links">
     <a href="#">
@@ -65,6 +21,36 @@
     </a>
   </section>
 </footer>
+
+<script>
+  const footerContainer = document.getElementById("footer--container");
+
+  async function loadFooter() {
+    try {
+      const response = await fetch("/api/routes/footer/get-footer.php");
+      const resData = await response.json();
+
+      if (resData.success) {
+        resData.data.forEach((item) => {
+          const a = document.createElement("a");
+          a.innerHTML = `
+            <img src="${item.image_path}" alt="Placeholder" />
+            <p>${item.description}</p>
+            `;
+          a.href = item.link;
+          a.target = "_blank";
+          a.rel = "noopener";
+          footerContainer.appendChild(a);
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  loadFooter();
+</script>
+
 <style>
   footer {
     width: 100%;
@@ -95,16 +81,17 @@
     font-size: 1.5em;
   }
 
-  .footer--container {
+  #footer--container {
     margin: 0 auto;
     width: 70%;
     display: flex;
     justify-content: center;
     gap: 2em;
     align-items: center;
+    flex-wrap: wrap;
   }
 
-  .footer--container article {
+  #footer--container a {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -112,13 +99,14 @@
     width: 170px;
   }
 
-  .footer--container article img {
+  #footer--container a img {
     width: 170px;
     height: 120px;
     object-fit: contain;
+    margin-bottom: 0.7em;
   }
 
-  .footer--container article p {
+  #footer--container a p {
     color: #555555;
     font-size: 0.8em;
     text-align: left;
