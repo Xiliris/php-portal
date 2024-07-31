@@ -36,6 +36,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       "http://php-portal.local/pages/master-panel/sensitive-data.html",
     "/master-panel/donations":
       "http://php-portal.local/pages/master-panel/donations.html",
+    "/master-panel/footer":
+      "http://php-portal.local/pages/master-panel/footer.html",
     "/documents": "http://php-portal.local/pages/documents.html",
     "/profile": "http://php-portal.local/pages/profile.html",
   };
@@ -50,6 +52,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/master-panel/users": 4,
     "/master-panel/sensitive-data": 4,
     "/master-panel/donations": 4,
+    "/master-panel/footer": 4,
   };
 
   const colors = {
