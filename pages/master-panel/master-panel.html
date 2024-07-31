@@ -5,31 +5,38 @@
     <h2>Master Dashboard</h2>
     <hr />
     <section class="master-panel__container">
-      <a class="red" href="/master-panel/routes" data-link>
+      <a href="/master-panel/routes" data-link>
         <h3>Routes</h3>
         <p>
           Routes are the different pages that users can visit on the portal.
         </p>
       </a>
-      <a class="green" href="/master-panel/sensitive-data" data-link>
+      <a href="/master-panel/sensitive-data" data-link>
         <h3>User Sensitive Data</h3>
         <p>
           User sensitive data is data that is stored on the portal that is
           sensitive to the user.
         </p>
       </a>
-      <a class="yellow" href="/master-panel/donations" data-link>
+      <a href="/master-panel/donations" data-link>
         <h3>Donations</h3>
         <p>
           Donations are a way for users to support the portal without receiving
           anything in return.
         </p>
       </a>
-      <a class="gray" href="/master-panel/users" data-link>
+      <a href="/master-panel/users" data-link>
         <h3>Users</h3>
         <p>
           Users are the people who use the portal. They can have different roles
           and permissions.
+        </p>
+      </a>
+      <a href="/master-panel/footer" data-link>
+        <h3>Footer</h3>
+        <p>
+          The footer is the bottom part of the portal. It contains links to
+          other pages and information about the portal.
         </p>
       </a>
     </section>
@@ -69,6 +76,14 @@
     border: 3px solid black;
     border-radius: 0.5em;
     cursor: pointer;
+    border-left: 10px solid darkblue;
+    background-color: lightblue;
+    transition: all 0.3s ease;
+  }
+
+  .master-panel__container a:hover {
+    background-color: darkblue;
+    color: white;
   }
 
   .master-panel__container a h3 {
@@ -77,42 +92,5 @@
 
   .master-panel__container a p {
     font-weight: 500;
-  }
-
-  /* GLOBAL */
-  .yellow {
-    background-color: rgba(255, 213, 0, 0.8);
-    transition: all 0.3s ease;
-  }
-
-  .green {
-    background-color: rgba(0, 128, 0, 0.8);
-    transition: all 0.3s ease;
-  }
-
-  .red {
-    background-color: rgba(255, 0, 0, 0.8);
-    transition: all 0.3s ease;
-  }
-
-  .gray {
-    background-color: rgba(92, 114, 125, 0.8);
-    transition: all 0.3s ease;
-  }
-
-  .yellow:hover {
-    background-color: rgba(255, 213, 0, 1);
-  }
-
-  .green:hover {
-    background-color: rgba(0, 128, 0, 1);
-  }
-
-  .red:hover {
-    background-color: rgba(255, 0, 0, 1);
-  }
-
-  .gray:hover {
-    background-color: rgba(92, 114, 125, 1);
   }
 </style>
