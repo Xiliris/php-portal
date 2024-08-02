@@ -26,12 +26,12 @@
                     audioContainer.innerHTML = '<h1 id="h1el">Celebrity Profile Audio</h1>';
 
                     audioPaths.forEach(path => {
-                        const cleanPath = path.replace("../routes/uploads/audios/", "");
+                        const cleanPath = path.replace("../routes/", "");
                         const audioElement = document.createElement("audio");
                         const audioFileName = document.createElement("p");
 
                         audioElement.controls = true;
-                        audioElement.src = `/api/routes/uploads/audios/${cleanPath}`;
+                        audioElement.src = `/api/routes/${cleanPath}`;
                         audioFileName.textContent = cleanPath.split('/').pop();
 
                         audioContainer.appendChild(audioFileName);
