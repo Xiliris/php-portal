@@ -40,6 +40,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       "http://php-portal.local/pages/master-panel/footer.html",
     "/documents": "http://php-portal.local/pages/documents.html",
     "/profile": "http://php-portal.local/pages/profile.html",
+    "/videos": "http://php-portal.local/pages/video.html",
+    "/audio": "http://php-portal.local/pages/audio.html",
   };
 
   const routePermissions = {
