@@ -52,3 +52,14 @@ CREATE TABLE celebrity_profiles (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
+
+CREATE TABLE celebrity_profiles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    profile_picture VARCHAR(255) DEFAULT NULL,
+    description TEXT NOT NULL,
+    profile_documents TEXT,
+    video VARCHAR(255),
+    audio VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

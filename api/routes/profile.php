@@ -19,6 +19,9 @@ if (isset($_GET['id'])) {
     $profile = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($profile) {
+        $profile['video'] = json_decode($profile['video']);
+        $profile['audio'] = json_decode($profile['audio']);
+
         echo json_encode(['status' => 'success', 'profile' => $profile]);
     } else {
         echo json_encode(['status' => 'error', 'message' => 'Profile not found.']);
