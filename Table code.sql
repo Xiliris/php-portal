@@ -48,8 +48,8 @@ CREATE TABLE celebrity_profiles (
     profile_picture VARCHAR(255) DEFAULT NULL,
     description TEXT NOT NULL,
     profile_documents TEXT,
-    video VARCHAR(255),
-    audio VARCHAR(255),
+    video VARCHAR(600),
+    audio VARCHAR(600),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
