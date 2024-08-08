@@ -1,90 +1,174 @@
 {{navbar}}
-<div id="dashboard">
-  <div>
+<div class="wrapper">
+  <div id="dashboard">
     <h1 id="h1el">Admin Dashboard</h1>
-  </div>
-  <br>
-
-  <body>
-    <h1>Create Celebrity Profile</h1>
-    <br>
-    <form id="profile-form" enctype="multipart/form-data" action="/api/routes/create_profile.php" method="post">
+    <h2 id="h2el">Create Celebrity Profile</h2>
+    <br />
+    <form
+      id="profile-form"
+      enctype="multipart/form-data"
+      action="/api/routes/createProfile.php"
+      method="post"
+    >
       <label for="picture">Profile Picture:</label>
-      <input type="file" name="picture" id="picture" accept="image/*">
-      <br>
-      <br>
-      <label for="bio">Bio:</label>
-      <br>
-      <textarea name="bio" id="bio" rows="10" cols="60"></textarea>
-      <br>
-      <label for="profile_documents">Profile Documents:</label>
-      <input type="file" name="profile_documents[]" id="profile_documents" multiple accept=".pdf, .doc, .docx">
-      <br>
-      <br>
-      <input type="submit" value="Create Profile">
-    </form>
+      <input type="file" name="picture" id="picture" accept="image/*" />
+      <br /><br />
 
+      <label for="bio">Bio:</label>
+      <textarea name="bio" id="bio" rows="10" cols="60"></textarea>
+      <br />
+
+      <label for="profile_documents">Profile Documents:</label>
+      <input
+        type="file"
+        name="profile_documents[]"
+        id="profile_documents"
+        multiple
+        accept=".pdf, .doc, .docx"
+      />
+      <br /><br />
+
+      <label for="video">Profile Video:</label>
+      <input type="file" name="video[]" id="video" multiple accept="video/*" />
+      <br /><br />
+
+      <label for="audio">Profile Audio:</label>
+      <input type="file" name="audio[]" id="audio" multiple accept="audio/*" />
+      <br /><br />
+
+      <input type="submit" value="Create Profile" />
+    </form>
     <div id="error-message"></div>
-  </body>
+  </div>
 </div>
 {{footer}}
 
 <script>
-  document.getElementById('profile-form').addEventListener('submit', async function (event) {
-    event.preventDefault();
+  document
+    .getElementById("profile-form")
+    .addEventListener("submit", async function (event) {
+      event.preventDefault();
 
-    const form = event.target;
-    const formData = new FormData(form);
+      const form = event.target;
+      const formData = new FormData(form);
 
-    try {
-      const response = await fetch('/api/routes/create_profile.php', {
-        method: 'POST',
-        body: formData,
-      });
+      try {
+        const response = await fetch("/api/routes/createProfile.php", {
+          method: "POST",
+          body: formData,
+        });
 
-      const contentType = response.headers.get('content-type');
-      if (contentType && contentType.includes('application/json')) {
-        const result = await response.json();
-        if (result.status === 'success') {
-          document.getElementById('error-message').textContent = `Success: ${result.message}`;
-          if (result.profileId) {
-            window.location.href = `/profile?id=${result.profileId}`;
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          const result = await response.json();
+          if (result.status === "success") {
+            document.getElementById(
+              "error-message"
+            ).textContent = `Success: ${result.message}`;
+            if (result.profileId) {
+              window.location.href = `/profile?id=${result.profileId}`;
+            } else {
+              document.getElementById("error-message").textContent =
+                "No profile ID returned.";
+            }
           } else {
-            document.getElementById('error-message').textContent = "No profile ID returned.";
+            document.getElementById("error-message").textContent =
+              result.message
+                ? `${result.message}`
+                : "An unknown error occurred.";
           }
         } else {
-          document.getElementById('error-message').textContent = result.message ? `${result.message}` : 'An unknown error occurred.';
+          throw new Error("Invalid JSON response");
         }
-      } else {
-        throw new Error('Invalid JSON response');
+      } catch (error) {
+        document.getElementById(
+          "error-message"
+        ).textContent = `${error.message}`;
       }
-    } catch (error) {
-      document.getElementById('error-message').textContent = `${error.message}`;
-    }
-  });
+    });
 </script>
 
 <style>
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+
   #dashboard {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin-top: 0 auto;
+    width: 100%;
+    max-width: 600px;
   }
 
   #h1el {
-    margin-top: 55%;
-    margin-bottom: 40%;
+    margin-top: 20%;
+    margin-bottom: 20px;
     text-align: center;
   }
 
   #profile-form {
-    margin-bottom: 1%;
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+
+  #profile-form label {
+    display: block;
+    margin: 10px 0 5px;
+  }
+
+  #profile-form input[type="file"],
+  #profile-form textarea,
+  #profile-form input[type="submit"] {
+    width: 100%;
+    box-sizing: border-box;
   }
 
   #error-message {
     color: red;
-    margin-bottom: 20%;
+    margin-top: 10px;
+    margin-bottom: 40%;
+    text-align: center;
+  }
+
+  @media (max-width: 480px) {
+    #profile-form {
+      width: 90%;
+      padding: 5px;
+    }
+
+    #h1el {
+      font-size: 1.5em;
+    }
+
+    #profile-form textarea {
+      font-size: 0.9em;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    #profile-form {
+      width: 90%;
+    }
+
+    #h1el {
+      padding-top: 10%;
+    }
   }
 </style>
