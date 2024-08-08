@@ -1,6 +1,8 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const app = document.getElementById("app");
 
+  const baseUrl = "http://php-portal.local";
+
   const hrefReplace = {};
 
   const components = {
@@ -9,39 +11,32 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   const routes = {
-    404: "http://php-portal.local/pages/error/404.html",
-    "/401": "http://php-portal.local/pages/error/401.html",
-    "/": "http://php-portal.local/pages/home.html",
-    "/person-of-interest":
-      "http://php-portal.local/pages/person-of-interest.html",
-    "/coming": "http://php-portal.local/pages/coming.html",
-    "/news": "http://php-portal.local/pages/news.html",
-    "/about": "http://php-portal.local/pages/about.html",
-    "/partners": "http://php-portal.local/pages/partners.html",
-    "/shop": "http://php-portal.local/pages/shop.html",
-    "/donate": "http://php-portal.local/pages/donate.html",
-    "/submit": "http://php-portal.local/pages/submit.html",
-    "/change-password":
-      "http://php-portal.local/pages/auth/change-password.html",
-    "/login/random": "http://php-portal.local/pages/auth/login.html",
-    "/logout": "http://php-portal.local/pages/auth/logout.html",
-    "/dashboard": "http://php-portal.local/pages/admin/dashboard.html",
-    "/master-panel":
-      "http://php-portal.local/pages/master-panel/master-panel.html",
-    "/master-panel/routes":
-      "http://php-portal.local/pages/master-panel/routes.html",
-    "/master-panel/users":
-      "http://php-portal.local/pages/master-panel/users.html",
-    "/master-panel/sensitive-data":
-      "http://php-portal.local/pages/master-panel/sensitive-data.html",
-    "/master-panel/donations":
-      "http://php-portal.local/pages/master-panel/donations.html",
-    "/master-panel/footer":
-      "http://php-portal.local/pages/master-panel/footer.html",
-    "/documents": "http://php-portal.local/pages/documents.html",
-    "/profile": "http://php-portal.local/pages/profile.html",
-    "/videos": "http://php-portal.local/pages/video.html",
-    "/audio": "http://php-portal.local/pages/audio.html",
+    404: `${baseUrl}/pages/error/404.html`,
+    "/401": `${baseUrl}/pages/error/401.html`,
+    "/": `${baseUrl}/pages/home.html`,
+    "/person-of-interest": `${baseUrl}/pages/person-of-interest.html`,
+    "/coming": `${baseUrl}/pages/coming.html`,
+    "/news": `${baseUrl}/pages/news.html`,
+    "/about": `${baseUrl}/pages/about.html`,
+    "/partners": `${baseUrl}/pages/partners.html`,
+    "/shop": `${baseUrl}/pages/shop.html`,
+    "/donate": `${baseUrl}/pages/donate.html`,
+    "/submit": `${baseUrl}/pages/submit.html`,
+    "/change-password": `${baseUrl}/pages/auth/change-password.html`,
+    "/login/random": `${baseUrl}/pages/auth/login.html`,
+    "/logout": `${baseUrl}/pages/auth/logout.html`,
+    "/dashboard": `${baseUrl}/pages/admin/dashboard.html`,
+    "/master-panel": `${baseUrl}/pages/master-panel/master-panel.html`,
+    "/master-panel/routes": `${baseUrl}/pages/master-panel/routes.html`,
+    "/master-panel/users": `${baseUrl}/pages/master-panel/users.html`,
+    "/master-panel/sensitive-data": `${baseUrl}/pages/master-panel/sensitive-data.html`,
+    "/master-panel/donations": `${baseUrl}/pages/master-panel/donations.html`,
+    "/master-panel/footer": `${baseUrl}/pages/master-panel/footer.html`,
+    "/documents": `${baseUrl}/pages/documents.html`,
+    "/videos": `${baseUrl}/pages/video.html`,
+    "/audio": `${baseUrl}/pages/audio.html`,
+    "/news/:id/:document": `${baseUrl}/pages/news.html`,
+    "/profile/:username": `${baseUrl}/pages/on.html`,
   };
 
   const routePermissions = {
@@ -82,6 +77,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     router();
   };
 
+  const matchRoute = (path) => {
+    const routeKeys = Object.keys(routes);
+    for (const route of routeKeys) {
+      const routePattern = new RegExp("^" + route.replace(/:\w+/g, "([\\w-]+)").replace(/\//g, "\\/") + "$");
+      const match = path.match(routePattern);
+      if (match) {
+        return { route, params: match.slice(1) };
+      }
+    }
+    return null;
+  };
+
   const checkPermissions = (user, path) => {
     if (routePermissions[path]) {
       const requiredRoles = routePermissions[path];
@@ -96,11 +103,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const router = async () => {
     const path = location.pathname;
-    const request = routes[path] || routes[404];
+    const matchedRoute = matchRoute(path);
+    const routeKey = matchedRoute ? matchedRoute.route : null;
+    const params = matchedRoute ? matchedRoute.params : [];
+    const request = routeKey ? routes[routeKey] : routes[404];
 
     try {
       const user = await checkAuth();
-      const hasPermission = checkPermissions(user, path);
+      const hasPermission = checkPermissions(user, routeKey || path);
 
       if (!hasPermission) {
         navigateTo("/401");
@@ -115,15 +125,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       for (const [color, value] of Object.entries(colors)) {
-        html = html.replace(
-          new RegExp(color.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1"), "g"),
-          value
-        );
+        html = html.replace(new RegExp(color.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1"), "g"), value);
       }
 
       for (const [oldHref, newHref] of Object.entries(hrefReplace)) {
         html = html.replace(new RegExp(oldHref, "g"), newHref);
       }
+
+      params.forEach((param, index) => {
+        html = html.replace(new RegExp(`\\$\\{param${index + 1}\\}`, "g"), param);
+      });
 
       app.innerHTML = html;
       window.scrollTo(0, 0);

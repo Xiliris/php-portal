@@ -4,7 +4,12 @@
     <h1 id="h1el">Admin Dashboard</h1>
     <h2 id="h2el">Create Celebrity Profile</h2>
     <br />
-    <form id="profile-form" enctype="multipart/form-data" action="/api/routes/createProfile.php" method="post">
+    <form
+      id="profile-form"
+      enctype="multipart/form-data"
+      action="/api/routes/createProfile.php"
+      method="post"
+    >
       <label for="picture">Profile Picture:</label>
       <input type="file" name="picture" id="picture" accept="image/*" />
       <br /><br />
@@ -14,7 +19,13 @@
       <br />
 
       <label for="profile_documents">Profile Documents:</label>
-      <input type="file" name="profile_documents[]" id="profile_documents" multiple accept=".pdf, .doc, .docx" />
+      <input
+        type="file"
+        name="profile_documents[]"
+        id="profile_documents"
+        multiple
+        accept=".pdf, .doc, .docx"
+      />
       <br /><br />
 
       <label for="video">Profile Video:</label>
@@ -158,7 +169,6 @@
 
     #h1el {
       padding-top: 10%;
-
     }
   }
 </style>
