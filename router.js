@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/videos": `${baseUrl}/pages/video.html`,
     "/audio": `${baseUrl}/pages/audio.html`,
     "/news/:id/:document": `${baseUrl}/pages/news.html`,
-    "/profile/:username": `${baseUrl}/pages/on.html`,
+    "/profile/:username": `${baseUrl}/pages/profile.html`,
   };
 
   const routePermissions = {
