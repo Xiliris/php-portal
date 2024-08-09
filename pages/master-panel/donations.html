@@ -118,13 +118,10 @@
     formData.append("id", id);
 
     try {
-      const response = await fetch(
-        `/api/routes/donations/remove-donation.php`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const response = await fetch(`/api/routes/donations/remove-donation.php`, {
+        method: "POST",
+        body: formData,
+      });
 
       const data = await response.json();
 
