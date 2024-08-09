@@ -1,0 +1,27 @@
+{{navbar}}
+<main id="profile">
+  <h1>Audio</h1>
+  <p>${param1}</p>
+  <a href="/profile/${param1}/${param2}/text" data-link="">Text</a>
+  <a href="/profile/${param1}/${param2}/document" data-link="">Document</a>
+  <a href="/profile/${param1}/${param2}/audio" data-link="">Audio</a>
+  <a href="/profile/${param1}/${param2}/video" data-link="">Video</a>
+  <a href="/profile/${param1}/${param2}/image" data-link="">Image</a>
+</main>
+
+{{footer}}
+
+<script>
+  console.log("${param1}");
+</script>
+
+<style>
+  #profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    height: 100vh;
+  }
+</style>

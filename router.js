@@ -36,7 +36,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/videos": `${baseUrl}/pages/video.html`,
     "/audio": `${baseUrl}/pages/audio.html`,
     "/news/:id/:document": `${baseUrl}/pages/news.html`,
-    "/profile/:username": `${baseUrl}/pages/profile.html`,
+    "/profile/:userid": `${baseUrl}/pages/profile/main.html`,
+    "/profile/:userid/:event/document": `${baseUrl}/pages/profile/documents.html`, // profile/1/1929/documents
+    "/profile/:userid/:event/video": `${baseUrl}/pages/profile/video.html`, // profile/1/1929/videos
+    "/profile/:userid/:event/audio": `${baseUrl}/pages/profile/audio.html`, // profile/1/1929/audio
+    "/profile/:userid/:event/image": `${baseUrl}/pages/profile/image.html`, // profile/1/1929/images
+    "/profile/:userid/:event/text": `${baseUrl}/pages/profile/text.html`, // profile/1/1929
   };
 
   const routePermissions = {
@@ -69,6 +74,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!response.ok) throw new Error(`Failed to fetch ${url}`);
     const text = await response.text();
     cache[url] = text;
+
     return text;
   };
 
@@ -78,6 +84,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   const matchRoute = (path) => {
+    console.log("RAN");
     const routeKeys = Object.keys(routes);
     for (const route of routeKeys) {
       const routePattern = new RegExp("^" + route.replace(/:\w+/g, "([\\w-]+)").replace(/\//g, "\\/") + "$");
@@ -119,6 +126,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       let html = await fetchAndCache(request);
 
+      params.forEach((param, index) => {
+        html = html.replace(new RegExp(`\\$\\{param${index + 1}\\}`, "g"), param);
+      });
+
       for (const [component, componentPath] of Object.entries(components)) {
         const componentHtml = await fetchAndCache(componentPath);
         html = html.replace(new RegExp(component, "g"), componentHtml);
@@ -132,13 +143,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         html = html.replace(new RegExp(oldHref, "g"), newHref);
       }
 
-      params.forEach((param, index) => {
-        html = html.replace(new RegExp(`\\$\\{param${index + 1}\\}`, "g"), param);
-      });
-
       app.innerHTML = html;
       window.scrollTo(0, 0);
 
+      // Execute embedded scripts
       html.split("<script>").forEach((script) => {
         if (script.includes("</script>")) {
           const scriptContent = script.split("</script>")[0];
@@ -146,6 +154,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
       });
 
+      // Handle embedded styles
       document.querySelectorAll("style").forEach((style) => {
         if (style.id) {
           style.remove();
