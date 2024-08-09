@@ -1,5 +1,6 @@
-#Initialize mod_rewrite
+# Initialize mod_rewrite
 RewriteEngine On
+
 <FilesMatch "\.(html|htm|js|css)$">
   FileETag None
   <IfModule mod_headers.c>
@@ -18,11 +19,12 @@ RewriteEngine On
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    RewriteRule ^profile/([0-9]+)/?(documents|videos|audio)?/?.*$ /pages/profile.html [L,QSA]
+    RewriteRule ^api/.*$ - [L]
 
     # If the request is not for a real file or directory, redirect to index.html
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^ index.html [L]
     AddType application/javascript .js
-
 </IfModule>
