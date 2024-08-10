@@ -37,9 +37,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/audio": `${baseUrl}/pages/audio.html`,
     "/news/:id/:document": `${baseUrl}/pages/news.html`,
     "/profile/:userid": `${baseUrl}/pages/profile/main.html`,
-    "/profile/:userid/:event/document": `${baseUrl}/pages/profile/documents.html`, // profile/1/1929/documents
-    "/profile/:userid/:event/video": `${baseUrl}/pages/profile/video.html`, // profile/1/1929/videos
-    "/profile/:userid/:event/audio": `${baseUrl}/pages/profile/audio.html`, // profile/1/1929/audio
+    "/profile/:userid/documents": `${baseUrl}/pages/profile/documents.html`, // profile/1/1929/documents
+    "/profile/:userid/videos": `${baseUrl}/pages/profile/video.html`, // profile/1/1929/videos
+    "/profile/:userid/audio": `${baseUrl}/pages/profile/audio.html`, // profile/1/1929/audio
     "/profile/:userid/:event/image": `${baseUrl}/pages/profile/image.html`, // profile/1/1929/images
     "/profile/:userid/:event/text": `${baseUrl}/pages/profile/text.html`, // profile/1/1929
   };

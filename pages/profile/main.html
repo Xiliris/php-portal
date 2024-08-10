@@ -12,26 +12,31 @@
       <div id="additional-content">
         <div id="documents-section" class="section-content">
           <h2>Documents</h2>
-          <div id="documents-links" class="section-container"></div>
-          <div id="documents-content" class="section-container"></div>
+          <div id="documents-links" class="section-container">
+          </div>
+          <div id="documents-content" class="section-container">
+          </div>
         </div>
         <div id="videos-section" class="section-content">
           <h2>Videos</h2>
-          <div id="videos-links" class="section-container"></div>
+          <div id="videos-links" class="section-container">
+          </div>
           <div id="videos-content" class="section-container"></div>
         </div>
         <div id="audio-section" class="section-content">
           <h2>Audio</h2>
-          <div id="audio-links" class="section-container"></div>
+          <div id="audio-links" class="section-container">
+          </div>
           <div id="audio-content" class="section-container"></div>
         </div>
       </div>
     </div>
   </div>
   <div id="profile-links">
-    <a href="#" id="show-documents" class="section-link">Documents</a>
-    <a href="#" id="show-videos" class="section-link">Videos</a>
-    <a href="#" id="show-audio" class="section-link">Audio</a>
+    <a href="/profile/${param1}/documents" id="show-documents" class="section-link"
+      data-link="/api/routes/documents.php">Documents</a>
+    <a href="${param1}/videos" id="show-videos" class="section-link" data-link="/api/routes/profile.php">Videos</a>
+    <a href="${param1}/audio" id="show-audio" class="section-link" data-link="/api/routes/profile.php">Audio</a>
   </div>
 </div>
 {{footer}}
@@ -41,10 +46,8 @@
 
   async function loadProfile() {
     const pathParts = window.location.pathname.split("/");
-    console.log(pathParts);
     const profileId = pathParts[2];
     const section = pathParts[3] || "documents";
-
     if (profileId) {
       const profileUrl = `/api/routes/profile.php?id=${profileId}`;
       try {
@@ -54,194 +57,23 @@
         if (profileData.status === "success") {
           profile = profileData.profile;
           const profilePicturePath = profile.profile_picture.replace("../routes/uploads/", "");
-          document.getElementById(
-            "profile-picture"
-          ).innerHTML = `<img src="/api/routes/uploads/${profilePicturePath}" alt="Profile Picture">`;
+          document.getElementById("profile-picture").innerHTML = `<img src="/api/routes/uploads/${profilePicturePath}" alt="Profile Picture">`;
           document.getElementById("profile-description").innerHTML = profile.description;
           document.getElementById("profile-created-at").innerHTML = `Created on: ${profile.created_at}`;
 
-          showSection(section);
         } else {
           document.getElementById("app").innerHTML = `<p>${profileData.message}</p>`;
         }
       } catch (error) {
         console.error("Error loading profile:", error);
       }
+    } else {
+      console.error("Profile ID is missing or undefined.");
     }
   }
-
-  async function showSection(section) {
-    document.querySelectorAll("audio").forEach((audio) => audio.pause());
-    document.querySelectorAll("video").forEach((video) => video.pause());
-
-    document.querySelectorAll(".section-content").forEach((sec) => sec.classList.remove("active"));
-    document.getElementById(`${section}-section`).classList.add("active");
-
-    if (section === "documents") {
-      const documentsUrl = `/api/routes/documents.php?id=${profile.id}`;
-      try {
-        const documentsResponse = await fetch(documentsUrl);
-        const documentsData = await documentsResponse.json();
-        console.log("Documents Data:", documentsData);
-
-        if (Array.isArray(documentsData) && documentsData.length > 0) {
-          const documentsLinks = documentsData
-            .map((doc) => {
-              const fileNameWithoutExt = doc.name.replace(/\.[^/.]+$/, "");
-              return `<a href="#" data-file="${doc.name}" data-file-name="${fileNameWithoutExt}" class="document-link">${fileNameWithoutExt}</a>`;
-            })
-            .join("<br>");
-          document.getElementById("documents-links").innerHTML = documentsLinks;
-
-          document.querySelectorAll(".document-link").forEach((link) => {
-            link.addEventListener("click", function (e) {
-              e.preventDefault();
-              const fileName = this.getAttribute("data-file");
-              const fileNameWithoutExt = this.getAttribute("data-file-name");
-              const fileUrl = `/api/routes/uploads/profile_documents/${fileName}`;
-              document.getElementById(
-                "documents-content"
-              ).innerHTML = `<iframe class="document-viewer" src="${fileUrl}" frameborder="0"></iframe>`;
-
-              history.pushState(null, null, `/profile/${profile.id}/documents/${fileNameWithoutExt}/`);
-            });
-          });
-        } else {
-          document.getElementById("documents-links").innerHTML = "<p>No documents available.</p>";
-          document.getElementById("documents-content").innerHTML = "";
-        }
-
-        history.pushState(null, null, `/profile/${profile.id}/documents/`);
-      } catch (error) {
-        console.error("Error fetching documents:", error);
-        document.getElementById("documents-links").innerHTML = "<p>Error loading documents.</p>";
-      }
-    }
-
-    if (section === "videos") {
-      const videos = profile.video || [];
-      console.log("Videos Data:", videos);
-
-      if (Array.isArray(videos) && videos.length > 0) {
-        const videosLinks = videos
-          .map((video) => {
-            const fileNameWithoutExt = video
-              .split("/")
-              .pop()
-              .replace(/\.[^/.]+$/, "");
-            return `<a href="#" data-file="${video
-              .split("/")
-              .pop()}" data-file-name="${fileNameWithoutExt}" class="video-link">${fileNameWithoutExt}</a>`;
-          })
-          .join("<br>");
-        document.getElementById("videos-links").innerHTML = videosLinks;
-
-        document.querySelectorAll(".video-link").forEach((link) => {
-          link.addEventListener("click", function (e) {
-            e.preventDefault();
-            const fileName = this.getAttribute("data-file");
-            const fileNameWithoutExt = this.getAttribute("data-file-name");
-            const fileUrl = `/api/routes/uploads/profile_videos/${fileName}`;
-            document.getElementById(
-              "videos-content"
-            ).innerHTML = `<video class="video-viewer" src="${fileUrl}" controls></video>`;
-
-            history.pushState(null, null, `/profile/${profile.id}/videos/${fileNameWithoutExt}/`);
-          });
-        });
-      } else {
-        document.getElementById("videos-links").innerHTML = "<p>No videos available.</p>";
-        document.getElementById("videos-content").innerHTML = "";
-      }
-
-      history.pushState(null, null, `/profile/${profile.id}/videos/`);
-    }
-
-    if (section === "audio") {
-      const audio = profile.audio || [];
-      console.log("Audio Data:", audio);
-
-      if (Array.isArray(audio) && audio.length > 0) {
-        const audioLinks = audio
-          .map((audioFile) => {
-            const fileNameWithoutExt = audioFile
-              .split("/")
-              .pop()
-              .replace(/\.[^/.]+$/, "");
-            return `<a href="#" data-file="${audioFile
-              .split("/")
-              .pop()}" data-file-name="${fileNameWithoutExt}" class="audio-link">${fileNameWithoutExt}</a>`;
-          })
-          .join("<br>");
-        document.getElementById("audio-links").innerHTML = audioLinks;
-
-        document.querySelectorAll(".audio-link").forEach((link) => {
-          link.addEventListener("click", function (e) {
-            e.preventDefault();
-            const fileName = this.getAttribute("data-file");
-            const fileNameWithoutExt = this.getAttribute("data-file-name");
-            const fileUrl = `/api/routes/uploads/profile_audios/${fileName}`;
-
-            fetch(fileUrl, { method: "HEAD" })
-              .then((response) => {
-                if (response.ok) {
-                  document.getElementById(
-                    "audio-content"
-                  ).innerHTML = `<audio class="audio-viewer" src="${fileUrl}" controls></audio>`;
-                  history.pushState(null, null, `/profile/${profile.id}/audio/${fileNameWithoutExt}/`);
-                } else {
-                  document.getElementById("audio-content").innerHTML = "<p>Unable to load audio file.</p>";
-                }
-              })
-              .catch((error) => {
-                console.error("Error fetching audio file:", error);
-                document.getElementById("audio-content").innerHTML = "<p>Error loading audio file.</p>";
-              });
-          });
-        });
-      } else {
-        document.getElementById("audio-links").innerHTML = "<p>No audio files available.</p>";
-        document.getElementById("audio-content").innerHTML = "";
-      }
-
-      history.pushState(null, null, `/profile/${profile.id}/audio/`);
-    }
-
-    updateActiveLink(section);
-  }
-
-  function updateActiveLink(section) {
-    document.querySelectorAll(".section-link").forEach((link) => {
-      link.classList.remove("active");
-    });
-    const activeLink = document.getElementById(`show-${section}`);
-    if (activeLink) {
-      activeLink.classList.add("active");
-    }
-  }
-
-  document.getElementById("show-documents").addEventListener("click", function (e) {
-    e.preventDefault();
-    showSection("documents");
-  });
-
-  document.getElementById("show-videos").addEventListener("click", function (e) {
-    e.preventDefault();
-    showSection("videos");
-  });
-
-  document.getElementById("show-audio").addEventListener("click", function (e) {
-    e.preventDefault();
-    showSection("audio");
-  });
-
-  window.addEventListener("popstate", function () {
-    const pathParts = window.location.pathname.split("/");
-    const section = pathParts[3] || "documents";
-    showSection(section);
-  });
 
   loadProfile();
+
 </script>
 
 <style>
@@ -295,6 +127,7 @@
   }
 
   #profile-links {
+    display: flex;
     margin-top: auto;
     padding-top: 20px;
     font-weight: bold;
@@ -321,6 +154,7 @@
     text-decoration: none;
     color: black;
     background-color: #f0f0f0;
+    text-align: center;
   }
 
   .section-link.active {
@@ -342,7 +176,20 @@
   }
 
   .document-viewer {
+    width: 100%;
     height: 500px;
+    overflow: auto;
+    border: 1px solid #ddd;
+    padding: 10px;
+    box-sizing: border-box;
+  }
+
+  .document-link {
+    display: inline-block;
+    margin-bottom: 2%;
+    cursor: pointer;
+    text-decoration: none;
+    color: blue;
   }
 
   .video-viewer {
@@ -358,10 +205,10 @@
     margin-top: 10px;
   }
 
-  a {
-    text-decoration: none;
-    margin-bottom: 1%;
-    display: inline-block;
+  @media (min-width: 769px) {
+    .section-link {
+      width: 120px;
+    }
   }
 
   @media (max-width: 768px) {
@@ -388,12 +235,15 @@
     }
 
     #profile-links {
+      flex-direction: column;
       text-align: center;
     }
 
     .section-link {
       margin: 5px 0;
       display: block;
+      width: 100%;
+      box-sizing: border-box;
     }
   }
 
@@ -415,6 +265,8 @@
     .section-link {
       margin: 5px 0;
       display: block;
+      width: 100%;
+      box-sizing: border-box;
     }
   }
 </style>
