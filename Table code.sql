@@ -54,3 +54,9 @@ CREATE TABLE celebrity_profiles (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
+
+CREATE TABLE partners (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    link VARCHAR(255) NOT NULL,
+    image_path TEXT NOT NULL
+);
