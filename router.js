@@ -38,6 +38,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/master-panel/sensitive-data": `${baseUrl}/pages/master-panel/sensitive-data.html`,
     "/master-panel/donations": `${baseUrl}/pages/master-panel/donations.html`,
     "/master-panel/footer": `${baseUrl}/pages/master-panel/footer.html`,
+    "/master-panel/partners": `${baseUrl}/pages/master-panel/partners.html`,
     "/documents": `${baseUrl}/pages/documents.html`,
     "/videos": `${baseUrl}/pages/video.html`,
     "/audio": `${baseUrl}/pages/audio.html`,

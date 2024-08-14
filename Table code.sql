@@ -88,3 +88,9 @@ CREATE TABLE celebrity_event_documents (
     document_path VARCHAR(255) NOT NULL,
     FOREIGN KEY (event_id) REFERENCES celebrity_event_data(id)
 );
+
+CREATE TABLE partners (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    link VARCHAR(255) NOT NULL,
+    image_path TEXT NOT NULL
+);
