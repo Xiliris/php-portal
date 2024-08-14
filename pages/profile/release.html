@@ -49,21 +49,79 @@
     if (data.success) {
       for (const event of data.data) {
         const article = document.createElement("article");
+        article.id = event.id;
+        const itemsContainer = document.createElement("div");
+        itemsContainer.className = "items_container";
 
-        article.innerHTML = `
+        if (event.id == params[3]) {
+          article.innerHTML = `
+            <a>${event.title}</a>
+            <i class="fa-solid fa-chevron-up"></i>
+        `;
+
+          itemsContainer.innerHTML = `
+          <ul>
+            <li id="releases" class="active-item">Releases <i class="fa-solid fa-chevron-down"></i></li>
+            <li id="documents">Documents <i class="fa-solid fa-chevron-down"></i></li>
+            <li id="images">Images <i class="fa-solid fa-chevron-down"></i></li>
+            <li id="audio">Audio <i class="fa-solid fa-chevron-down"></i></li>
+            <li id="video">Video <i class="fa-solid fa-chevron-down"></i></li>
+          </ul>
+          <div>
+            <p>${event.description}</p>
+          </div>
+        `;
+        } else {
+          article.innerHTML = `
           <a>${event.title}</a>
           <i class="fa-solid fa-chevron-down"></i>
         `;
+        }
 
         article.addEventListener("click", function () {
           this.querySelector("i").classList.toggle("active");
-          window.location.href = `/profile/${params[2]}/${event.id}/releases`;
+
+          if (article.id == params[3]) {
+            window.location.href = `/profile/${params[2]}`;
+          } else {
+            window.location.href = `/profile/${params[2]}/${event.id}/releases`;
+          }
+        });
+
+        itemsContainer.addEventListener("click", function (e) {
+          const target = e.target;
+
+          // Handle click on <li> elements
+          if (target.tagName === "LI" || target.parentElement.tagName === "LI") {
+            const clickedItem = target.tagName === "LI" ? target : target.parentElement;
+            const id = clickedItem.id;
+            switch (id) {
+              case "releases":
+                window.location.href = `/profile/${params[2]}/${event.id}/releases`;
+                break;
+              case "documents":
+                window.location.href = `/profile/${params[2]}/${event.id}/documents`;
+                break;
+              case "images":
+                window.location.href = `/profile/${params[2]}/${event.id}/images`;
+                break;
+              case "audio":
+                window.location.href = `/profile/${params[2]}/${event.id}/audio`;
+                break;
+              case "video":
+                window.location.href = `/profile/${params[2]}/${event.id}/video`;
+                break;
+              default:
+                console.log("Unknown item clicked");
+            }
+          }
         });
 
         eventContainer.append(article);
+        eventContainer.append(itemsContainer);
       }
     } else {
-      console.log(data.message);
+      alert(data.message);
     }
   }
 
@@ -144,5 +202,45 @@
 
   #celebrity__event-container .active {
     transform: scale(1.2) rotate(180deg);
+  }
+
+  .items_container ul {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    color: black;
+    font-weight: bold;
+    border-bottom: 1px solid lightgray;
+    width: 100%;
+  }
+
+  .items_container ul .active-item {
+    background-color: lightgrey;
+  }
+
+  .items_container ul li {
+    padding: 0.5em 1em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+
+  .items_container ul li:hover {
+    background: lightgray;
+  }
+
+  .items_container ul li i {
+    margin-left: 1em;
+  }
+
+  .items_container div {
+    margin-top: 1em;
+  }
+
+  .items_container div p {
+    font-size: 1.2em;
+    line-height: 1.5em;
   }
 </style>
