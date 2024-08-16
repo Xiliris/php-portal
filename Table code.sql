@@ -85,6 +85,7 @@ CREATE TABLE celebrity_event_audios (
 CREATE TABLE celebrity_event_documents (
     id INT AUTO_INCREMENT PRIMARY KEY,
     event_id INT NOT NULL,
+    doc_type VARCHAR(10) NOT NULL;
     document_path VARCHAR(255) NOT NULL,
     FOREIGN KEY (event_id) REFERENCES celebrity_event_data(id)
 );

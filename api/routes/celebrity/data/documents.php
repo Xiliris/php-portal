@@ -14,9 +14,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     try {
         // Step 1: Check if documents exist for the given event_id
-        $stmt = $pdo->prepare("SELECT document_path FROM celebrity_event_documents WHERE event_id = :event_id");
+        $stmt = $pdo->prepare("SELECT document_path, doc_type FROM celebrity_event_documents WHERE event_id = :event_id");
         $stmt->execute(['event_id' => $eventId]);
-        $documents = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+        $documents = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         if (empty($documents)) {
             $response["message"] = "No documents found for the given Event ID.";
@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $response["data"] = [
             'event_id' => $eventId,
             'publish_date' => $event['publish_date'],
-            'documents' => $documents
+            'documents' => $documents // Includes both document_path and doc_type
         ];
     } catch (PDOException $e) {
         $response["message"] = "Error retrieving data: " . $e->getMessage();

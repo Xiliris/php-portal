@@ -116,11 +116,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($upload->processed) {
                 $document_path = $storagePath . '/documents/' . $upload->file_dst_name;
+                $doc_type = pathinfo($value, PATHINFO_EXTENSION);
                 $upload->clean();
 
                 try {
-                    $stmt = $pdo->prepare('INSERT INTO celebrity_event_documents (event_id, document_path) VALUES (?, ?)');
-                    $stmt->execute([$id, $document_path]);
+                    $stmt = $pdo->prepare('INSERT INTO celebrity_event_documents (event_id, document_path, doc_type) VALUES (?, ?, ?)');
+                    $stmt->execute([$id, $document_path, $doc_type]);
                 } catch (PDOException $e) {
                     error_log("Database error: " . $e->getMessage());
                     $response["message"] = "Document upload: Database error";
