@@ -3,6 +3,7 @@
   <div id="main-container">
     <div id="about">
       <h1 id="page-title"></h1>
+      <p id="last-updated"></p>
       <div id="page-content" class="ck-content"></div>
       <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/43.0.0/ckeditor5.css" />
     </div>
@@ -19,6 +20,19 @@
       if (data.success) {
         document.getElementById('page-title').textContent = data.data.title;
         document.getElementById('page-content').innerHTML = data.data.content;
+
+        const lastUpdatedElement = document.getElementById('last-updated');
+        const lastUpdatedDate = new Date(data.data.last_updated);
+
+        const options = {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric'
+        };
+
+        const formattedDate = lastUpdatedDate.toLocaleDateString('en-GB', options);
+
+        lastUpdatedElement.textContent = `${formattedDate}`;
       } else {
         document.getElementById('page-title').textContent = 'No content available';
       }
@@ -60,6 +74,7 @@
     display: flex;
     flex-direction: column;
     padding: 20px;
+    padding-bottom: 150px;
   }
 
   #about {
@@ -68,10 +83,10 @@
   }
 
   #page-title {
-    padding-top: 80px;
-    font-size: 2em;
+    padding-top: 18%;
+    font-size: 36px;
     margin-bottom: 20px;
-    text-align: center;
+    text-align: start;
   }
 
   #page-content {
@@ -79,20 +94,26 @@
     line-height: 1.6;
   }
 
-  @media (max-width: 1200px) {
+  #last-updated {
+    font-size: 0.9em;
+    color: #555;
+    text-align: start;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 1280px) {
     #page-title {
-      margin-top: 80px;
       font-size: 1.8em;
     }
 
     #page-content {
       font-size: 1.1em;
+      margin-bottom: 100px;
     }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 853px) {
     #page-title {
-      margin-top: 60px;
       font-size: 1.6em;
     }
 
@@ -100,14 +121,19 @@
       font-size: 1em;
     }
 
+    #main-container {
+      padding: 52px;
+      padding-bottom: 100px;
+    }
+
     #about {
       padding: 0 10px;
     }
   }
 
-  @media (min-width: 540px) {
+  @media (max-width: 540px) {
     #page-title {
-      margin-top: 40px;
+      padding-top: 30%;
       font-size: 1.4em;
     }
 
