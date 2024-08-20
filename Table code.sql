@@ -42,17 +42,52 @@ CREATE TABLE footer (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-
-CREATE TABLE celebrity_profiles (
+CREATE TABLE celebrity_profile (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    profile_picture VARCHAR(255) DEFAULT NULL,
+    name VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
-    profile_documents TEXT,
-    video VARCHAR(255),
-    audio VARCHAR(255),
+    image_path VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+
+
+CREATE TABLE celebrity_event_data (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    celebrity_profile_id INT NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    views INT default 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (celebrity_profile_id) REFERENCES celebrity_profile(id)
+);
+
+CREATE TABLE celebrity_event_images (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    event_id INT NOT NULL,
+    image_path VARCHAR(255) NOT NULL,
+    FOREIGN KEY (event_id) REFERENCES celebrity_event_data(id)
+);
+
+CREATE TABLE celebrity_event_videos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    event_id INT NOT NULL,
+    video_path VARCHAR(255) NOT NULL,
+    FOREIGN KEY (event_id) REFERENCES celebrity_event_data(id)
+);
+
+CREATE TABLE celebrity_event_audios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    event_id INT NOT NULL,
+    audio_path VARCHAR(255) NOT NULL,
+    FOREIGN KEY (event_id) REFERENCES celebrity_event_data(id)
+);
+
+CREATE TABLE celebrity_event_documents (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    event_id INT NOT NULL,
+    doc_type VARCHAR(10) NOT NULL;
+    document_path VARCHAR(255) NOT NULL,
+    FOREIGN KEY (event_id) REFERENCES celebrity_event_data(id)
 );
 
 CREATE TABLE partners (
@@ -61,6 +96,12 @@ CREATE TABLE partners (
     image_path TEXT NOT NULL
 );
 
+CREATE TABLE about (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 CREATE TABLE about (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,

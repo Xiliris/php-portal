@@ -3,7 +3,7 @@
   <main>
     <div id="about">
       <h1>This is the about us editor page.</h1>
-      <input type="text" id="title-input" placeholder="Title">
+      <input type="text" id="title-input" placeholder="Title" />
       <div id="editor" class="ck-content"></div>
       <button id="submit-btn">Save to Database</button>
       <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/43.0.0/ckeditor5.css" />
@@ -14,36 +14,41 @@
 
 <script>
   function initializeEditor() {
-    ClassicEditor
-      .create(document.querySelector('#editor'), {
-        ckfinder: {
-          uploadUrl: '/api/routes/about/about.php'
-        },
-        mediaEmbed: {
-          previewsInData: true
-        },
-        image: {
-          toolbar: [
-            'imageStyle:full', 'imageStyle:side', 'imageStyle:alignLeft',
-            'imageStyle:alignCenter', 'imageStyle:alignRight', '|',
-            'imageTextAlternative', 'toggleImageCaption', 'ImageResize',
-          ],
-        },
-        toolbar: {
-          shouldNotGroupWhenFull: true
-        }
-      })
-      .then(editor => {
+    ClassicEditor.create(document.querySelector("#editor"), {
+      ckfinder: {
+        uploadUrl: "/api/routes/about/about.php",
+      },
+      mediaEmbed: {
+        previewsInData: true,
+      },
+      image: {
+        toolbar: [
+          "imageStyle:full",
+          "imageStyle:side",
+          "imageStyle:alignLeft",
+          "imageStyle:alignCenter",
+          "imageStyle:alignRight",
+          "|",
+          "imageTextAlternative",
+          "toggleImageCaption",
+          "ImageResize",
+        ],
+      },
+      toolbar: {
+        shouldNotGroupWhenFull: true,
+      },
+    })
+      .then((editor) => {
         window.CKEDITOR = editor;
         fetchAndDisplayData();
       })
-      .catch(error => {
-        console.error('Error initializing CKEditor:', error);
+      .catch((error) => {
+        console.error("Error initializing CKEditor:", error);
       });
   }
 
-  if (typeof ClassicEditor === 'undefined') {
-    var script = document.createElement('script');
+  if (typeof ClassicEditor === "undefined") {
+    var script = document.createElement("script");
     script.src = "https://cdn.jsdelivr.net/npm/ckeditor5-classic-plus@41.3.0/build/ckeditor.js";
     document.head.appendChild(script);
 
@@ -57,46 +62,46 @@
   async function fetchAndDisplayData() {
     try {
       if (!window.CKEDITOR) {
-        console.error('CKEditor instance is not available yet.');
+        console.error("CKEditor instance is not available yet.");
         return;
       }
 
-      const response = await fetch('/api/routes/about/about.php');
+      const response = await fetch("/api/routes/about/about.php");
       const data = await response.json();
 
       if (data.success) {
-        document.getElementById('title-input').value = data.data.title;
+        document.getElementById("title-input").value = data.data.title;
         window.CKEDITOR.setData(data.data.content);
       } else {
-        console.error('Failed to fetch data:', data.error);
+        console.error("Failed to fetch data:", data.error);
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     }
   }
 
-  document.getElementById('submit-btn').addEventListener('click', async function () {
-    const title = document.getElementById('title-input').value;
+  document.getElementById("submit-btn").addEventListener("click", async function () {
+    const title = document.getElementById("title-input").value;
     const editorData = window.CKEDITOR.getData();
 
     try {
-      const response = await fetch('/api/routes/about/about.php', {
-        method: 'POST',
+      const response = await fetch("/api/routes/about/about.php", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
+          "Content-Type": "application/x-www-form-urlencoded",
         },
-        body: `title=${encodeURIComponent(title)}&content=${encodeURIComponent(editorData)}`
+        body: `title=${encodeURIComponent(title)}&content=${encodeURIComponent(editorData)}`,
       });
       const data = await response.json();
 
       if (data.success) {
-        alert('Content saved successfully!');
+        alert("Content saved successfully!");
       } else {
-        alert('Failed to save content.');
+        alert("Failed to save content.");
       }
     } catch (error) {
-      console.error('Error:', error);
-      alert('An error occurred while saving the content.');
+      console.error("Error:", error);
+      alert("An error occurred while saving the content.");
     }
   });
 </script>

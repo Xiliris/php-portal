@@ -1,0 +1,264 @@
+{{navbar}}
+<main id="dashboard">
+  <h1>Dashboard</h1>
+  <div>
+    <div class="dashboard__header">
+      <h2 id="celebrity-name">Select a Celebrity to <span>Remove</span></h2>
+      <a class="btn" href="/dashboard" data-link>Back</a>
+    </div>
+    <hr />
+    <div class="input-search">
+      <input placeholder="Search Celebrities" type="text" id="search-users" />
+      <i class="fa-solid fa-magnifying-glass" id="openInput"></i>
+    </div>
+    <hr />
+    <section id="dashboard__select-container">
+      <!-- Celebrities will be here -->
+    </section>
+  </div>
+</main>
+<div class="overlay" id="overlay">
+  <div class="overlay__container">
+    <p>The celebrity will be permanently deleted. Are you sure you want to proceed with this action?</p>
+    <div>
+      <button class="btn" id="cancel">Cancel</button>
+      <button class="btn" id="delete">Proceed</button>
+    </div>
+  </div>
+</div>
+<script>
+  document.getElementById("openInput").addEventListener("click", () => {
+    document.getElementById("search-users").focus();
+  });
+
+  let celebrities = [];
+
+  async function loadCelebrities() {
+    try {
+      const response = await fetch("/api/routes/celebrity/list-celebrity.php");
+      const data = await response.json();
+
+      if (data.success) {
+        celebrities = data.data;
+        displayCelebrities(celebrities);
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error("Failed to load celebrities:", error);
+    }
+  }
+
+  function displayCelebrities(list) {
+    const container = document.getElementById("dashboard__select-container");
+    container.innerHTML = "";
+
+    for (const celebrity of list) {
+      const article = document.createElement("article");
+
+      article.innerHTML = `
+          <img src="${celebrity.image_path}" alt="${celebrity.name}" />
+          <h3>${celebrity.name}</h3>
+        `;
+
+      container.append(article);
+
+      article.addEventListener("click", () => {
+        const overlay = document.getElementById("overlay");
+        const deleteButton = document.getElementById("delete");
+        const cancelButton = document.getElementById("cancel");
+
+        overlay.style.display = "flex";
+
+        deleteButton.removeEventListener("click", handleDelete);
+        cancelButton.removeEventListener("click", handleCancel);
+
+        deleteButton.addEventListener("click", handleDelete);
+        cancelButton.addEventListener("click", handleCancel);
+
+        async function handleDelete() {
+          const formData = new FormData();
+          formData.append("id", celebrity.id);
+
+          try {
+            const res = await fetch("/api/routes/celebrity/delete-celebrity.php", {
+              method: "POST",
+              body: formData,
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+              article.remove();
+              overlay.style.display = "none";
+            } else {
+              alert(data.message);
+            }
+          } catch (error) {
+            console.error("Failed to delete celebrity:", error);
+          }
+        }
+
+        function handleCancel() {
+          overlay.style.display = "none";
+        }
+      });
+    }
+  }
+
+  document.getElementById("search-users").addEventListener("input", function () {
+    const query = this.value.toLowerCase();
+    const filteredCelebrities = celebrities.filter((celebrity) => celebrity.name.toLowerCase().includes(query));
+    displayCelebrities(filteredCelebrities);
+  });
+
+  loadCelebrities();
+</script>
+
+<style>
+  #dashboard {
+    margin: 0 auto;
+    padding: 10em 0;
+    width: 80%;
+    min-height: 100vh;
+    text-align: center;
+  }
+
+  span {
+    color: red;
+  }
+
+  #dashboard h2 {
+    text-align: left;
+    margin-bottom: 0.5em;
+    margin-top: 2em;
+  }
+  .btn {
+    padding: 0.5em 1.5em;
+    border-radius: 0.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+    background-color: green;
+    border: 1px solid green;
+    color: white;
+    font-size: 1em;
+    cursor: pointer;
+  }
+
+  .dashboard__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
+
+  .input-search {
+    width: 100%;
+    padding: 0.5em 1em;
+    margin: 2em auto;
+    font-size: 1em;
+    border: 1px solid gray;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+  }
+
+  .input-search input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: none;
+    font-size: 1.2em;
+    color: gray;
+  }
+
+  .input-search i {
+    cursor: pointer;
+  }
+
+  #dashboard__select-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1em;
+    margin-top: 1em;
+  }
+
+  #dashboard__select-container article {
+    position: relative;
+    border-radius: 5px;
+    overflow: hidden;
+    height: 250px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  #dashboard__select-container article:hover {
+    transform: scale(1.05);
+  }
+
+  #dashboard__select-container article img {
+    width: 200px;
+    height: 250px;
+    object-fit: cover;
+  }
+
+  #dashboard__select-container article h3 {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 0.5em;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-size: 1.2em;
+    text-align: center;
+  }
+
+  .overlay {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.7);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    display: none;
+  }
+
+  .overlay__container {
+    background-color: white;
+    padding: 1.5em;
+    border-radius: 5px;
+    font-size: 1.2em;
+  }
+  .overlay__container div {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+    gap: 1em;
+  }
+
+  .overlay__container div button {
+    margin-top: 1em;
+    font-size: 0.8em;
+  }
+
+  #cancel {
+    background-color: green;
+  }
+
+  #delete {
+    background-color: gray;
+  }
+</style>
