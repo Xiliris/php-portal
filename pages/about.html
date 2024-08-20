@@ -1,40 +1,9 @@
 {{navbar}}
-<div id="wrapper">
-  <div id="main-container">
-    <div id="about">
-      <h1 id="page-title"></h1>
-      <div id="page-content" class="ck-content"></div>
-      <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/43.0.0/ckeditor5.css" />
-    </div>
-  </div>
+<div id="about">
+  <h1>About Us</h1>
+  <p>This is the about page.</p>
 </div>
 {{footer}}
-
-<script>
-  async function fetchAndDisplayData() {
-    try {
-      const response = await fetch('/api/routes/about/about.php');
-      const data = await response.json();
-
-      if (data.success) {
-        document.getElementById('page-title').textContent = data.data.title;
-        document.getElementById('page-content').innerHTML = data.data.content;
-      } else {
-        document.getElementById('page-title').textContent = 'No content available';
-      }
-
-      if (data.alert) {
-        alert(data.alert);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      document.getElementById('page-title').textContent = 'Error loading content';
-    }
-  }
-
-  fetchAndDisplayData();
-
-</script>
 
 <style>
   html,
@@ -59,64 +28,9 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 20px;
-  }
-
-  #about {
-    max-width: 800px;
+    align-items: center;
+    justify-content: center;
     margin: 0 auto;
-  }
-
-  #page-title {
-    padding-top: 80px;
-    font-size: 2em;
-    margin-bottom: 20px;
-    text-align: center;
-  }
-
-  #page-content {
-    font-size: 1.2em;
-    line-height: 1.6;
-  }
-
-  @media (max-width: 1200px) {
-    #page-title {
-      margin-top: 80px;
-      font-size: 1.8em;
-    }
-
-    #page-content {
-      font-size: 1.1em;
-    }
-  }
-
-  @media (max-width: 768px) {
-    #page-title {
-      margin-top: 60px;
-      font-size: 1.6em;
-    }
-
-    #page-content {
-      font-size: 1em;
-    }
-
-    #about {
-      padding: 0 10px;
-    }
-  }
-
-  @media (min-width: 540px) {
-    #page-title {
-      margin-top: 40px;
-      font-size: 1.4em;
-    }
-
-    img {
-      width: 212px;
-    }
-
-    #page-content {
-      font-size: 0.9em;
-    }
+    height: 100vh;
   }
 </style>
