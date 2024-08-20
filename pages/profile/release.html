@@ -51,6 +51,7 @@
         const article = document.createElement("article");
         article.id = event.id;
         const itemsContainer = document.createElement("div");
+        const publishDate = event.publish_date.split(" ");
         itemsContainer.className = "items_container";
 
         if (event.id == params[3]) {
@@ -70,6 +71,12 @@
           <div>
             <p>${event.description}</p>
           </div>
+          <p id="event_status">
+            <span>${event.views}</span>
+            <i class="fa-solid fa-eye"></i> 
+            <span class="publish_date">${publishDate[1]}</span>
+            <span>${publishDate[0]}</span>
+            </p>
         `;
         } else {
           article.innerHTML = `
@@ -125,8 +132,36 @@
     }
   }
 
+  async function handleViews() {
+    const eventId = window.location.pathname.split("/")[3]; // Adjust if necessary
+    const formData = new FormData();
+    formData.append("id", eventId);
+
+    try {
+      // Check if the event has already been visited
+      if (!localStorage.getItem(eventId)) {
+        // Send a POST request to the server to register the view
+        const response = await fetch("/api/routes/celebrity/add-view.php", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        localStorage.setItem(eventId, "visited");
+      } else {
+        console.log("Visited Already");
+      }
+    } catch (error) {
+      console.error("Error handling views:", error);
+    }
+  }
+
   loadEvents();
   loadProfile();
+  handleViews();
 </script>
 
 <style>
@@ -135,6 +170,7 @@
     width: 100vw;
     display: flex;
     margin-top: 9em;
+    margin-bottom: 6em;
     justify-content: flex-start;
     align-items: center;
     flex-direction: column;
@@ -244,5 +280,19 @@
     line-height: 1.5em;
     width: 70vw;
     word-break: break-all;
+  }
+
+  #event_status {
+    font-weight: bold;
+    text-align: right;
+  }
+
+  #event_status i {
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+  }
+
+  #event_status .publish_date {
+    margin-right: 0.5em;
   }
 </style>

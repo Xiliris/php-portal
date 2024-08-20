@@ -34,20 +34,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             exit;
         }
 
-        // Fetch file paths and doc_type from celebrity_event_documents
-        $stmt = $pdo->prepare("SELECT document_path, doc_type FROM celebrity_event_documents WHERE event_id = ?");
+        // Fetch only audio paths from celebrity_event_audio
+        $stmt = $pdo->prepare("SELECT audio_path FROM celebrity_event_audios WHERE event_id = ?");
         $stmt->execute([$eventId]);
-        $documents = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $audioPaths = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-        if (empty($documents)) {
-            $response["message"] = "No documents found for the specified event";
+        if (empty($audioPaths)) {
+            $response["message"] = "No audio files found for the specified event";
             echo json_encode($response);
             exit;
         }
 
         $response["success"] = true;
-        $response["message"] = "Documents retrieved successfully";
-        $response["data"] = $documents;
+        $response["message"] = "Audio paths retrieved successfully";
+        $response["data"] = $audioPaths;
     } catch (PDOException $e) {
         $response["message"] = "Database error: " . $e->getMessage();
         echo json_encode($response);

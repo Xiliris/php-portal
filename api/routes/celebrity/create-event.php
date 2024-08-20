@@ -100,42 +100,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Upload documents
     if (isset($documents['name']) && count($documents['name']) > 0) {
-        foreach ($documents['name'] as $key => $value) {
+        foreach ($documents['name'] as $key => $file_name) {
             $file_tmp = $documents['tmp_name'][$key];
+            $file_type = $documents['type'][$key];
+            $file_size = $documents['size'][$key];
+            $file_error = $documents['error'][$key];
 
-            $upload = new Upload($file_tmp);
-            $upload->file_new_name_body = uniqid();
-            $upload->allowed = array(
-                'application/pdf',
-                'application/msword',
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                'application/vnd.ms-excel',
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-            );
-            $upload->process(__DIR__ . '/../../storage/celebrity/data/documents');
+            if ($file_error === UPLOAD_ERR_OK) {
+                $file_ext = pathinfo($file_name, PATHINFO_EXTENSION);
+                $new_file_name = uniqid() . '.' . $file_ext;
+                $destination = __DIR__ . '/../../storage/celebrity/data/documents/' . $new_file_name;
 
-            if ($upload->processed) {
-                $document_path = $storagePath . '/documents/' . $upload->file_dst_name;
-                $doc_type = pathinfo($value, PATHINFO_EXTENSION);
-                $upload->clean();
+                // Move file from temp directory to final destination
+                if (move_uploaded_file($file_tmp, $destination)) {
+                    $document_path = $storagePath . '/documents/' . $new_file_name;
 
-                try {
-                    $stmt = $pdo->prepare('INSERT INTO celebrity_event_documents (event_id, document_path, doc_type) VALUES (?, ?, ?)');
-                    $stmt->execute([$id, $document_path, $doc_type]);
-                } catch (PDOException $e) {
-                    error_log("Database error: " . $e->getMessage());
-                    $response["message"] = "Document upload: Database error";
+                    try {
+                        $stmt = $pdo->prepare('INSERT INTO celebrity_event_documents (event_id, document_path, doc_type) VALUES (?, ?, ?)');
+                        $stmt->execute([$id, $document_path, $file_ext]);
+                    } catch (PDOException $e) {
+                        error_log("Database error: " . $e->getMessage());
+                        $response["message"] = "Document upload: Database error";
+                        echo json_encode($response);
+                        exit;
+                    }
+                } else {
+                    error_log("Document move failed.");
+                    $response["message"] = "Document move failed.";
                     echo json_encode($response);
                     exit;
                 }
             } else {
-                error_log("Document upload failed: " . $upload->error);
-                $response["message"] = "Document upload failed: " . $upload->error;
+                error_log("File upload error: " . $file_error);
+                $response["message"] = "File upload error: " . $file_error;
                 echo json_encode($response);
                 exit;
             }
         }
     }
+
+
 
     // Upload videos
     if (isset($video['name']) && count($video['name']) > 0) {

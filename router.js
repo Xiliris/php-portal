@@ -39,6 +39,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/master-panel/donations": `${baseUrl}/pages/master-panel/donations.html`,
     "/master-panel/footer": `${baseUrl}/pages/master-panel/footer.html`,
     "/master-panel/partners": `${baseUrl}/pages/master-panel/partners.html`,
+    "/master-panel/editor": `${baseUrl}/pages/master-panel/editor.html`,
     "/documents": `${baseUrl}/pages/documents.html`,
     "/videos": `${baseUrl}/pages/video.html`,
     "/audio": `${baseUrl}/pages/audio.html`,
