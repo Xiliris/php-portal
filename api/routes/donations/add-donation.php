@@ -14,14 +14,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $description = htmlspecialchars($_POST['description']);
 
     $imagePath = null;
+    $uploadDirectory = __DIR__ . '/../../storage/donations';
+
+    if (!is_dir($uploadDirectory)) {
+        mkdir($uploadDirectory, 0755, true);
+    }
 
     if (!empty($_FILES['image']['name'])) {
         $handle = new Upload($_FILES['image']);
+        $allowedTypes = ['image/jpeg', 'image/png'];
+        $maxFileSize = 5 * 1024 * 1024;
+
+        if (!in_array($handle->file_src_mime, $allowedTypes)) {
+            $response['message'] = "Invalid file type. Only JPEG and PNG files are allowed.";
+            echo json_encode($response);
+            exit;
+        }
+
+        if ($handle->file_src_size > $maxFileSize) {
+            $response['message'] = "File size exceeds the maximum limit of 5MB.";
+            echo json_encode($response);
+            exit;
+        }
+
         if ($handle->uploaded) {
             $handle->file_new_name_body = uniqid();
-            $handle->process(__DIR__ . '/../../../storage/donations/');
+            $handle->process($uploadDirectory);
             if ($handle->processed) {
-                $imagePath = 'http://php-portal.local/storage/donations/' . $handle->file_dst_name;
+                $imagePath = '/api/storage/donations/' . $handle->file_dst_name;
                 $handle->clean();
             } else {
                 $response['message'] = "File upload failed: " . $handle->error;
@@ -38,9 +58,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $stmt = $pdo->prepare("INSERT INTO donations (header, title, button_text, link, description, image_path) VALUES (?, ?, ?, ?, ?, ?)");
         $stmt->execute([$header, $title, $buttonText, $link, $description, $imagePath]);
-        
+
         $lastInsertId = $pdo->lastInsertId();
-        
+
         $response['success'] = true;
         $response['message'] = "Donation added successfully!";
         $response['data'] = ["id" => $lastInsertId, "header" => $header];
@@ -50,4 +70,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 echo json_encode($response);
-?>

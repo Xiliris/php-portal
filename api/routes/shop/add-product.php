@@ -2,15 +2,38 @@
 require __DIR__ . '/../../config.php';
 require __DIR__ . '/../../../vendor/autoload.php';
 
-use Verot\Upload\Upload;
-
 $response = ["success" => false, "message" => ""];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $link = htmlspecialchars($_POST['link']);
+    $name = htmlspecialchars($_POST['name']);
+    $description = htmlspecialchars($_POST['description']);
+    $price = $_POST['price'];
+    $number = trim($_POST['number']);
 
-    if (empty($link)) {
-        $response['message'] = "Link cannot be empty.";
+    if (empty($name) || empty($description) || empty($price) || empty($number)) {
+        $response['message'] = "All fields are required.";
+        echo json_encode($response);
+        exit;
+    }
+
+    if (!is_numeric($price)) {
+        $response['message'] = "Price must be numeric.";
+        echo json_encode($response);
+        exit;
+    }
+    if (!is_numeric($number) || strlen($number) > 11) {
+        $response['message'] = "Product Number must be a numeric value with up to 11 digits.";
+        echo json_encode($response);
+        exit;
+    }
+
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM shop WHERE number = :number");
+    $stmt->bindParam(':number', $number, PDO::PARAM_STR);
+    $stmt->execute();
+    $count = $stmt->fetchColumn();
+
+    if ($count > 0) {
+        $response['message'] = "Product number already exists.";
         echo json_encode($response);
         exit;
     }
@@ -18,6 +41,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $imagePath = null;
 
     if (!empty($_FILES['image']['name'])) {
+        $directory = __DIR__ . '/../../storage/shop';
+
+        if (!is_dir($directory)) {
+            mkdir($directory, 0755, true);
+        }
+
         $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
         $maxFileSize = 2 * 1024 * 1024;
 
@@ -37,17 +66,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        $directory = __DIR__ . '/../../storage/partners';
-        if (!is_dir($directory)) {
-            mkdir($directory, 0755, true);
-        }
-
-        $handle = new Upload($_FILES['image']);
+        $handle = new \Verot\Upload\Upload($_FILES['image']);
         if ($handle->uploaded) {
             $handle->file_new_name_body = uniqid();
             $handle->process($directory);
             if ($handle->processed) {
-                $imagePath = '/api/storage/partners/' . $handle->file_dst_name;
+                $imagePath = '/api/storage/shop/' . $handle->file_dst_name;
                 $handle->clean();
             } else {
                 $response['message'] = "File upload failed: " . $handle->error;
@@ -62,16 +86,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        $stmt = $pdo->prepare("INSERT INTO partners (link, image_path) VALUES (?, ?)");
-        $stmt->execute([$link, $imagePath]);
+        $stmt = $pdo->prepare("INSERT INTO shop (name, description, price, number, image_path) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$name, $description, $price, $number, $imagePath]);
 
         $lastInsertId = $pdo->lastInsertId();
 
         $response['success'] = true;
-        $response['message'] = "Partner added successfully!";
+        $response['message'] = "Product added successfully!";
         $response['data'] = [
             "id" => $lastInsertId,
-            "link" => $link,
+            "name" => $name,
+            "description" => $description,
+            "price" => $price,
+            "number" => $number,
             "image_path" => $imagePath
         ];
     } catch (Exception $e) {

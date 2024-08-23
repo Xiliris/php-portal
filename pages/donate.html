@@ -6,13 +6,14 @@
     tempor incididunt ut labore et dolore magna aliqua.
   </p>
   <div id="donate-container">
-    <!-- Donations will be added here -->
+    <p id="no-donations" style="display: none;">There are no donations added.</p>
   </div>
 </div>
 {{footer}}
 
 <script>
   const container = document.getElementById("donate-container");
+  const noDonationsMessage = document.getElementById("no-donations");
 
   async function getDonations() {
     try {
@@ -22,14 +23,21 @@
       }
       const data = await response.json();
       if (data.data && Array.isArray(data.data)) {
-        data.data.forEach((donation) => {
-          appendDonation(donation);
-        });
+        if (data.data.length > 0) {
+          data.data.forEach((donation) => {
+            appendDonation(donation);
+          });
+          noDonationsMessage.style.display = "none";
+        } else {
+          noDonationsMessage.style.display = "block";
+        }
       } else {
         console.error("Unexpected data format", data);
+        noDonationsMessage.style.display = "block";
       }
     } catch (error) {
       console.error("Failed to fetch donations:", error);
+      noDonationsMessage.style.display = "block";
     }
   }
 
@@ -44,31 +52,29 @@
     const article = document.createElement("article");
 
     article.innerHTML = `
-      <h2>${header || "No Header"}</h2>
-      <div class="donate__inner-container">
-        <div>
-          <h3>${title || "No Title"}</h3>
-          <p>${description || "No Description"}</p>
-          ${
-            link
-              ? `<a href="${link}" target="_blank">${
-                  button_text || "Learn More"
-                }</a>`
-              : ""
-          }
-        </div>
-        ${
-          image_path
-            ? `<img src="${image_path}" alt="${title || "Image"}" />`
-            : ""
-        }
+    <h2>${header || "No Header"}</h2>
+    <div class="donate__inner-container">
+      <div>
+        <h3>${title || "No Title"}</h3>
+        <p>${description || "No Description"}</p>
+        ${link
+        ? `<a href="${link}" target="_blank">${button_text || "Learn More"
+        }</a>`
+        : ""
+      }
       </div>
-    `;
+      ${image_path
+        ? `<img src="${image_path}" alt="${title || "Image"}" />`
+        : ""
+      }
+    </div>
+  `;
 
     container.appendChild(article);
   }
 
   getDonations();
+
 </script>
 
 <style>
@@ -122,6 +128,7 @@
     border-bottom-left-radius: 0.2em;
     height: 100%;
   }
+
   .donate__inner-container div {
     height: 100%;
     min-height: 200px;

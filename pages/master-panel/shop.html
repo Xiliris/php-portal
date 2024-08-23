@@ -1,0 +1,305 @@
+{{navbar}}
+<main id="shop-panel">
+    <h1>Shop Panel</h1>
+    <div>
+        <div class="shop-panel__header">
+            <h2>Products</h2>
+            <a class="btn" href="/master-panel" data-link>Back</a>
+        </div>
+        <hr />
+        <section class="product-add">
+            <input type="text" id="product-name" placeholder="Product Name" />
+            <textarea id="product-description" placeholder="Product Description"></textarea>
+            <input type="number" id="product-price" min="1" placeholder="Product Price" />
+            <input type="number" id="product-number" min="1" placeholder="Product Number" />
+            <input type="file" id="product-image" accept="image/*" />
+            <button class="btn" id="product-submit">Add</button>
+        </section>
+        <section id="product-container">
+        </section>
+    </div>
+</main>
+
+<script>
+    const productName = document.getElementById("product-name");
+    const productDescription = document.getElementById("product-description");
+    const productPrice = document.getElementById("product-price");
+    const productNumber = document.getElementById("product-number");
+    const productImage = document.getElementById("product-image");
+    const productsContainer = document.getElementById("product-container");
+    const productSubmit = document.getElementById("product-submit");
+
+    productSubmit.addEventListener("click", async () => {
+        const name = productName.value.trim();
+        const description = productDescription.value.trim();
+        const price = productPrice.value;
+        const number = productNumber.value;
+        const image = productImage.files[0];
+
+        let errorMessage = "";
+
+        if (!name) {
+            errorMessage += "Product name is required.\n";
+        }
+        if (!description) {
+            errorMessage += "Product description is required.\n";
+        }
+        if (!price) {
+            errorMessage += "Product price is required.\n";
+        }
+        if (!number) {
+            errorMessage += "Product number is required.\n";
+        } else if (number.length > 11) {
+            errorMessage += "Product number must be 11 digits or less.\n";
+        }
+
+        if (image) {
+            const validTypes = ["image/jpeg", "image/png", "image/gif"];
+            if (!validTypes.includes(image.type)) {
+                errorMessage += "Invalid file type. Only JPEG, PNG, and GIF are allowed.\n";
+            }
+            if (image.size > 2 * 1024 * 1024) {
+                errorMessage += "File size exceeds 2MB.\n";
+            }
+        } else {
+            errorMessage += "Product image is required.\n";
+        }
+
+        if (errorMessage) {
+            alert(errorMessage);
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("name", name);
+        formData.append("description", description);
+        formData.append("price", price);
+        formData.append("number", number);
+        formData.append("image", image);
+
+        try {
+            const response = await fetch("/api/routes/shop/add-product.php", {
+                method: "POST",
+                body: formData,
+            });
+
+            const res = await response.json();
+
+            if (response.ok) {
+                if (res.success && res.data) {
+                    const { id, name, price, number, image_path } = res.data;
+
+                    if (id && name && price && number && image_path) {
+                        productName.value = "";
+                        productDescription.value = "";
+                        productPrice.value = "";
+                        productNumber.value = "";
+                        productImage.value = "";
+
+                        appendProductItem(id, name, price, number, image_path);
+                        alert("Product added successfully!");
+                    } else {
+                        console.error("Unexpected response data.");
+                        alert("Unexpected response data.");
+                    }
+                } else {
+                    console.error("Failed to add product: " + res.message);
+                    alert("Failed to add product: " + res.message);
+                }
+            } else {
+                console.error("Failed to add product. Status: " + response.status);
+                alert("Failed to add product. Status: " + response.status);
+            }
+        } catch (error) {
+            console.error("Error: " + error.message);
+            alert("Error: " + error.message);
+        }
+    });
+
+    productNumber.addEventListener("input", () => {
+        const value = productNumber.value;
+        if (value.length > 11) {
+            productNumber.value = value.slice(0, 11);
+        }
+    });
+
+    function appendProductItem(id, name, price, number, imagePath) {
+        const formattedPrice = parseFloat(price).toFixed(2);
+
+        const article = document.createElement("article");
+        article.innerHTML = `
+        <i class="fas fa-trash remove"></i>
+        <br>
+        <h3>${name}</h3>
+        <p><strong>Price:</strong> ${formattedPrice} KM</p>
+        <p><strong>Product Number:</strong> ${number}</p>
+        <img src="${imagePath}" alt="Product Image" />`;
+
+        article.id = id;
+        article.querySelector(".remove").addEventListener("click", () => handleRemove(id));
+        productsContainer.insertBefore(article, productsContainer.firstChild);
+    }
+
+    async function handleRemove(id) {
+        const formData = new FormData();
+        formData.append("id", id);
+
+        try {
+            const response = await fetch("/api/routes/shop/remove-product.php", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById(id).remove();
+                    alert("Product deleted successfully!");
+                } else {
+                    console.error("Failed to remove product: " + data.message);
+                    alert("Failed to remove product: " + data.message);
+                }
+            } else {
+                console.error("Failed to remove product. Status:", response.status);
+                alert("Failed to remove product. Status: " + response.status);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Error: " + error.message);
+        }
+    }
+
+    async function getProducts() {
+        try {
+            const response = await fetch("/api/routes/shop/get-product.php");
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.data && Array.isArray(data.data)) {
+                    data.data.forEach((item) => {
+                        if (item.name && item.id) {
+                            appendProductItem(item.id, item.name, item.price, item.number, item.image_path);
+                        } else {
+                            console.error("Invalid item data:", item);
+                        }
+                    });
+                } else {
+                    console.error("Unexpected data format:", data);
+                }
+            } else {
+                console.error("Failed to fetch products. Status:", response.status);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
+
+    getProducts();
+</script>
+
+<style>
+    #shop-panel {
+        margin: 0 auto;
+        padding: 10em 0;
+        width: 80%;
+        min-height: 101vh;
+        text-align: center;
+    }
+
+    #shop-panel h1 {
+        font-size: 2em;
+        margin-bottom: 1em;
+    }
+
+    .shop-panel__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        margin-top: 1em;
+        margin-bottom: 1em;
+    }
+
+    .btn {
+        padding: 0.5em 1.5em;
+        border-radius: 0.5em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1em;
+        background-color: green;
+        border: 1px solid green;
+        color: white;
+        cursor: pointer;
+        font-size: 1em;
+        text-decoration: none;
+    }
+
+    .product-add {
+        display: flex;
+        flex-direction: column;
+        gap: 1em;
+        margin: 1em 0;
+    }
+
+    .product-add input,
+    .product-add textarea {
+        padding: 0.5em 1em;
+        border: 1px solid gray;
+        border-radius: 5px;
+        font-size: 1em;
+        resize: none;
+    }
+
+    .product-add textarea {
+        height: 150px;
+    }
+
+    #product-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1em;
+        margin-top: 1em;
+        grid-auto-flow: dense;
+    }
+
+    #product-container article {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1em;
+        border: 1px solid black;
+        border-left: 10px solid green;
+        border-radius: 0.5em;
+        gap: 0.5em;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    #product-container article i {
+        transform: scale(1.5);
+        cursor: pointer;
+        color: red;
+    }
+
+    #product-container article p {
+        margin: 0.5em 0;
+        line-height: 1.4em;
+    }
+
+    #product-container article p strong {
+        font-weight: bold;
+    }
+
+    #product-container article img {
+        height: 200px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+
+    @media screen and (max-width: 480px) {
+        #shop-panel {
+            width: 95%;
+        }
+    }
+</style>

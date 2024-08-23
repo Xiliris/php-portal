@@ -72,6 +72,8 @@
 
           appendPartnerItem(data.id, data.link, data.image_path);
 
+          alert("Partner successfully added.");
+
         } else {
           console.error("Invalid response data:", data);
 
@@ -89,14 +91,17 @@
     article.innerHTML = `
       <i class="fas fa-trash remove"></i>
       <a href="${link}" target="_blank">${link}</a>
-      <img src="${imagePath}" alt="Partner Image" style="max-width: 100px; border-radius: 4px;" />
-    `;
+      <img src="${imagePath}" alt="Partner Image" style="max-width: 100px; border-radius: 4px;" />`;
 
     article.id = id;
 
     article.querySelector(".remove").addEventListener("click", () => handleRemove(id));
 
-    partnerContainer.appendChild(article);
+    if (partnerContainer.firstChild) {
+      partnerContainer.insertBefore(article, partnerContainer.firstChild);
+    } else {
+      partnerContainer.appendChild(article);
+    }
   }
 
   async function handleRemove(id) {
@@ -113,6 +118,7 @@
         const data = await response.json();
         if (data.success) {
           document.getElementById(id).remove();
+          alert("Partner successfully removed.");
         } else {
           alert("Failed to remove partner: " + data.message);
         }
@@ -225,7 +231,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 1em;
-    margin-top: 1em;
+     margin-top: 2em;
   }
 
   #partner-container article {

@@ -12,15 +12,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$id]);
             $partner = $stmt->fetch(PDO::FETCH_ASSOC);
             $imagePath = $partner['image_path'] ?? null;
-
             $stmt = $pdo->prepare("DELETE FROM partners WHERE id = ?");
             $stmt->execute([$id]);
 
             if ($stmt->rowCount() > 0) {
                 if ($imagePath) {
-                    $imagePath = str_replace('http://php-portal.local', __DIR__ . '/../../../', $imagePath);
-                    if (file_exists($imagePath)) {
-                        unlink($imagePath);
+                    $filename = basename($imagePath);
+                    $fileFullPath = __DIR__ . '/../../storage/partners/' . $filename;
+                    
+                    if (file_exists($fileFullPath)) {
+                        unlink($fileFullPath);
                     }
                 }
                 $response['success'] = true;

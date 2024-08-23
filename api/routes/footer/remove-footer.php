@@ -12,18 +12,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$id]);
             $footer = $stmt->fetch(PDO::FETCH_ASSOC);
             $imagePath = $footer['image_path'] ?? null;
-            $protocol = strtolower(substr($_SERVER["SERVER_PROTOCOL"],0,5))=='https'?'https':'http';
-
             $stmt = $pdo->prepare("DELETE FROM footer WHERE id = ?");
             $stmt->execute([$id]);
 
             if ($stmt->rowCount() > 0) {
-
                 if ($imagePath) {
-                    $storagePath = $protocol . '://' .  $_SERVER["SERVER_NAME"] . '/api/storage/footer/';
-                    $imagePath = str_replace('http://php-portal.local', __DIR__ . '/../../', $imagePath);
-                    if (file_exists($imagePath)) {
-                        unlink($imagePath);
+                    $filename = basename($imagePath);
+                    $fileFullPath = __DIR__ . '/../../storage/footer/' . $filename;
+
+                    if (file_exists($fileFullPath)) {
+                        unlink($fileFullPath);
                     }
                 }
                 $response['success'] = true;
@@ -42,4 +40,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 echo json_encode($response);
-?>

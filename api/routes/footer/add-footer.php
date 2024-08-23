@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = htmlspecialchars($_POST['title']);
     $link = htmlspecialchars($_POST['link']);
     $description = htmlspecialchars($_POST['description']);
-    $protocol = strtolower(substr($_SERVER["SERVER_PROTOCOL"],0,5))=='https'?'https':'http';
+    $protocol = strtolower(substr($_SERVER["SERVER_PROTOCOL"], 0, 5)) == 'https' ? 'https' : 'http';
 
     if (empty($title)) {
         $response['message'] = "Title cannot be empty.";
@@ -30,17 +30,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $storagePath = $protocol . '://' .  $_SERVER["SERVER_NAME"] . '/api/storage/footer/';
+    $storagePath = __DIR__ . '/../../storage/footer';
+    $storageUrl = $protocol . '://' .  $_SERVER["SERVER_NAME"] . '/api/storage/footer/';
     $imagePath = null;
+
+    if (!is_dir($storagePath)) {
+        mkdir($storagePath, 0755, true);
+    }
 
     if (!empty($_FILES['image']['name'])) {
         $handle = new Upload($_FILES['image']);
+
+        $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
+        if (!in_array($handle->file_src_mime, $allowed_types)) {
+            $response['message'] = "Invalid file type. Only JPG, PNG, and GIF files are allowed.";
+            echo json_encode($response);
+            exit;
+        }
+
+        $maxFileSize = 5 * 1024 * 1024;
+        if ($handle->file_src_size > $maxFileSize) {
+            $response['message'] = "File size exceeds the maximum limit of 5MB.";
+            echo json_encode($response);
+            exit;
+        }
+
         if ($handle->uploaded) {
             $handle->file_new_name_body = uniqid();
-            $handle->process(__DIR__ . '/../../storage/footer/');
+            $handle->process($storagePath);
             if ($handle->processed) {
-                $imagePath = $storagePath . $handle->file_dst_name;
-                
+                $imagePath = $storageUrl . $handle->file_dst_name;
+
                 $handle->clean();
             } else {
                 $response['message'] = "File upload failed: " . $handle->error;
@@ -57,9 +77,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $stmt = $pdo->prepare("INSERT INTO footer (title, link, image_path, description) VALUES (?, ?, ?, ?)");
         $stmt->execute([$title, $link, $imagePath, $description]);
-        
+
         $lastInsertId = $pdo->lastInsertId();
-        
+
         $response['success'] = true;
         $response['message'] = "Footer added successfully!";
         $response['data'] = [
@@ -75,4 +95,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 echo json_encode($response);
-?>
