@@ -27,4 +27,7 @@ INSERT INTO userdata (username, role, ip, country, isp) VALUES
 INSERT INTO users (id, username, password, changed, role) VALUES
 ("1", "owner", "$2y$10$JaBePlAFAuLAp..QgqGQGuvVaZSwdKNiJZR3H1HwyIQ7fmhNj.U8q", "true", "owner")
 
+INSERT INTO about (title, content, last_updated) VALUES
+("About Us", "We are a team of developers working on this project.", "2023-05-01 12:00:00");
+
 composer require phpoffice/phpword

@@ -1,0 +1,182 @@
+{{navbar}}
+<main id="dashboard">
+  <h1>Dashboard</h1>
+  <div>
+    <div class="dashboard__header">
+      <h2>Create Celebrity</h2>
+      <a class="btn" href="/dashboard" data-link>Back</a>
+    </div>
+    <div class="steps">
+      <span class="active-step">1</span>
+      <span class="active-step">2</span>
+      <span>3</span>
+    </div>
+    <hr />
+    <section class="dashboard__container">
+      <button class="btn create-events-btn">Add Event</button>
+      <button class="btn" id="skip-btn">Skip</button>
+    </section>
+  </div>
+</main>
+
+<script>
+  const createEventBtn = document.getElementById('create-celebrity-btn');
+
+  createEventBtn.addEventListener('click', () => {
+    
+  })
+
+
+
+  /* Skip Button */
+  const skipBtn = document.getElementById("skip-btn");
+  skipBtn.addEventListener("click", () => {
+    window.location.href = "/dashboard/create-celebrity/preview";
+  });
+</script>
+
+<style>
+  #dashboard {
+    margin: 0 auto;
+    padding: 10em 0;
+    width: 80%;
+    min-height: 100vh;
+    text-align: center;
+  }
+
+  .btn {
+    padding: 0.5em 1.5em;
+    border-radius: 0.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+    background-color: green;
+    border: 1px solid green;
+    color: white;
+    font-size: 1em;
+    cursor: pointer;
+  }
+
+  .dashboard__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
+
+  .dashboard__main-container {
+    margin-top: 5em;
+  }
+
+  .dashboard__container h2 {
+    margin: 1em 0;
+  }
+
+  .dashboard__container {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    margin: 1em 0;
+  }
+
+  .dashboard__container input,
+  .dashboard__container textarea {
+    padding: 0.5em 1em;
+    border: 1px solid gray;
+    border-radius: 5px;
+    resize: none;
+    font-size: 1em;
+  }
+
+  .dashboard__container textarea {
+    height: 200px;
+  }
+  .steps {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5em 0;
+    position: relative;
+  }
+
+  .steps::before {
+    content: "";
+    width: calc(50% - 1em);
+    height: 3px;
+    background-color: green;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0em;
+    z-index: -1;
+  }
+
+  .steps::after {
+    content: "";
+    width: calc(50% - 1em);
+    height: 3px;
+    background-color: gray;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 0em;
+    z-index: -1;
+  }
+
+  .steps span {
+    background-color: white;
+    border: 1px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: black;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+  }
+
+  .steps .active-step {
+    background-color: green;
+    color: white;
+  }
+
+  /**/
+  .dashboard__container-create-event h2 {
+    margin: 1em 0;
+  }
+
+  .dashboard__container-create-event {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    margin: 1em 0;
+  }
+
+  .dashboard__container-create-event label {
+    text-align: left;
+    margin-bottom: 0em;
+    font-weight: 600;
+  }
+
+  .div-input {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dashboard__container-create-event input,
+  .dashboard__container-create-event textarea {
+    padding: 0.5em 1em;
+    border: 1px solid gray;
+    border-radius: 5px;
+    resize: none;
+    font-size: 1em;
+  }
+
+  .dashboard__container textarea {
+    height: 200px;
+  }
+</style>
