@@ -2,10 +2,6 @@
 
 <div id="person-of-interest">
   <h1>Person of Interest</h1>
-  <div class="input-search">
-    <input placeholder="Search Celebrities" type="text" id="search-users" />
-    <i class="fa-solid fa-magnifying-glass" id="openInput"></i>
-  </div>
   <section id="celebrity__container">
     <!-- Celebrities will be listed here -->
   </section>
@@ -17,39 +13,46 @@
   let celebrities = [];
 
   async function loadCards() {
-    const response = await fetch("/api/routes/celebrity/list-celebrity.php");
-    const data = await response.json();
+    try {
+      const response = await fetch("/api/routes/celebrity/list-celebrity.php");
+      const data = await response.json();
 
-    if (data.success) {
-      celebrities = data.data;
-      displayCelebrities(celebrities);
-    } else {
-      alert(data.message);
+      if (data.success) {
+        celebrities = data.data;
+        console.log(celebrities)
+        filterAndDisplayCelebrities(celebrities);
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching celebrity data:", error);
     }
   }
 
-  function displayCelebrities(list) {
+  function filterAndDisplayCelebrities(list) {
     const container = document.getElementById("celebrity__container");
     container.innerHTML = ""; // Clear previous results
 
+    const now = new Date();
+
     for (const celebrity of list) {
-      const article = document.createElement("a");
-      article.href = `/profile/${celebrity.id}`;
+      const publishDate = new Date(celebrity.publish_date);
 
-      article.innerHTML = `
-        <img src="${celebrity.image_path}" alt="${celebrity.name}" />
-        <h3>${celebrity.name}</h3>
-      `;
+      if (!celebrity.preview && (!publishDate || publishDate <= now)) {
+        const article = document.createElement("a");
+        article.href = `/profile/${celebrity.id}`;
 
-      container.append(article);
+        let imagePath = celebrity.image_path || "/assets/unknown.jpg";
+
+        article.innerHTML = `
+          <img src="${imagePath}" alt="${celebrity.name}" />
+          <h3>${celebrity.name}</h3>
+        `;
+
+        container.append(article);
+      } 
     }
   }
-
-  document.getElementById("search-users").addEventListener("input", function () {
-    const query = this.value.toLowerCase();
-    const filteredCelebrities = celebrities.filter((celebrity) => celebrity.name.toLowerCase().includes(query));
-    displayCelebrities(filteredCelebrities);
-  });
 
   loadCards();
 </script>
@@ -64,42 +67,22 @@
     margin: 0 auto;
     margin-top: 10em;
     height: 100vh;
+    width: 70vw;
   }
 
-  .input-search {
-    width: 50vw;
-    padding: 0.5em 1em;
-    margin: 2em auto;
-    font-size: 1em;
-    border: 1px solid gray;
-    border-radius: 5px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1em;
-  }
-
-  .input-search input {
+  #person-of-interest h1 {
+    text-align: left;
     width: 100%;
-    height: 100%;
-    border: none;
-    outline: none;
-    font-size: 1.2em;
-    color: gray;
-  }
-
-  .input-search i {
-    cursor: pointer;
   }
 
   #celebrity__container {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     flex-wrap: wrap;
     gap: 1em;
-    padding: 1em;
-    width: 80vw;
+    margin-top: 2em;
+    width: 70vw;
   }
 
   #celebrity__container a {
@@ -131,5 +114,33 @@
     color: white;
     font-size: 1.2em;
     text-align: center;
+  }
+
+  @media (max-width: 768px) {
+    #celebrity__container {
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    #celebrity__container a img {
+      width: 250px;
+      height: 300px;
+    }
+
+    #person-of-interest h1 {
+      text-align: center;
+    }
+
+    #person-of-interest {
+      display: flex;
+      justify-content: flex-start;
+      width: 90vw;
+    }
+
+    #celebrity__container {
+      width: 90vw;
+    }
   }
 </style>

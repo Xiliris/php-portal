@@ -2,7 +2,15 @@
 <main id="dashboard">
   <h1>Dashboard</h1>
   <div>
-    <h2>Select Celebrity for Event</h2>
+    <div class="dashboard__header">
+      <h2>Select Celebrity</h2>
+      <a class="btn" href="/dashboard" data-link id="quit">Quit</a>
+    </div>
+    <div class="steps">
+      <span class="active-step">1</span>
+      <span>2</span>
+      <span>3</span>
+    </div>
     <hr />
     <div class="input-search">
       <input placeholder="Search Celebrities" type="text" id="search-users" />
@@ -41,8 +49,10 @@
       const article = document.createElement("a");
       article.href = `/dashboard/create-event/${celebrity.id}`;
 
+      let imagePath = celebrity.image_path || "/assets/unknown.jpg";
+
       article.innerHTML = `
-        <img src="${celebrity.image_path}" alt="${celebrity.name}" />
+        <img src="${imagePath}" alt="${celebrity.name}" />
         <h3>${celebrity.name}</h3>
       `;
 
@@ -68,10 +78,32 @@
     text-align: center;
   }
 
-  #dashboard h2 {
-    text-align: left;
-    margin-bottom: 0.5em;
-    margin-top: 2em;
+  #quit {
+    background-color: red;
+    border: 1px solid red;
+  }
+
+
+  .btn {
+    padding: 0.5em 1.5em;
+    border-radius: 0.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+    background-color: green;
+    border: 1px solid green;
+    color: white;
+    font-size: 1em;
+    cursor: pointer;
+  }
+
+  .dashboard__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    margin-top: 1em;
+    margin-bottom: 1em;
   }
 
   .input-search {
@@ -138,5 +170,55 @@
     color: white;
     font-size: 1.2em;
     text-align: center;
+  }
+
+  .steps {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5em 0;
+    position: relative;
+  }
+
+  .steps::before {
+    content: "";
+    width: calc(50% - 1em);
+    height: 3px;
+    background-color: gray;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0em;
+    z-index: -1;
+  }
+
+  .steps::after {
+    content: "";
+    width: calc(50% - 1em);
+    height: 3px;
+    background-color: gray;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 0em;
+    z-index: -1;
+  }
+
+  .steps span {
+    background-color: white;
+    border: 1px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: black;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+  }
+
+  .steps .active-step {
+    background-color: green;
+    color: white;
   }
 </style>

@@ -10,7 +10,7 @@ INSERT INTO routes (route, changedRoute) VALUES
 ("/donate", "/donate"),
 ("/change-password", "/change-password"),
 ("/login/random", "/login/random"),
-("/logout", "/logout")
+("/logout", "/logout");
 
 INSERT INTO userdata (username, role, ip, country, isp) VALUES
 ('john_doe', 'user', '192.168.1.1', 'United States', 'Comcast'),
@@ -24,7 +24,8 @@ INSERT INTO userdata (username, role, ip, country, isp) VALUES
 ('natasha_romanoff', 'user', '192.168.1.9', 'Russia', 'Rostelecom'),
 ('steve_rogers', 'moderator', '192.168.1.10', 'United States', 'Spectrum');
 
-INSERT INTO users (id, username, password, changed, role) VALUES
-("1", "owner", "$2y$10$JaBePlAFAuLAp..QgqGQGuvVaZSwdKNiJZR3H1HwyIQ7fmhNj.U8q", "true", "owner")
+INSERT INTO users (username, password, changed, role) VALUES
+("owner", "$2y$10$JaBePlAFAuLAp..QgqGQGuvVaZSwdKNiJZR3H1HwyIQ7fmhNj.U8q", true, "owner");
 
-composer require phpoffice/phpword
+INSERT INTO about (title, content) VALUES
+("About Us", "We are a team of developers working on this project.");

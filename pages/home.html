@@ -4,102 +4,98 @@
     <input placeholder="Search Keywords" type="text" id="search-keywords" />
     <i class="fa-solid fa-magnifying-glass" id="openInput"></i>
   </div>
-  <section>
-    <div class="article-container">
-      <article>
-        <img src="https://via.placeholder.com/300" alt="Placeholder" />
-        <h3>Dino Merlin</h3>
-      </article>
-      <article>
-        <img src="https://via.placeholder.com/300" alt="Placeholder" />
-        <h3>Dino Merlin</h3>
-      </article>
-    </div>
-    <div class="article-container">
-      <article>
-        <img src="https://via.placeholder.com/300" alt="Placeholder" />
-        <h3>Dr. Nele Karajić</h3>
-      </article>
-      <article>
-        <img src="https://via.placeholder.com/300" alt="Placeholder" />
-        <h3>Dr. Nele Karajić</h3>
-      </article>
-      <article>
-        <img src="https://via.placeholder.com/300" alt="Placeholder" />
-        <h3>Dr. Nele Karajić</h3>
-      </article>
-      <article>
-        <img src="https://via.placeholder.com/300" alt="Placeholder" />
-        <h3>Dr. Nele Karajić</h3>
-      </article>
-      <article>
-        <img src="https://via.placeholder.com/300" alt="Placeholder" />
-        <h3>Dr. Nele Karajić</h3>
-      </article>
-    </div>
-    <div class="article-container">
-      <article>
-        <img src="https://via.placeholder.com/300" alt="Placeholder" />
-        <h3>Dr. Nele Karajić Dr. Nele Karajić</h3>
-      </article>
-      <article>
-        <img src="https://via.placeholder.com/300" alt="Placeholder" />
-        <h3>Dr. Nele Karajić Dr. Nele Karajić</h3>
-      </article>
-      <article>
-        <img src="https://via.placeholder.com/300" alt="Placeholder" />
-        <h3>Dr. Nele Karajić Dr. Nele Karajić</h3>
-      </article>
-      <article>
-        <img src="https://via.placeholder.com/300" alt="Placeholder" />
-        <h3>Dr. Nele Karajić Dr. Nele Karajić</h3>
-      </article>
-      <article>
-        <img src="https://via.placeholder.com/300" alt="Placeholder" />
-        <h3>Dr. Nele Karajić Dr. Nele Karajić</h3>
-      </article>
-      <article>
-        <img src="https://via.placeholder.com/300" alt="Placeholder" />
-        <h3>Dr. Nele Karajić Dr. Nele Karajić</h3>
-      </article>
-    </div>
+  <section id="celebrity-list">
+    <!-- Articles will be dynamically inserted here -->
   </section>
 </main>
 {{footer}}
 
+
 <script>
   document.getElementById("openInput").addEventListener("click", () => {
-    document.getElementById("search-keywords").focus();
+    const searchKeywords = document.getElementById("search-keywords").value;
+    window.location.href = `/search?result=${encodeURIComponent(searchKeywords)}`;
   });
 
-  fetch("/api/routes/auth/user.php")
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.success) {
-        if (!data.user.changed) {
-          window.location.href = "/change-password";
-        }
-      }
-    });
-</script>
-<style>
-  iframe {
-    width: 100%;
-    height: 100vh;
+  document.getElementById("search-keywords").addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const searchKeywords = e.target.value;
+      window.location.href = `/search?result=${encodeURIComponent(searchKeywords)}`;
+    }
+  });
+
+
+  async function loadCelebrities() {
+    const res = await fetch('/api/routes/celebrity/get-celebrity-position.php');
+    const data = await res.json();
+
+    const section = document.getElementById('celebrity-list');
+    section.innerHTML = ''; 
+
+    if (data.success) {
+        const positions = data.data; 
+        console.log(data.data)
+
+
+        const positionsPerContainer = [2, 5, 6]; 
+
+        let containerIndex = 0;
+        let currentContainer = createArticleContainer();
+        section.appendChild(currentContainer);
+
+        positions.forEach(({ position, name, image_path }) => {
+            if (containerIndex >= positionsPerContainer.length) {
+                containerIndex = positionsPerContainer.length - 1;
+            }
+
+            if (currentContainer.childElementCount >= positionsPerContainer[containerIndex]) {
+                currentContainer = createArticleContainer();
+                section.appendChild(currentContainer);
+                containerIndex++;
+            }
+
+            let imagePath = image_path || "/assets/unknown.jpg";
+
+            const article = document.createElement('article');
+            article.innerHTML = `
+                <img src="${imagePath}" />
+                <h3>${name || 'Unknown'}</h3>
+            `;
+            currentContainer.appendChild(article);
+        });
+    } else {
+        alert(data.message);
+    }
   }
 
-  #home {
+  function createArticleContainer() {
+      const container = document.createElement('div');
+      container.className = 'article-container';
+      return container;
+  }
+
+  loadCelebrities();
+</script>
+
+<style>
+iframe {
+    width: 100%;
+    height: 100vh;
+}
+
+#home {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     margin: 0 auto;
     padding-top: 10em;
-  }
+}
 
-  #home .input-search {
+#home .input-search {
     width: 50vw;
-    padding: 0.5em 1em;
+    padding: 0.1em 0.6em;
     font-size: 1.2em;
     border: 1px solid gray;
     border-radius: 5px;
@@ -107,56 +103,63 @@
     align-items: center;
     justify-content: center;
     gap: 1em;
-  }
+}
 
-  #home .input-search input {
+#home .input-search input {
     width: 100%;
     height: 100%;
     border: none;
     outline: none;
     font-size: 1.2em;
     color: gray;
-  }
+}
 
-  #home .input-search i {
+#home .input-search i {
     cursor: pointer;
-  }
+}
 
-  #home section {
+#home section {
     margin-top: 6em;
     margin-bottom: 10em;
     width: 100%;
-  }
+}
 
-  #home .article-container {
+#celebrity-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1em;
+}
+
+#celebrity-list .article-container {
     margin: 1em auto;
     width: 70%;
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 1em;
-  }
+}
 
-  #home .article-container article {
+#celebrity-list .article-container article {
     position: relative;
     border-radius: 5px;
     overflow: hidden;
     height: 250px;
     cursor: pointer;
-    transition: all 0.3s ease;
-  }
+    transition: transform 0.3s ease;
+}
 
-  #home .article-container article:hover {
+#celebrity-list .article-container article:hover {
     transform: scale(1.05);
-  }
+}
 
-  #home .article-container article img {
+#celebrity-list .article-container article img {
     width: 200px;
     height: 250px;
     object-fit: cover;
-  }
+}
 
-  #home .article-container article h3 {
+#celebrity-list .article-container article h3 {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -166,5 +169,25 @@
     color: white;
     font-size: 1.2em;
     text-align: center;
-  }
+}
+
+@media (max-width: 1200px) {
+    #celebrity-list .article-container {
+        flex-direction: column;
+        width: 90%;
+        gap: 1em;
+    }
+
+    #celebrity-list .article-container article {
+        height: 400px;
+        width: 350px;
+    }
+
+    #celebrity-list .article-container article img {
+        width: 350px;
+        height: 400px;
+        object-fit: cover;
+    }
+}
+
 </style>
