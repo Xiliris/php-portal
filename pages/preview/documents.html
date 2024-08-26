@@ -5,7 +5,33 @@
 </main>
 {{footer}}
 
+<section id="overlay-profile">
+  <article>
+    <p>This <span id="type">celebrity</span> isn't live to the public yet.</p>
+    <button id="back-to-upload">Back</button>
+  </article>
+</section>
+
 <script>
+  const backToUploadBtn = document.getElementById('back-to-upload');
+  const reqType = localStorage.getItem("type")
+  const reqId = localStorage.getItem('id');
+
+  if(reqType) {
+    document.getElementById('type').innerText = 'event'
+  }
+
+  backToUploadBtn.addEventListener('click', () => {
+    const params = window.location.pathname.split("/");
+
+    if(reqType) {
+       window.location.href = `/dashboard/create-event/${params[2]}/${reqId}/preview`
+    }  else {
+      window.location.href = `/dashboard/create-celebrity/${params[2]}/preview`
+    }
+  })
+
+
   const container = document.getElementById("celebrity__container");
   const eventContainer = document.getElementById("celebrity__event-container");
 
@@ -25,9 +51,6 @@
       const celebrity = data.data;
       const article = document.createElement("article");
 
-      if(celebrity.preview) {
-        overlayProfileContainer.style.display = 'flex'
-      }
       let imagePath = celebrity.image_path || "/assets/unknown.jpg";
 
       article.innerHTML = `
@@ -45,6 +68,7 @@
     const params = window.location.pathname.split("/");
     const formData = new FormData();
     formData.append("id", params[2]);
+    
 
     const response = await fetch("/api/routes/celebrity/data/events.php", {
       method: "POST",
@@ -65,45 +89,59 @@
             <i class="fa-solid fa-chevron-up"></i>
           `;
 
-          console.log(event.id);
-          const videoRes = await fetch(`/api/routes/celebrity/data/videos.php?id=${event.id}`);
-          const videoData = await videoRes.json();
-          let videoContent = "";
+          const docsRes = await fetch(`/api/routes/celebrity/data/documents.php?id=${event.id}`);
+          const docsData = await docsRes.json();
+          let docContent = "";
 
-          if (videoData.success) {
-            for (const video of videoData.data) {
-              videoContent += `
-                <video controls>
-                  <source src="${video}" type="video/mp4"/>
-                </video>
+          if (docsData.success) {
+            for (const docs of docsData.data) {
+              const { document_path, doc_type } = docs;
+
+              if (doc_type === "pdf") {
+                docContent += `
+                <iframe src="${document_path}" width="100%" height="600px"></iframe>
               `;
+              } else if (doc_type === "docx") {
+                const encodedPath = encodeURIComponent(document_path);
+                docContent += `
+                <iframe src="https://docs.google.com/viewer?url=${encodedPath}&embedded=true" width="100%" height="600px"></iframe>
+            `;
+              } else {
+                docContent += `
+                  <p>Not supported</p>
+                `;
+              }
             }
           }
 
           itemsContainer.innerHTML = `
             <ul>
               <li id="releases">Releases <i class="fa-solid fa-chevron-down"></i></li>
-              <li id="documents">Documents <i class="fa-solid fa-chevron-down"></i></li>
+              <li id="documents" class="active-item">Documents <i class="fa-solid fa-chevron-down"></i></li>
               <li id="images">Images <i class="fa-solid fa-chevron-down"></i></li>
               <li id="audio">Audio <i class="fa-solid fa-chevron-down"></i></li>
-              <li id="video" class="active-item">Video <i class="fa-solid fa-chevron-down"></i></li>
+              <li id="video">Video <i class="fa-solid fa-chevron-down"></i></li>
             </ul>
-            <div>${videoContent}</div>
+            <div>${docContent}</div>
           `;
         } else {
           article.innerHTML = `
             <a>${event.title}</a>
             <i class="fa-solid fa-chevron-down"></i>
           `;
+
+          if(event.preview) {
+          article.style.display = "none"
+        }
         }
 
         article.addEventListener("click", function () {
           this.querySelector("i").classList.toggle("active");
 
           if (article.id == params[3]) {
-            window.location.href = `/profile/${params[2]}`;
+            window.location.href = `/preview/${params[2]}`;
           } else {
-            window.location.href = `/profile/${params[2]}/${event.id}/releases`;
+            window.location.href = `/preview/${params[2]}/${event.id}/releases`;
           }
         });
 
@@ -116,19 +154,19 @@
             const id = clickedItem.id;
             switch (id) {
               case "releases":
-                window.location.href = `/profile/${params[2]}/${event.id}/releases`;
+                window.location.href = `/preview/${params[2]}/${event.id}/releases`;
                 break;
               case "documents":
-                window.location.href = `/profile/${params[2]}/${event.id}/documents`;
+                window.location.href = `/preview/${params[2]}/${event.id}/documents`;
                 break;
               case "images":
-                window.location.href = `/profile/${params[2]}/${event.id}/images`;
+                window.location.href = `/preview/${params[2]}/${event.id}/images`;
                 break;
               case "audio":
-                window.location.href = `/profile/${params[2]}/${event.id}/audio`;
+                window.location.href = `/preview/${params[2]}/${event.id}/audio`;
                 break;
               case "video":
-                window.location.href = `/profile/${params[2]}/${event.id}/video`;
+                window.location.href = `/preview/${params[2]}/${event.id}/video`;
                 break;
               default:
                 console.log("Unknown item clicked");
@@ -136,10 +174,8 @@
           }
         });
 
-        if(!event.preview) {
-          eventContainer.append(article);
-          eventContainer.append(itemsContainer);
-        }
+        eventContainer.append(article);
+        eventContainer.append(itemsContainer);
       }
     } else {
       alert(data.message);
@@ -263,8 +299,9 @@
     margin-top: 1em;
   }
 
-  .items_container div video {
-    width: 100%;
+  .items_container div p {
+    font-size: 1.2em;
+    line-height: 1.5em;
   }
   
   @media (max-width: 768px) {

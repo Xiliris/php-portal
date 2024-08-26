@@ -16,6 +16,7 @@
       <input type="text" id="celebrity-name" placeholder="Name" />
       <textarea id="celebrity-description" placeholder="Description"></textarea>
       <input type="file" id="celebrity-image" accept="image/*" />
+      <input type="datetime-local" name="datetime" id="c-datetime" />
       <button class="btn" id="create-celebrity-btn">Next</button>
     </section>
   </div>
@@ -26,6 +27,7 @@
   const description = document.getElementById("celebrity-description");
   const image = document.getElementById("celebrity-image");
   const nextStepBtn = document.getElementById("create-celebrity-btn");
+  const publishDate = document.getElementById("c-datetime");
 
   nextStepBtn.addEventListener("click", () => {
     createCelebrity();
@@ -35,6 +37,7 @@
     const nameValue = name.value;
     const descriptionValue = description.value;
     const imageValue = image.files[0];
+    const publishDateValue = publishDate.value;
 
     if (!nameValue) {
       alert("Missing name!");
@@ -46,15 +49,16 @@
       return;
     }
 
-    if (!imageValue) {
-      alert("Missing image!");
-      return;
+    if(!publishDateValue){
+      alert('Missing publish date');
+      return
     }
 
     const formData = new FormData();
     formData.append("name", nameValue);
     formData.append("description", descriptionValue);
     formData.append("image", imageValue);
+    formData.append('publishDate', publishDateValue)
 
     try {
       const res = await fetch("/api/routes/celebrity/create-celebrity.php", {

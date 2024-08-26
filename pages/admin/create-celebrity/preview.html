@@ -14,16 +14,34 @@
     <hr />
     <section class="dashboard__container">
       <button class="btn create-events-btn" id="add-event-btn">View</button>
-      <button class="btn" id="skip-btn">Finish</button>
+      <button class="btn" id="finish-btn">Finish</button>
     </section>
   </div>
 </main>
 
 <script>
   const addEvetBtn = document.getElementById("add-event-btn");
-  const skipBtn = document.getElementById("skip-btn");
+  const finishBtn = document.getElementById("finish-btn");
   const quitBtn = document.getElementById("quit");
   const param = window.location.pathname.split("/")[3];
+
+  finishBtn.addEventListener('click', async (e) => {
+    const formData = new FormData();
+    formData.append('id', param)
+
+    const res = await fetch("/api/routes/celebrity/finish-celebrity.php", {
+      method: "POST",
+      body: formData
+    })
+
+    const data = await res.json();
+
+    if(data.success) {
+      window.location.href = `/profile/${param}`
+    } else {
+      alert(data.message)
+    }
+  })
 
   quitBtn.addEventListener("click", async (e) => {
     e.preventDefault();
@@ -52,28 +70,9 @@
   });
 
   addEvetBtn.addEventListener("click", () => {
-    window.location.href = `/profile/${param}`;
+    window.location.href = `/preview/${param}`;
   });
 
-  skipBtn.addEventListener("click", async () => {
-    const formData = new FormData();
-
-    formData.append("id", param);
-
-    const res = await fetch("/api/routes/celebrity/finish-celebrity.php", {
-      method: "POST",
-      body: formData,
-    });
-
-    const data = await res.text();
-    console.log(data);
-
-    if (data.success) {
-      window.location.href = `/profile/${param}`;
-    } else {
-      alert(data.message);
-    }
-  });
 </script>
 
 <style>

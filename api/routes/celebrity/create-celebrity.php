@@ -9,6 +9,7 @@ $response = ["success" => false, "message" => "", "id" => null];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = $_POST['name'];
     $description = $_POST['description'];
+    $publishDate = $_POST['publish_date'] ?? null;
     $protocol = strtolower(substr($_SERVER["SERVER_PROTOCOL"], 0, 5)) == 'https' ? 'https' : 'http';
 
     if (empty($name) || empty($description)) {
@@ -41,8 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        $stmt = $pdo->prepare("INSERT INTO celebrity_profile (name, description, image_path) VALUES (?, ?, ?)");
-        $stmt->execute([$name, $description, $imagePath]);
+        $stmt = $pdo->prepare("INSERT INTO celebrity_profile (name, description, image_path, publish_date) VALUES (?, ?, ?, ?)");
+        $stmt->execute([$name, $description, $imagePath, $publishDate]);
 
         // Retrieve the last inserted ID
         $lastInsertedId = $pdo->lastInsertId();

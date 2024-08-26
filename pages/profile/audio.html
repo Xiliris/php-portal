@@ -25,8 +25,14 @@
       const celebrity = data.data;
       const article = document.createElement("article");
 
+      if(celebrity.preview) {
+        overlayProfileContainer.style.display = 'flex'
+      }
+
+      let imagePath = celebrity.image_path || "/assets/unknown.jpg";
+
       article.innerHTML = `
-        <img src="${celebrity.image_path}" alt="${celebrity.name}" />
+        <img src="${imagePath}" alt="${celebrity.name}" />
         <p>${celebrity.description}</p>
       `;
 
@@ -132,9 +138,11 @@
             }
           }
         });
+        if(!event.preview) {
+          eventContainer.append(article);
+          eventContainer.append(itemsContainer);
+        }
 
-        eventContainer.append(article);
-        eventContainer.append(itemsContainer);
       }
     } else {
       alert(data.message);

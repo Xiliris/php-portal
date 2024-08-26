@@ -45,9 +45,15 @@ CREATE TABLE celebrity_profile (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
-    image_path VARCHAR(255) NOT NULL,
+    image_path VARCHAR(255) DEFAULT NULL,
     preview BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE celebrity_home_position (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    celebrity_profile_id INT DEFAULT NULL,
+    position INT NOT NULL
 );
 
 CREATE TABLE celebrity_event_data (

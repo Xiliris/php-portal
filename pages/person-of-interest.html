@@ -13,31 +13,44 @@
   let celebrities = [];
 
   async function loadCards() {
-    const response = await fetch("/api/routes/celebrity/list-celebrity.php");
-    const data = await response.json();
+    try {
+      const response = await fetch("/api/routes/celebrity/list-celebrity.php");
+      const data = await response.json();
 
-    if (data.success) {
-      celebrities = data.data;
-      displayCelebrities(celebrities);
-    } else {
-      alert(data.message);
+      if (data.success) {
+        celebrities = data.data;
+        console.log(celebrities)
+        filterAndDisplayCelebrities(celebrities);
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching celebrity data:", error);
     }
   }
 
-  function displayCelebrities(list) {
+  function filterAndDisplayCelebrities(list) {
     const container = document.getElementById("celebrity__container");
     container.innerHTML = ""; // Clear previous results
 
+    const now = new Date();
+
     for (const celebrity of list) {
-      const article = document.createElement("a");
-      article.href = `/profile/${celebrity.id}`;
+      const publishDate = new Date(celebrity.publish_date);
 
-      article.innerHTML = `
-        <img src="${celebrity.image_path}" alt="${celebrity.name}" />
-        <h3>${celebrity.name}</h3>
-      `;
+      if (!celebrity.preview && (!publishDate || publishDate <= now)) {
+        const article = document.createElement("a");
+        article.href = `/profile/${celebrity.id}`;
 
-      container.append(article);
+        let imagePath = celebrity.image_path || "/assets/unknown.jpg";
+
+        article.innerHTML = `
+          <img src="${imagePath}" alt="${celebrity.name}" />
+          <h3>${celebrity.name}</h3>
+        `;
+
+        container.append(article);
+      } 
     }
   }
 
@@ -108,26 +121,26 @@
       display: flex;
       align-items: center;
       flex-direction: column;
-    justify-content: center;
-  }
+      justify-content: center;
+    }
 
-  #celebrity__container a img {
-    width: 250px;
-    height: 300px;
-  }
+    #celebrity__container a img {
+      width: 250px;
+      height: 300px;
+    }
 
-  #person-of-interest h1 {
-    text-align: center;
-  }
+    #person-of-interest h1 {
+      text-align: center;
+    }
 
-  #person-of-interest {
-    display: flex;
-    justify-content: flex-start;
-    width: 90vw;
-  }
+    #person-of-interest {
+      display: flex;
+      justify-content: flex-start;
+      width: 90vw;
+    }
 
-  #celebrity__container {
-    width: 90vw;
+    #celebrity__container {
+      width: 90vw;
+    }
   }
-}
 </style>

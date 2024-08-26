@@ -1,0 +1,194 @@
+{{navbar}}
+<main id="dashboard">
+  <h1>Dashboard</h1>
+  <div>
+    <div class="dashboard__header">
+      <h2>Select Celebrity</h2>
+      <a class="btn" href="/dashboard" data-link id="quit">Quit</a>
+    </div>
+    <div class="steps">
+      <span class="active-step">1</span>
+      <span class="active-step">2</span>
+    </div>
+    <hr />
+    <section class="select-container">
+       <div>
+        <article>1</article>
+        <article>2</article>
+       </div>
+       <div>
+        <article>3</article>
+        <article>4</article>
+        <article>5</article>
+        <article>6</article>
+        <article>7</article>
+       </div>
+       <div>
+        <article>8</article>
+        <article>9</article>
+        <article>10</article>
+        <article>11</article>
+        <article>12</article>
+        <article>13</article>
+       </div>
+    </section>
+  </div>
+</main>
+<script>
+  const celebrityId = window.location.pathname.split("/")[3];
+
+  const handleArticleClick = (event) => {
+    const position = event.target.innerText; 
+    fetch('/api/routes/celebrity/set-celebrity-position.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        id: celebrityId,
+        position: position,
+      }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        window.location.href = '/'
+      } else {
+        alert('Failed to set position: ' + data.message);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('An error occurred while setting the position.');
+    });
+  };
+
+  // Add the click event listener to each article
+  document.querySelectorAll('.select-container div article').forEach(article => {
+    article.addEventListener('click', handleArticleClick);
+  });
+</script>
+
+<style>
+  #dashboard {
+    margin: 0 auto;
+    padding: 10em 0;
+    width: 80%;
+    min-height: 100vh;
+    text-align: center;
+  }
+
+  #quit {
+    background-color: red;
+    border: 1px solid red;
+  }
+
+
+  .btn {
+    padding: 0.5em 1.5em;
+    border-radius: 0.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+    background-color: green;
+    border: 1px solid green;
+    color: white;
+    font-size: 1em;
+    cursor: pointer;
+  }
+
+  .dashboard__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
+
+  .select-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 1em;
+    margin-top: 2em
+  }
+
+  .select-container div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-direction: row;
+    gap: 1em
+  }
+
+  .select-container div article {
+    display: flex;
+    width: 200px;
+    height: 250px;
+    justify-content: center;
+    align-items: center;
+    font-size: 8em;
+    border: 1px solid black;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .select-container div article:hover {
+    background-color: green;
+    color: white;
+    transform: scale(1.05);
+  }
+
+  .steps {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5em 0;
+    position: relative;
+  }
+
+  .steps::before {
+    content: "";
+    width: calc(50%);
+    height: 3px;
+    background-color: green;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0em;
+    z-index: -1;
+  }
+
+  .steps::after {
+    content: "";
+    width: calc(50%);
+    height: 3px;
+    background-color: green;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 0em;
+    z-index: -1;
+  }
+
+  .steps span {
+    background-color: white;
+    border: 1px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: black;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+  }
+
+  .steps .active-step {
+    background-color: green;
+    color: white;
+  }
+</style>

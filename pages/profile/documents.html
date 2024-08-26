@@ -4,7 +4,6 @@
   <div id="celebrity__event-container"></div>
 </main>
 {{footer}}
-
 <script>
   const container = document.getElementById("celebrity__container");
   const eventContainer = document.getElementById("celebrity__event-container");
@@ -25,8 +24,14 @@
       const celebrity = data.data;
       const article = document.createElement("article");
 
+      if(celebrity.preview) {
+        overlayProfileContainer.style.display = 'flex'
+      }
+
+      let imagePath = celebrity.image_path || "/assets/unknown.jpg";
+
       article.innerHTML = `
-        <img src="${celebrity.image_path}" alt="${celebrity.name}" />
+        <img src="${imagePath}" alt="${celebrity.name}" />
         <p>${celebrity.description}</p>
       `;
 
@@ -40,6 +45,7 @@
     const params = window.location.pathname.split("/");
     const formData = new FormData();
     formData.append("id", params[2]);
+    
 
     const response = await fetch("/api/routes/celebrity/data/events.php", {
       method: "POST",
@@ -141,8 +147,10 @@
           }
         });
 
-        eventContainer.append(article);
-        eventContainer.append(itemsContainer);
+        if(!event.preview) {
+          eventContainer.append(article);
+          eventContainer.append(itemsContainer);
+        }
       }
     } else {
       alert(data.message);
