@@ -1,174 +1,74 @@
 {{navbar}}
-<div class="wrapper">
-  <div id="dashboard">
-    <h1 id="h1el">Admin Dashboard</h1>
-    <h2 id="h2el">Create Celebrity Profile</h2>
-    <br />
-    <form
-      id="profile-form"
-      enctype="multipart/form-data"
-      action="/api/routes/createProfile.php"
-      method="post"
-    >
-      <label for="picture">Profile Picture:</label>
-      <input type="file" name="picture" id="picture" accept="image/*" />
-      <br /><br />
-
-      <label for="bio">Bio:</label>
-      <textarea name="bio" id="bio" rows="10" cols="60"></textarea>
-      <br />
-
-      <label for="profile_documents">Profile Documents:</label>
-      <input
-        type="file"
-        name="profile_documents[]"
-        id="profile_documents"
-        multiple
-        accept=".pdf, .doc, .docx"
-      />
-      <br /><br />
-
-      <label for="video">Profile Video:</label>
-      <input type="file" name="video[]" id="video" multiple accept="video/*" />
-      <br /><br />
-
-      <label for="audio">Profile Audio:</label>
-      <input type="file" name="audio[]" id="audio" multiple accept="audio/*" />
-      <br /><br />
-
-      <input type="submit" value="Create Profile" />
-    </form>
-    <div id="error-message"></div>
+<main id="dashboard">
+  <h1>Dashboard</h1>
+  <div>
+    <h2>Dashboard</h2>
+    <hr />
+    <section class="dashboard__container">
+      <a href="/dashboard/create-celebrity" data-link>
+        <h3>Create Celebrity</h3>
+        <p>Create a new celebrity, with data such as name, description and image.</p>
+      </a>
+      <a href="/dashboard/select-celebrity" data-link>
+        <h3>Create Event</h3>
+        <p>Create a new event associated with a celebrity</p>
+      </a>
+      <a href="/dashboard/remove-celebrity" data-link>
+        <h3>Remove Celebrity</h3>
+        <p>Remove created celebrity from your database</p>
+      </a>
+    </section>
   </div>
-</div>
-{{footer}}
-
-<script>
-  document
-    .getElementById("profile-form")
-    .addEventListener("submit", async function (event) {
-      event.preventDefault();
-
-      const form = event.target;
-      const formData = new FormData(form);
-
-      try {
-        const response = await fetch("/api/routes/createProfile.php", {
-          method: "POST",
-          body: formData,
-        });
-
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          const result = await response.json();
-          if (result.status === "success") {
-            document.getElementById(
-              "error-message"
-            ).textContent = `Success: ${result.message}`;
-            if (result.profileId) {
-              window.location.href = `/profile?id=${result.profileId}`;
-            } else {
-              document.getElementById("error-message").textContent =
-                "No profile ID returned.";
-            }
-          } else {
-            document.getElementById("error-message").textContent =
-              result.message
-                ? `${result.message}`
-                : "An unknown error occurred.";
-          }
-        } else {
-          throw new Error("Invalid JSON response");
-        }
-      } catch (error) {
-        document.getElementById(
-          "error-message"
-        ).textContent = `${error.message}`;
-      }
-    });
-</script>
-
+</main>
 <style>
-  html,
-  body {
-    height: 100%;
-    margin: 0;
-  }
-
-  body {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-  }
-
   #dashboard {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    max-width: 600px;
-  }
-
-  #h1el {
-    margin-top: 20%;
-    margin-bottom: 20px;
+    margin: 0 auto;
+    padding: 10em 0;
+    width: 80%;
+    min-height: 100vh;
     text-align: center;
   }
 
-  #profile-form {
+  #dashboard h2 {
+    text-align: left;
+    margin-bottom: 0.5em;
+    margin-top: 2em;
+  }
+
+  .dashboard__main-container {
+    margin-top: 5em;
+  }
+
+  .dashboard__container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2em;
+    margin-top: 2em;
+    text-align: left;
+    color: black;
+  }
+
+  .dashboard__container a {
     width: 100%;
-    padding: 10px;
-    box-sizing: border-box;
+    padding: 2em;
+    border: 3px solid black;
+    border-radius: 0.5em;
+    cursor: pointer;
+    border-left: 10px solid darkblue;
+    background-color: lightblue;
+    transition: all 0.3s ease;
   }
 
-  #profile-form label {
-    display: block;
-    margin: 10px 0 5px;
+  .dashboard__container a:hover {
+    background-color: darkblue;
+    color: white;
   }
 
-  #profile-form input[type="file"],
-  #profile-form textarea,
-  #profile-form input[type="submit"] {
-    width: 100%;
-    box-sizing: border-box;
+  .dashboard__container a h3 {
+    margin-bottom: 0.5em;
   }
 
-  #error-message {
-    color: red;
-    margin-top: 10px;
-    margin-bottom: 40%;
-    text-align: center;
-  }
-
-  @media (max-width: 480px) {
-    #profile-form {
-      width: 90%;
-      padding: 5px;
-    }
-
-    #h1el {
-      font-size: 1.5em;
-    }
-
-    #profile-form textarea {
-      font-size: 0.9em;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    #profile-form {
-      width: 90%;
-    }
-
-    #h1el {
-      padding-top: 10%;
-    }
+  .dashboard__container a p {
+    font-weight: 500;
   }
 </style>

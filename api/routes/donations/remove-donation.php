@@ -12,19 +12,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $stmt->execute([$id]);
             $donation = $stmt->fetch(PDO::FETCH_ASSOC);
             $imagePath = $donation['image_path'] ?? null;
-
             $stmt = $pdo->prepare("DELETE FROM donations WHERE id = ?");
             $stmt->execute([$id]);
 
             if ($stmt->rowCount() > 0) {
                 if ($imagePath) {
-                    $imagePath = str_replace('http://php-portal.local', __DIR__ . '/../../../', $imagePath);
-                    if (file_exists($imagePath)) {
-                        unlink($imagePath);
+                    $filePathRelative = str_replace('/api/storage/donations/', '', $imagePath);
+                    $filePathRelative = ltrim($filePathRelative, '/');
+                    $directory = __DIR__ . '/../../storage/donations/';
+                    $fileFullPath = $directory . $filePathRelative;
+
+                    if (file_exists($fileFullPath)) {
+                        if (unlink($fileFullPath)) {
+                            $response['success'] = true;
+                            $response['message'] = "Donation deleted successfully!";
+                        } else {
+                            $response['message'] = "Failed to delete file.";
+                        }
+                    } else {
+                        $response['message'] = "File does not exist: " . $fileFullPath;
                     }
+                } else {
+                    $response['success'] = true;
+                    $response['message'] = "Donation deleted successfully, no image to remove.";
                 }
-                $response['success'] = true;
-                $response['message'] = "Donation deleted successfully!";
             } else {
                 $response['message'] = "Donation not found.";
             }
@@ -39,4 +50,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 }
 
 echo json_encode($response);
-?>

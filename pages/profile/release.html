@@ -8,7 +8,6 @@
 <script>
   const container = document.getElementById("celebrity__container");
   const eventContainer = document.getElementById("celebrity__event-container");
-
   async function loadProfile() {
     const params = window.location.pathname.split("/");
     const formData = new FormData();
@@ -52,54 +51,48 @@
         const article = document.createElement("article");
         article.id = event.id;
         const itemsContainer = document.createElement("div");
-        itemsContainer.className = "items_container";
+
+        const publishDate = new Date(event.publish_date);
+        const day = String(publishDate.getDate()).padStart(2, '0');
+        const month = String(publishDate.getMonth() + 1).padStart(2, '0');
+        const year = publishDate.getFullYear();
+        const hours = String(publishDate.getHours()).padStart(2, '0');
+        const minutes = String(publishDate.getMinutes()).padStart(2, '0');
+
+        const formattedDate = `${day}/${month}/${year}`;
+        const formattedTime = `${hours}:${minutes}`;
+
+          itemsContainer.className = "items_container";
 
         if (event.id == params[3]) {
           article.innerHTML = `
-            <a>${event.title}</a>
-            <i class="fa-solid fa-chevron-up"></i>
+          <a title="${event.title}">${event.title}</a>
+          <i class="fa-solid fa-chevron-${event.id == params[3] ? 'up' : 'down'}"></i>
           `;
 
-          const docsRes = await fetch(`/api/routes/celebrity/data/documents.php?id=${event.id}`);
-          const docsData = await docsRes.json();
-          let docContent = "";
-
-          if (docsData.success) {
-            for (const docs of docsData.data) {
-              const { document_path, doc_type } = docs;
-
-              if (doc_type === "pdf") {
-                docContent += `
-                <iframe src="${document_path}" width="100%" height="600px"></iframe>
-              `;
-              } else if (doc_type === "docx") {
-                const encodedPath = encodeURIComponent(document_path);
-                docContent += `
-                <iframe src="https://docs.google.com/viewer?url=${encodedPath}&embedded=true" width="100%" height="600px"></iframe>
-            `;
-              } else {
-                docContent += `
-                  <p>Not supported</p>
-                `;
-              }
-            }
-          }
-
-          itemsContainer.innerHTML = `
-            <ul>
-              <li id="releases">Releases <i class="fa-solid fa-chevron-down"></i></li>
-              <li id="documents" class="active-item">Documents <i class="fa-solid fa-chevron-down"></i></li>
-              <li id="images">Images <i class="fa-solid fa-chevron-down"></i></li>
-              <li id="audio">Audio <i class="fa-solid fa-chevron-down"></i></li>
-              <li id="video">Video <i class="fa-solid fa-chevron-down"></i></li>
-            </ul>
-            <div>${docContent}</div>
-          `;
+    itemsContainer.innerHTML = ` 
+          <ul>
+            <li id="releases" class="active-item">Releases <i class="fa-solid fa-chevron-down"></i></li>
+            <li id="documents">Documents <i class="fa-solid fa-chevron-down"></i></li>
+            <li id="images">Images <i class="fa-solid fa-chevron-down"></i></li>
+            <li id="audio">Audio <i class="fa-solid fa-chevron-down"></i></li>
+            <li id="video">Video <i class="fa-solid fa-chevron-down"></i></li>
+          </ul>
+      <div>
+        <p>${event.description}</p>
+      </div>
+      <p id="event_status">
+        <span>${event.views}</span>
+        <i class="fa-solid fa-eye"></i> 
+        <span class="publish_date">${formattedTime}</span>
+        <span class="publish_date">${formattedDate}</span>
+      </p>
+    `;
         } else {
           article.innerHTML = `
-            <a>${event.title}</a>
-            <i class="fa-solid fa-chevron-down"></i>
-          `;
+          <a>${event.title}</a>
+          <i class="fa-solid fa-chevron-down"></i>
+        `;
         }
 
         article.addEventListener("click", function () {
@@ -149,8 +142,36 @@
     }
   }
 
+  async function handleViews() {
+    const eventId = window.location.pathname.split("/")[3]; // Adjust if necessary
+    const formData = new FormData();
+    formData.append("id", eventId);
+
+    try {
+      // Check if the event has already been visited
+      if (!localStorage.getItem(eventId)) {
+        // Send a POST request to the server to register the view
+        const response = await fetch("/api/routes/celebrity/add-view.php", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        localStorage.setItem(eventId, "visited");
+      } else {
+        console.log("Visited Already");
+      }
+    } catch (error) {
+      console.error("Error handling views:", error);
+    }
+  }
+
   loadEvents();
   loadProfile();
+  handleViews();
 </script>
 
 <style>
@@ -269,63 +290,82 @@
   .items_container div p {
     font-size: 1.2em;
     line-height: 1.5em;
+    width: 80vw;
+    word-break: break-all;
+    hyphens: auto;
+    overflow-wrap: break-word;
   }
-  
+
+  #event_status {
+    font-weight: bold;
+    text-align: right;
+    margin-top: 1em;
+  }
+
+  #event_status i {
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+  }
+
+  #event_status .publish_date {
+    margin-right: 0.5em;
+  }
+
   @media (max-width: 768px) {
 
-#celebrity__event-container {
+    #celebrity__event-container {
+        width: 80vw;
+      }
+    #celebrity__event-container article {
+        font-size: 0.9em;
+      }
+
+    .items_container ul {
+        flex-direction: column;
+        width: 100%;
+        align-items: flex-start;
+      }
+
+    .items_container ul li {
+        padding: 0.5em;
+        text-align: center;
+      }
+
+    .items_container div p {
+        font-size: 0.9em;
+      }
+    
+    .profile-container {
+    margin-top: 8em;
+    margin-bottom: 3em;
+  }
+
+    #celebrity__container {
     width: 80vw;
-  }
-#celebrity__event-container article {
-    font-size: 0.9em;
-  }
-
-.items_container ul {
     flex-direction: column;
-    width: 100%;
+  }
+
+    #celebrity__container article {
+    padding-bottom: 2em;
+    display: flex;
+    flex-direction: column;
     align-items: flex-start;
+    width: 100%;
   }
 
-.items_container ul li {
-    padding: 0.5em;
-    text-align: center;
+    #celebrity__container article img {
+    width: 150px;
+    height: 200px;
+    align-self: flex-start;
   }
 
-.items_container div p {
+    #celebrity__container article p {
     font-size: 0.9em;
+    line-height: 1.3em;
+    word-break: break-all;
+    hyphens: auto;
+    overflow-wrap: break-word;
+    margin: 0;
   }
-
-.profile-container {
-margin-top: 8em;
-margin-bottom: 3em;
-}
-
-#celebrity__container {
-width: 80vw;
-flex-direction: column;
-}
-
-#celebrity__container article {
-padding-bottom: 2em;
-display: flex;
-flex-direction: column;
-align-items: flex-start;
-width: 100%;
-}
-
-#celebrity__container article img {
-width: 150px;
-height: 200px;
-align-self: flex-start;
-}
-
-#celebrity__container article p {
-font-size: 0.9em;
-line-height: 1.3em;
-word-break: break-all;
-hyphens: auto;
-overflow-wrap: break-word;
-margin: 0;
-}
 }
 </style>

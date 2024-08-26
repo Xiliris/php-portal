@@ -1,0 +1,194 @@
+{{navbar}}
+<main id="dashboard">
+  <h1>Dashboard</h1>
+  <div>
+    <div class="dashboard__header">
+      <h2 id="celebrity-name">Create Celebrity</h2>
+      <a class="btn" href="/dashboard" data-link>Back</a>
+    </div>
+    <hr />
+    <section class="dashboard__container">
+      <input type="text" placeholder="Title" id="c-title" />
+      <textarea placeholder="Description" id="c-description"></textarea>
+      <div class="div-input">
+        <label for="images">IMAGES</label>
+        <input type="file" name="images" id="c-images" accept="image/*" multiple />
+      </div>
+      <div class="div-input">
+        <label for="documents">DOCUMENTS</label>
+        <input type="file" name="documents" id="c-documents" accept=".pdf,.doc,.docx" multiple />
+      </div>
+      <div class="div-input">
+        <label for="audio">AUDIO</label>
+        <input type="file" name="audio" id="c-audio" accept="audio/*" multiple />
+      </div>
+      <div class="div-input">
+        <label for="video">VIDEO</label>
+        <input type="file" name="video" id="c-video" accept="video/*" multiple />
+      </div>
+      <div class="div-input">
+        <label for="datetime">Publish Date and Time</label>
+        <input type="datetime-local" name="datetime" id="c-datetime" />
+      </div>
+      <button class="btn" id="submit-btn">Create</button>
+    </section>
+  </div>
+</main>
+
+<script>
+  const btn = document.getElementById("submit-btn");
+  const params = window.location.pathname.split("/");
+
+  btn.addEventListener("click", async () => {
+    const title = document.getElementById("c-title").value;
+    const description = document.getElementById("c-description").value;
+    const datetime = document.getElementById("c-datetime").value;
+    const images = document.getElementById("c-images").files;
+    const documents = document.getElementById("c-documents").files;
+    const audio = document.getElementById("c-audio").files;
+    const video = document.getElementById("c-video").files;
+
+    if (!title || !description || !datetime) {
+      alert("Title, description and Publish Date and Time are required!");
+      return;
+    }
+
+    const formData = new FormData();
+    console.table(title, params[3], description, datetime);
+
+    formData.append("title", title);
+    formData.append("id", params[3]);
+    formData.append("description", description);
+    formData.append("publish_date", datetime);
+
+    if (images.length > 0) {
+      for (let i = 0; i < images.length; i++) {
+        formData.append("images[]", images[i]);
+      }
+    }
+
+    if (documents.length > 0) {
+      for (let i = 0; i < documents.length; i++) {
+        formData.append("documents[]", documents[i]);
+      }
+    }
+
+    if (audio.length > 0) {
+      for (let i = 0; i < audio.length; i++) {
+        formData.append("audio[]", audio[i]);
+      }
+    }
+
+    if (video.length > 0) {
+      for (let i = 0; i < video.length; i++) {
+        formData.append("video[]", video[i]);
+      }
+    }
+
+    const res = await fetch("/api/routes/celebrity/create-event.php", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      window.location.href = `/profile/${params[3]}`;
+    } else {
+      alert(data.message);
+      return;
+    }
+  });
+
+  async function load() {
+    const formData = new FormData();
+    formData.append("id", params[3]);
+
+    const response = await fetch("/api/routes/celebrity/get-celebrity.php", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      const celebrity = data.data;
+      document.getElementById("celebrity-name").innerHTML = celebrity.name;
+    } else {
+      alert(data.message);
+    }
+  }
+
+  load();
+</script>
+
+<style>
+  #dashboard {
+    margin: 0 auto;
+    padding: 10em 0;
+    width: 80%;
+    min-height: 100vh;
+    text-align: center;
+  }
+
+  .btn {
+    padding: 0.5em 1.5em;
+    border-radius: 0.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+    background-color: green;
+    border: 1px solid green;
+    color: white;
+    font-size: 1em;
+    cursor: pointer;
+  }
+
+  .dashboard__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
+
+  .dashboard__main-container {
+    margin-top: 5em;
+  }
+
+  .dashboard__container h2 {
+    margin: 1em 0;
+  }
+
+  .dashboard__container {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    margin: 1em 0;
+  }
+
+  .dashboard__container label {
+    text-align: left;
+    margin-bottom: 0em;
+    font-weight: 600;
+  }
+
+  .div-input {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dashboard__container input,
+  .dashboard__container textarea {
+    padding: 0.5em 1em;
+    border: 1px solid gray;
+    border-radius: 5px;
+    resize: none;
+    font-size: 1em;
+  }
+
+  .dashboard__container textarea {
+    height: 200px;
+  }
+</style>

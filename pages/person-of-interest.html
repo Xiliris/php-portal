@@ -2,18 +2,132 @@
 
 <div id="person-of-interest">
   <h1>Person of Interest</h1>
-  <p>This is the person of interest page.</p>
+  <section id="celebrity__container">
+    <!-- Celebrities will be listed here -->
+  </section>
 </div>
 
 {{footer}}
+
+<script>
+  let celebrities = [];
+
+  async function loadCards() {
+    const response = await fetch("/api/routes/celebrity/list-celebrity.php");
+    const data = await response.json();
+
+    if (data.success) {
+      celebrities = data.data;
+      displayCelebrities(celebrities);
+    } else {
+      alert(data.message);
+    }
+  }
+
+  function displayCelebrities(list) {
+    const container = document.getElementById("celebrity__container");
+    container.innerHTML = ""; // Clear previous results
+
+    for (const celebrity of list) {
+      const article = document.createElement("a");
+      article.href = `/profile/${celebrity.id}`;
+
+      article.innerHTML = `
+        <img src="${celebrity.image_path}" alt="${celebrity.name}" />
+        <h3>${celebrity.name}</h3>
+      `;
+
+      container.append(article);
+    }
+  }
+
+  loadCards();
+</script>
 
 <style>
   #person-of-interest {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
+
     margin: 0 auto;
+    margin-top: 10em;
     height: 100vh;
+    width: 70vw;
   }
+
+  #person-of-interest h1 {
+    text-align: left;
+    width: 100%;
+  }
+
+  #celebrity__container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1em;
+    margin-top: 2em;
+    width: 70vw;
+  }
+
+  #celebrity__container a {
+    position: relative;
+    border-radius: 5px;
+    overflow: hidden;
+    height: 250px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  #celebrity__container a:hover {
+    transform: scale(1.05);
+  }
+
+  #celebrity__container a img {
+    width: 200px;
+    height: 250px;
+    object-fit: cover;
+  }
+
+  #celebrity__container a h3 {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 0.5em;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-size: 1.2em;
+    text-align: center;
+  }
+
+  @media (max-width: 768px) {
+    #celebrity__container {
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+    justify-content: center;
+  }
+
+  #celebrity__container a img {
+    width: 250px;
+    height: 300px;
+  }
+
+  #person-of-interest h1 {
+    text-align: center;
+  }
+
+  #person-of-interest {
+    display: flex;
+    justify-content: flex-start;
+    width: 90vw;
+  }
+
+  #celebrity__container {
+    width: 90vw;
+  }
+}
 </style>

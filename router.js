@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", async () => {
   const app = document.getElementById("app");
+  const loadingEl = document.getElementById("loading");
+  let cachedRoute = "/";
 
   const baseUrl = "http://php-portal.local";
 
@@ -26,22 +28,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/login/random": `${baseUrl}/pages/auth/login.html`,
     "/logout": `${baseUrl}/pages/auth/logout.html`,
     "/dashboard": `${baseUrl}/pages/admin/dashboard.html`,
+    "/dashboard/create-celebrity": `${baseUrl}/pages/admin/create-celebrity.html`,
+    "/dashboard/select-celebrity": `${baseUrl}/pages/admin/select-celebrity.html`,
+    "/dashboard/remove-celebrity": `${baseUrl}/pages/admin/remove-celebrity.html`,
+    "/dashboard/create-event/:id": `${baseUrl}/pages/admin/create-event.html`,
     "/master-panel": `${baseUrl}/pages/master-panel/master-panel.html`,
     "/master-panel/routes": `${baseUrl}/pages/master-panel/routes.html`,
     "/master-panel/users": `${baseUrl}/pages/master-panel/users.html`,
     "/master-panel/sensitive-data": `${baseUrl}/pages/master-panel/sensitive-data.html`,
     "/master-panel/donations": `${baseUrl}/pages/master-panel/donations.html`,
     "/master-panel/footer": `${baseUrl}/pages/master-panel/footer.html`,
+    "/master-panel/partners": `${baseUrl}/pages/master-panel/partners.html`,
+    "/master-panel/editor": `${baseUrl}/pages/master-panel/editor.html`,
+    "/master-panel/shop": `${baseUrl}/pages/master-panel/shop.html`,
     "/documents": `${baseUrl}/pages/documents.html`,
     "/videos": `${baseUrl}/pages/video.html`,
     "/audio": `${baseUrl}/pages/audio.html`,
     "/news/:id/:document": `${baseUrl}/pages/news.html`,
     "/profile/:userid": `${baseUrl}/pages/profile/main.html`,
-    "/profile/:userid/:event/document": `${baseUrl}/pages/profile/documents.html`, // profile/1/1929/documents
-    "/profile/:userid/:event/video": `${baseUrl}/pages/profile/video.html`, // profile/1/1929/videos
-    "/profile/:userid/:event/audio": `${baseUrl}/pages/profile/audio.html`, // profile/1/1929/audio
-    "/profile/:userid/:event/image": `${baseUrl}/pages/profile/image.html`, // profile/1/1929/images
-    "/profile/:userid/:event/text": `${baseUrl}/pages/profile/text.html`, // profile/1/1929
+    "/profile/:userid/:event/documents": `${baseUrl}/pages/profile/documents.html`,
+    "/profile/:userid/:event/video": `${baseUrl}/pages/profile/video.html`,
+    "/profile/:userid/:event/audio": `${baseUrl}/pages/profile/audio.html`,
+    "/profile/:userid/:event/images": `${baseUrl}/pages/profile/image.html`,
+    "/profile/:userid/:event/releases": `${baseUrl}/pages/profile/release.html`,
   };
 
   const routePermissions = {
@@ -49,6 +58,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/change-password": 1,
     "/shop": 1,
     "/dashboard": 3,
+    "/dashboard/create-celebrity": 3,
+    "/dashboard/remove-celebrity": 3,
+    "dashboard/create-event": 3,
     "/master-panel": 4,
     "/master-panel/routes": 4,
     "/master-panel/users": 4,
@@ -84,7 +96,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   const matchRoute = (path) => {
-    console.log("RAN");
     const routeKeys = Object.keys(routes);
     for (const route of routeKeys) {
       const routePattern = new RegExp("^" + route.replace(/:\w+/g, "([\\w-]+)").replace(/\//g, "\\/") + "$");
@@ -109,6 +120,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   };
 
   const router = async () => {
+    if (window.location.pathname !== cachedRoute) {
+      loadingEl.style.display = "flex";
+      cachedRoute = window.location.pathname;
+    } else {
+      cachedRoute = window.location.pathname;
+      loadingEl.style.display = "none";
+    }
+
     const path = location.pathname;
     const matchedRoute = matchRoute(path);
     const routeKey = matchedRoute ? matchedRoute.route : null;
@@ -145,6 +164,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       app.innerHTML = html;
       window.scrollTo(0, 0);
+
+      loadingEl.style.display = "none";
 
       // Execute embedded scripts
       html.split("<script>").forEach((script) => {
