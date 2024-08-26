@@ -15,7 +15,6 @@
       <button class="btn" id="footer-submit">Add</button>
     </section>
     <section id="footer-container">
-      <!-- Footer items will be displayed here -->
     </section>
   </div>
 </main>
@@ -70,24 +69,26 @@
       });
 
       const res = await response.json();
-      const data = res.data;
 
-      if (response.ok) {
-        if (data && data.title && data.id) {
-          footerHeader.value = "";
-          footerLink.value = "";
-          footerDescription.value = "";
-          footerImage.value = "";
+      if (res.success) {
+        alert(res.message);
 
-          appendFooterItem(data.title, data.id);
+        footerHeader.value = "";
+        footerLink.value = "";
+        footerDescription.value = "";
+        footerImage.value = "";
+
+        if (res.data && res.data.title && res.data.id) {
+          appendFooterItem(res.data.title, res.data.id);
         } else {
-          console.error("Invalid response data:", data);
+          console.error("Invalid response data:", res.data);
         }
       } else {
-        console.error("Failed to add footer item. Status:", response.status);
+        alert(res.message);
       }
     } catch (error) {
       console.error("Error:", error);
+      alert("An error occurred while processing your request.");
     }
   });
 
@@ -117,18 +118,18 @@
         body: formData,
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          document.getElementById(id).remove();
-        } else {
-          alert("Failed to remove footer item: " + data.message);
-        }
+      const res = await response.json();
+
+      if (response.ok && res.success) {
+        alert("Footer item removed successfully.");
+        document.getElementById(id).remove();
       } else {
+        alert("Failed to remove footer item: " + (res.message || ""));
         console.error("Failed to remove footer item. Status:", response.status);
       }
     } catch (error) {
       console.error("Error:", error);
+      alert("An error occurred while processing your request.");
     }
   }
 
@@ -137,9 +138,9 @@
       const response = await fetch("/api/routes/footer/get-footer.php");
 
       if (response.ok) {
-        const data = await response.json();
-        if (data.data && Array.isArray(data.data)) {
-          data.data.forEach((item) => {
+        const res = await response.json();
+        if (res.data && Array.isArray(res.data)) {
+          res.data.forEach((item) => {
             if (item.title && item.id) {
               appendFooterItem(item.title, item.id);
             } else {
@@ -147,17 +148,19 @@
             }
           });
         } else {
-          console.error("Unexpected data format:", data);
+          console.error("Unexpected data format:", res);
         }
       } else {
         console.error("Failed to fetch footer items. Status:", response.status);
       }
     } catch (error) {
       console.error("Error:", error);
+      alert("An error occurred while fetching footer items.");
     }
   }
 
   getFooterItems();
+
 </script>
 
 <style>

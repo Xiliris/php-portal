@@ -1,22 +1,27 @@
 {{navbar}}
-
-<div id="person-of-interest">
-  <h1>Person of Interest</h1>
-  <div class="input-search">
-    <input placeholder="Search Celebrities" type="text" id="search-users" />
-    <i class="fa-solid fa-magnifying-glass" id="openInput"></i>
+<main id="dashboard">
+  <h1>Dashboard</h1>
+  <div>
+    <h2>Select Celebrity for Event</h2>
+    <hr />
+    <div class="input-search">
+      <input placeholder="Search Celebrities" type="text" id="search-users" />
+      <i class="fa-solid fa-magnifying-glass" id="openInput"></i>
+    </div>
+    <hr />
+    <section id="dashboard__select-container">
+      <!-- Celebrities will be here -->
+    </section>
   </div>
-  <section id="celebrity__container">
-    <!-- Celebrities will be listed here -->
-  </section>
-</div>
-
-{{footer}}
-
+</main>
 <script>
+  document.getElementById("openInput").addEventListener("click", () => {
+    document.getElementById("search-users").focus();
+  });
+
   let celebrities = [];
 
-  async function loadCards() {
+  async function loadCelebrities() {
     const response = await fetch("/api/routes/celebrity/list-celebrity.php");
     const data = await response.json();
 
@@ -29,12 +34,12 @@
   }
 
   function displayCelebrities(list) {
-    const container = document.getElementById("celebrity__container");
+    const container = document.getElementById("dashboard__select-container");
     container.innerHTML = ""; // Clear previous results
 
     for (const celebrity of list) {
       const article = document.createElement("a");
-      article.href = `/profile/${celebrity.id}`;
+      article.href = `/dashboard/create-event/${celebrity.id}`;
 
       article.innerHTML = `
         <img src="${celebrity.image_path}" alt="${celebrity.name}" />
@@ -51,23 +56,26 @@
     displayCelebrities(filteredCelebrities);
   });
 
-  loadCards();
+  loadCelebrities();
 </script>
 
 <style>
-  #person-of-interest {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-
+  #dashboard {
     margin: 0 auto;
-    margin-top: 10em;
-    height: 100vh;
+    padding: 10em 0;
+    width: 80%;
+    min-height: 100vh;
+    text-align: center;
+  }
+
+  #dashboard h2 {
+    text-align: left;
+    margin-bottom: 0.5em;
+    margin-top: 2em;
   }
 
   .input-search {
-    width: 50vw;
+    width: 100%;
     padding: 0.5em 1em;
     margin: 2em auto;
     font-size: 1em;
@@ -92,17 +100,16 @@
     cursor: pointer;
   }
 
-  #celebrity__container {
+  #dashboard__select-container {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-wrap: wrap;
     gap: 1em;
-    padding: 1em;
-    width: 80vw;
+    margin-top: 1em;
   }
 
-  #celebrity__container a {
+  #dashboard__select-container a {
     position: relative;
     border-radius: 5px;
     overflow: hidden;
@@ -111,17 +118,17 @@
     transition: all 0.3s ease;
   }
 
-  #celebrity__container a:hover {
+  #dashboard__select-container a:hover {
     transform: scale(1.05);
   }
 
-  #celebrity__container a img {
+  #dashboard__select-container a img {
     width: 200px;
     height: 250px;
     object-fit: cover;
   }
 
-  #celebrity__container a h3 {
+  #dashboard__select-container a h3 {
     position: absolute;
     bottom: 0;
     left: 0;

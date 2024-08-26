@@ -8,7 +8,6 @@
 <script>
   const container = document.getElementById("celebrity__container");
   const eventContainer = document.getElementById("celebrity__event-container");
-
   async function loadProfile() {
     const params = window.location.pathname.split("/");
     const formData = new FormData();
@@ -52,46 +51,38 @@
         const article = document.createElement("article");
         article.id = event.id;
         const itemsContainer = document.createElement("div");
+        const publishDate = event.publish_date.split(" ");
         itemsContainer.className = "items_container";
 
         if (event.id == params[3]) {
           article.innerHTML = `
             <a>${event.title}</a>
             <i class="fa-solid fa-chevron-up"></i>
-          `;
-
-          const audioRes = await fetch(`/api/routes/celebrity/data/audio.php?id=${event.id}`);
-          const audioData = await audioRes.json();
-          let audioArr = "";
-
-          if (audioData.success) {
-            for (const audio of audioData.data) {
-              console.log(audio);
-
-              audioArr += `
-                  <audio controls>
-                      <source src="${audio}" type="audio/mpeg">
-                      our browser does not support the audio element.
-                  </audio>
-              `;
-            }
-          }
+        `;
 
           itemsContainer.innerHTML = `
-            <ul>
-              <li id="releases">Releases <i class="fa-solid fa-chevron-down"></i></li>
-              <li id="documents">Documents <i class="fa-solid fa-chevron-down"></i></li>
-              <li id="images">Images <i class="fa-solid fa-chevron-down"></i></li>
-              <li id="audio" class="active-item">Audio <i class="fa-solid fa-chevron-down"></i></li>
-              <li id="video">Video <i class="fa-solid fa-chevron-down"></i></li>
-            </ul>
-            <div>${audioArr}</div>
-          `;
+          <ul>
+            <li id="releases" class="active-item">Releases <i class="fa-solid fa-chevron-down"></i></li>
+            <li id="documents">Documents <i class="fa-solid fa-chevron-down"></i></li>
+            <li id="images">Images <i class="fa-solid fa-chevron-down"></i></li>
+            <li id="audio">Audio <i class="fa-solid fa-chevron-down"></i></li>
+            <li id="video">Video <i class="fa-solid fa-chevron-down"></i></li>
+          </ul>
+          <div>
+            <p>${event.description}</p>
+          </div>
+          <p id="event_status">
+            <span>${event.views}</span>
+            <i class="fa-solid fa-eye"></i> 
+            <span class="publish_date">${publishDate[1]}</span>
+            <span>${publishDate[0]}</span>
+            </p>
+        `;
         } else {
           article.innerHTML = `
-            <a>${event.title}</a>
-            <i class="fa-solid fa-chevron-down"></i>
-          `;
+          <a>${event.title}</a>
+          <i class="fa-solid fa-chevron-down"></i>
+        `;
         }
 
         article.addEventListener("click", function () {
@@ -141,8 +132,36 @@
     }
   }
 
+  async function handleViews() {
+    const eventId = window.location.pathname.split("/")[3]; // Adjust if necessary
+    const formData = new FormData();
+    formData.append("id", eventId);
+
+    try {
+      // Check if the event has already been visited
+      if (!localStorage.getItem(eventId)) {
+        // Send a POST request to the server to register the view
+        const response = await fetch("/api/routes/celebrity/add-view.php", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        localStorage.setItem(eventId, "visited");
+      } else {
+        console.log("Visited Already");
+      }
+    } catch (error) {
+      console.error("Error handling views:", error);
+    }
+  }
+
   loadEvents();
   loadProfile();
+  handleViews();
 </script>
 
 <style>
@@ -259,5 +278,21 @@
   .items_container div p {
     font-size: 1.2em;
     line-height: 1.5em;
+    width: 70vw;
+    word-break: break-all;
+  }
+
+  #event_status {
+    font-weight: bold;
+    text-align: right;
+  }
+
+  #event_status i {
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+  }
+
+  #event_status .publish_date {
+    margin-right: 0.5em;
   }
 </style>

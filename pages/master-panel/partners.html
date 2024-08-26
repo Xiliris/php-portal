@@ -1,0 +1,259 @@
+{{navbar}}
+<main id="master-panel">
+  <h1>Master Panel</h1>
+  <div>
+    <div class="master-panel__header">
+      <h2>Partners</h2>
+      <a class="btn" href="/master-panel" data-link>Back</a>
+    </div>
+    <hr />
+    <section class="partner-add">
+      <input type="text" id="partner-link" placeholder="Link" />
+      <input type="file" id="partner-image" accept="image/*" />
+      <button class="btn" id="partner-submit">Add</button>
+    </section>
+    <section id="partner-container">
+    </section>
+  </div>
+</main>
+
+<script>
+  const partnerLink = document.getElementById("partner-link");
+  const partnerImage = document.getElementById("partner-image");
+  const partnerContainer = document.getElementById("partner-container");
+  const partnerSubmit = document.getElementById("partner-submit");
+
+  partnerSubmit.addEventListener("click", async () => {
+    const link = partnerLink.value.trim();
+    const image = partnerImage.files[0];
+
+    let errorMessage = "";
+
+    if (!link) {
+      errorMessage += "Link is required.\n";
+    }
+
+    if (image) {
+      const validTypes = ["image/jpeg", "image/png", "image/gif"];
+      if (!validTypes.includes(image.type)) {
+        errorMessage += "Invalid file type. Only JPEG, PNG, and GIF are allowed.\n";
+      }
+
+      if (image.size > 2 * 1024 * 1024) {
+        errorMessage += "File size exceeds 2MB.\n";
+      }
+
+    } else {
+      errorMessage += "Image is required.\n";
+    }
+
+    if (errorMessage) {
+      alert(errorMessage);
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("link", link);
+    formData.append("image", image);
+
+    try {
+      const response = await fetch("/api/routes/partners/add-partner.php", {
+        method: "POST",
+        body: formData,
+      });
+
+      const res = await response.json();
+      const data = res.data;
+
+      if (response.ok) {
+        if (data && data.id) {
+          partnerLink.value = "";
+          partnerImage.value = "";
+
+          appendPartnerItem(data.id, data.link, data.image_path);
+
+          alert("Partner successfully added.");
+
+        } else {
+          console.error("Invalid response data:", data);
+
+        }
+      } else {
+        console.error("Failed to add partner. Status:", response.status);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  });
+
+  function appendPartnerItem(id, link, imagePath) {
+    const article = document.createElement("article");
+    article.innerHTML = `
+      <i class="fas fa-trash remove"></i>
+      <a href="${link}" target="_blank">${link}</a>
+      <img src="${imagePath}" alt="Partner Image" style="max-width: 100px; border-radius: 4px;" />`;
+
+    article.id = id;
+
+    article.querySelector(".remove").addEventListener("click", () => handleRemove(id));
+
+    if (partnerContainer.firstChild) {
+      partnerContainer.insertBefore(article, partnerContainer.firstChild);
+    } else {
+      partnerContainer.appendChild(article);
+    }
+  }
+
+  async function handleRemove(id) {
+    const formData = new FormData();
+    formData.append("id", id);
+
+    try {
+      const response = await fetch("/api/routes/partners/remove-partner.php", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          document.getElementById(id).remove();
+          alert("Partner successfully removed.");
+        } else {
+          alert("Failed to remove partner: " + data.message);
+        }
+      } else {
+        console.error("Failed to remove partner. Status:", response.status);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
+
+  async function getPartners() {
+    try {
+      const response = await fetch("/api/routes/partners/get-partner.php");
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.data && Array.isArray(data.data)) {
+          data.data.forEach((item) => {
+            if (item.link && item.id) {
+              appendPartnerItem(item.id, item.link, item.image_path);
+            } else {
+              console.error("Invalid item data:", item);
+            }
+          });
+
+        } else {
+          console.error("Unexpected data format:", data);
+        }
+      } else {
+        console.error("Failed to fetch partners. Status:", response.status);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
+
+  getPartners();
+
+</script>
+
+<style>
+  #master-panel {
+    margin: 0 auto;
+    padding: 10em 0;
+    width: 80%;
+    min-height: 101vh;
+    text-align: center;
+  }
+
+  #master-panel h2 {
+    text-align: left;
+  }
+
+  .master-panel__main-container {
+    margin-top: 5em;
+  }
+
+  .master-panel__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
+
+  .btn {
+    padding: 0.5em 1.5em;
+    border-radius: 0.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+    background-color: green;
+    border: 1px solid green;
+    color: white;
+    cursor: pointer;
+    font-size: 1em;
+  }
+
+  .partner-add h2 {
+    margin: 1em 0;
+  }
+
+  .partner-add {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    margin: 1em 0;
+  }
+
+  .partner-add label {
+    font-weight: bold;
+  }
+
+  .partner-add input,
+  .partner-add textarea {
+    padding: 0.5em 1em;
+    border: 1px solid gray;
+    border-radius: 5px;
+    resize: none;
+    font-size: 1em;
+  }
+
+  .partner-add textarea {
+    height: 200px;
+  }
+
+  #partner-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1em;
+     margin-top: 2em;
+  }
+
+  #partner-container article {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1em;
+    border: 1px solid black;
+    border-left: 10px solid green;
+    border-radius: 0.5em;
+    gap: 0.5em;
+  }
+
+  #partner-container article i {
+    transform: scale(1.5);
+    cursor: pointer;
+    color: red;
+  }
+
+  @media screen and (max-width: 480px) {
+    #master-panel {
+      width: 95%;
+    }
+  }
+</style>

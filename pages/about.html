@@ -1,17 +1,160 @@
 {{navbar}}
-<div id="about">
-  <h1>About Us</h1>
-  <p>This is the about page.</p>
+<div id="wrapper">
+  <div id="main-container">
+    <div id="about">
+      <h1 id="page-title"></h1>
+      <p id="last-updated"></p>
+      <div id="page-content" class="ck-content"></div>
+      <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/43.0.0/ckeditor5.css" />
+    </div>
+  </div>
 </div>
 {{footer}}
 
+<script>
+  async function fetchAndDisplayData() {
+    try {
+      const response = await fetch("/api/routes/about/about.php");
+      const data = await response.json();
+
+      if (data.success) {
+        document.getElementById("page-title").textContent = data.data.title;
+        document.getElementById("page-content").innerHTML = data.data.content;
+
+        const lastUpdatedElement = document.getElementById("last-updated");
+        const lastUpdatedDate = new Date(data.data.last_updated);
+
+        const options = {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        };
+
+        const formattedDate = lastUpdatedDate.toLocaleDateString("en-GB", options);
+
+        lastUpdatedElement.textContent = `${formattedDate}`;
+      } else {
+        document.getElementById("page-title").textContent = "No content available";
+      }
+
+      if (data.alert) {
+        alert(data.alert);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      document.getElementById("page-title").textContent = "Error loading content";
+    }
+  }
+
+  fetchAndDisplayData();
+</script>
+
 <style>
-  #about {
+  html,
+  body {
+    height: 100%;
+    margin: 0;
+  }
+
+  body {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    font-family: Arial, sans-serif;
+  }
+
+  #wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  #main-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    padding-bottom: 150px;
+  }
+
+  #about {
+    max-width: 55vw;
     margin: 0 auto;
-    height: 100vh;
+  }
+
+  #page-title {
+    padding-top: 18%;
+    font-size: 36px;
+    margin-bottom: 20px;
+    text-align: start;
+  }
+
+  #page-content {
+    font-size: 1.2em;
+    line-height: 1.6;
+  }
+
+  #last-updated {
+    font-size: 0.9em;
+    color: #555;
+    text-align: start;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 1280px) {
+    #about {
+      max-width: 70vw;
+      margin: 0 auto;
+    }
+
+    #page-title {
+      font-size: 1.8em;
+    }
+
+    #page-content {
+      font-size: 1.1em;
+      margin-bottom: 100px;
+    }
+  }
+
+  @media (max-width: 853px) {
+    #about {
+      max-width: 80vw;
+      margin: 0 auto;
+    }
+    #page-title {
+      font-size: 1.6em;
+    }
+
+    #page-content {
+      font-size: 1em;
+    }
+
+    #main-container {
+      padding: 52px;
+      padding-bottom: 100px;
+    }
+
+    #about {
+      padding: 0 10px;
+    }
+  }
+
+  @media (max-width: 540px) {
+    #about {
+      max-width: 90vw;
+      margin: 0 auto;
+    }
+    #page-title {
+      padding-top: 30%;
+      font-size: 1.4em;
+    }
+
+    img {
+      width: 212px;
+    }
+
+    #page-content {
+      font-size: 0.9em;
+    }
   }
 </style>

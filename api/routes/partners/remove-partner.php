@@ -8,32 +8,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($id) {
         try {
-            $stmt = $pdo->prepare("SELECT image_path FROM footer WHERE id = ?");
+            $stmt = $pdo->prepare("SELECT image_path FROM partners WHERE id = ?");
             $stmt->execute([$id]);
-            $footer = $stmt->fetch(PDO::FETCH_ASSOC);
-            $imagePath = $footer['image_path'] ?? null;
-            $stmt = $pdo->prepare("DELETE FROM footer WHERE id = ?");
+            $partner = $stmt->fetch(PDO::FETCH_ASSOC);
+            $imagePath = $partner['image_path'] ?? null;
+            $stmt = $pdo->prepare("DELETE FROM partners WHERE id = ?");
             $stmt->execute([$id]);
 
             if ($stmt->rowCount() > 0) {
                 if ($imagePath) {
                     $filename = basename($imagePath);
-                    $fileFullPath = __DIR__ . '/../../storage/footer/' . $filename;
-
+                    $fileFullPath = __DIR__ . '/../../storage/partners/' . $filename;
+                    
                     if (file_exists($fileFullPath)) {
                         unlink($fileFullPath);
                     }
                 }
                 $response['success'] = true;
-                $response['message'] = "Footer item deleted successfully!";
+                $response['message'] = "Partner deleted successfully!";
             } else {
-                $response['message'] = "Footer item not found.";
+                $response['message'] = "Partner not found.";
             }
         } catch (Exception $e) {
             $response['message'] = "Database error: " . $e->getMessage();
         }
     } else {
-        $response['message'] = "Invalid footer item ID.";
+        $response['message'] = "Invalid partner ID.";
     }
 } else {
     $response['message'] = "Invalid request method.";

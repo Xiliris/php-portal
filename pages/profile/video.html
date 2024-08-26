@@ -1,27 +1,260 @@
 {{navbar}}
-<main id="profile">
-  <h1>Videoe</h1>
-  <p>${param1}</p>
-  <a href="/profile/${param1}/${param2}/text" data-link="">Text</a>
-  <a href="/profile/${param1}/${param2}/document" data-link="">Document</a>
-  <a href="/profile/${param1}/${param2}/audio" data-link="">Audio</a>
-  <a href="/profile/${param1}/${param2}/video" data-link="">Video</a>
-  <a href="/profile/${param1}/${param2}/image" data-link="">Image</a>
+<main class="profile-container">
+  <div id="celebrity__container"></div>
+  <div id="celebrity__event-container"></div>
 </main>
-
 {{footer}}
 
 <script>
-  console.log("${param1}");
+  const container = document.getElementById("celebrity__container");
+  const eventContainer = document.getElementById("celebrity__event-container");
+
+  async function loadProfile() {
+    const params = window.location.pathname.split("/");
+    const formData = new FormData();
+    formData.append("id", params[2]);
+
+    const response = await fetch("/api/routes/celebrity/get-celebrity.php", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      const celebrity = data.data;
+      const article = document.createElement("article");
+
+      article.innerHTML = `
+        <img src="${celebrity.image_path}" alt="${celebrity.name}" />
+        <p>${celebrity.description}</p>
+      `;
+
+      container.append(article);
+    } else {
+      alert(data.message);
+    }
+  }
+
+  async function loadEvents() {
+    const params = window.location.pathname.split("/");
+    const formData = new FormData();
+    formData.append("id", params[2]);
+
+    const response = await fetch("/api/routes/celebrity/data/events.php", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      for (const event of data.data) {
+        const article = document.createElement("article");
+        article.id = event.id;
+        const itemsContainer = document.createElement("div");
+        itemsContainer.className = "items_container";
+
+        if (event.id == params[3]) {
+          article.innerHTML = `
+            <a>${event.title}</a>
+            <i class="fa-solid fa-chevron-up"></i>
+          `;
+
+          console.log(event.id);
+          const videoRes = await fetch(`/api/routes/celebrity/data/videos.php?id=${event.id}`);
+          const videoData = await videoRes.json();
+          let videoContent = "";
+
+          if (videoData.success) {
+            for (const video of videoData.data) {
+              videoContent += `
+                <video controls>
+                  <source src="${video}" type="video/mp4"/>
+                </video>
+              `;
+            }
+          }
+
+          itemsContainer.innerHTML = `
+            <ul>
+              <li id="releases">Releases <i class="fa-solid fa-chevron-down"></i></li>
+              <li id="documents">Documents <i class="fa-solid fa-chevron-down"></i></li>
+              <li id="images">Images <i class="fa-solid fa-chevron-down"></i></li>
+              <li id="audio">Audio <i class="fa-solid fa-chevron-down"></i></li>
+              <li id="video" class="active-item">Video <i class="fa-solid fa-chevron-down"></i></li>
+            </ul>
+            <div>${videoContent}</div>
+          `;
+        } else {
+          article.innerHTML = `
+            <a>${event.title}</a>
+            <i class="fa-solid fa-chevron-down"></i>
+          `;
+        }
+
+        article.addEventListener("click", function () {
+          this.querySelector("i").classList.toggle("active");
+
+          if (article.id == params[3]) {
+            window.location.href = `/profile/${params[2]}`;
+          } else {
+            window.location.href = `/profile/${params[2]}/${event.id}/releases`;
+          }
+        });
+
+        itemsContainer.addEventListener("click", function (e) {
+          const target = e.target;
+
+          // Handle click on <li> elements
+          if (target.tagName === "LI" || target.parentElement.tagName === "LI") {
+            const clickedItem = target.tagName === "LI" ? target : target.parentElement;
+            const id = clickedItem.id;
+            switch (id) {
+              case "releases":
+                window.location.href = `/profile/${params[2]}/${event.id}/releases`;
+                break;
+              case "documents":
+                window.location.href = `/profile/${params[2]}/${event.id}/documents`;
+                break;
+              case "images":
+                window.location.href = `/profile/${params[2]}/${event.id}/images`;
+                break;
+              case "audio":
+                window.location.href = `/profile/${params[2]}/${event.id}/audio`;
+                break;
+              case "video":
+                window.location.href = `/profile/${params[2]}/${event.id}/video`;
+                break;
+              default:
+                console.log("Unknown item clicked");
+            }
+          }
+        });
+
+        eventContainer.append(article);
+        eventContainer.append(itemsContainer);
+      }
+    } else {
+      alert(data.message);
+    }
+  }
+
+  loadEvents();
+  loadProfile();
 </script>
 
 <style>
-  #profile {
+  .profile-container {
+    min-height: 100vh;
+    width: 100vw;
     display: flex;
-    flex-direction: column;
+    margin-top: 9em;
+    margin-bottom: 6em;
+    justify-content: flex-start;
     align-items: center;
+    flex-direction: column;
+  }
+
+  #celebrity__container {
+    display: flex;
+    width: 70vw;
+  }
+
+  #celebrity__container article {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 1.5em;
+    border-bottom: 1px solid lightgray;
+    padding-bottom: 4.5em;
+    width: 100%;
+  }
+
+  #celebrity__container article img {
+    width: 200px;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 5px;
+  }
+
+  #celebrity__container article p {
+    font-size: 1.1em;
+    line-height: 1.5em;
+    margin-top: 1em;
+  }
+
+  #celebrity__event-container {
+    width: 70vw;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 1em;
+    margin-top: 1em;
+  }
+
+  #celebrity__event-container article {
+    color: #0096ff;
+    cursor: pointer;
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+  }
+
+  #celebrity__event-container article a {
+    max-width: 100%;
+    font-size: 1.2em;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  #celebrity__event-container article i {
+    margin-left: 1em;
+    transform: scale(1.2);
+  }
+
+  #celebrity__event-container .active {
+    transform: scale(1.2) rotate(180deg);
+  }
+
+  .items_container ul {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    color: black;
+    font-weight: bold;
+    border-bottom: 1px solid lightgray;
+    width: 70vw;
+  }
+
+  .items_container ul .active-item {
+    background-color: lightgrey;
+  }
+
+  .items_container ul li {
+    padding: 0.5em 1em;
+    display: flex;
     justify-content: center;
-    margin: 0 auto;
-    height: 100vh;
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+
+  .items_container ul li:hover {
+    background: lightgray;
+  }
+
+  .items_container ul li i {
+    margin-left: 1em;
+  }
+
+  .items_container div {
+    margin-top: 1em;
+  }
+
+  .items_container div video {
+    width: 100%;
   }
 </style>
