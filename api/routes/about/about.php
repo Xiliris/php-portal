@@ -9,7 +9,7 @@ function handleFileUpload()
 
     if (isset($_FILES['upload']['name'])) {
         $filename = $_FILES['upload']['name'];
-        $uploadDirectory = __DIR__ . '/../../../storage/about/';
+        $uploadDirectory = __DIR__ . '/../../storage/about/';
         $location = $uploadDirectory . $filename;
 
         $file_extension = pathinfo($location, PATHINFO_EXTENSION);
@@ -25,7 +25,7 @@ function handleFileUpload()
             if (move_uploaded_file($_FILES['upload']['tmp_name'], $location)) {
                 $data['fileName'] = $filename;
                 $data['uploaded'] = 1;
-                $data['url'] = '/storage/about/' . $filename;
+                $data['url'] = '/api/storage/about/' . $filename;
                 return $data;
             }
         } else {

@@ -47,6 +47,7 @@
     const data = await response.json();
 
     if (data.success) {
+      console.log(data)
       for (const event of data.data) {
         const article = document.createElement("article");
         article.id = event.id;

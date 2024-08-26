@@ -4,7 +4,7 @@
   <div>
     <div class="dashboard__header">
       <h2>Create Celebrity</h2>
-      <a class="btn" href="/dashboard" data-link>Back</a>
+      <a class="btn" href="/dashboard" data-link id="quit">Quit</a>
     </div>
     <div class="steps">
       <span class="active-step">1</span>
@@ -25,45 +25,12 @@
   const name = document.getElementById("celebrity-name");
   const description = document.getElementById("celebrity-description");
   const image = document.getElementById("celebrity-image");
-  const btnStep1 = document.getElementById("create-celebrity-btn");
-  const btnStep2 = document.getElementById("create-events-btn");
+  const nextStepBtn = document.getElementById("create-celebrity-btn");
 
-  btnStep1.addEventListener("click", () => {
-    createEvents();
+  nextStepBtn.addEventListener("click", () => {
+    createCelebrity();
   });
 
-  async function createEvents() {
-    const nameValue = name.value;
-    const descriptionValue = description.value;
-    const imageValue = image.files[0];
-
-    if (!nameValue) {
-      alert("Missing name!");
-      return;
-    }
-
-    if (!descriptionValue) {
-      alert("Missing description!");
-      return;
-    }
-
-    if (!imageValue) {
-      alert("Missing image!");
-      return;
-    }
-
-    localStorage.setItem("celebrityName", nameValue);
-    localStorage.setItem("celebrityDescription", descriptionValue);
-
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      localStorage.setItem("celebrityImage", e.target.result);
-      // Navigate to the next step
-      window.location.href = "/dashboard/create-celebrity/create-events";
-    };
-    reader.readAsDataURL(imageValue);
-  }
-  /*
   async function createCelebrity() {
     const nameValue = name.value;
     const descriptionValue = description.value;
@@ -98,14 +65,14 @@
       const data = await res.json();
 
       if (res.ok && data.success) {
-        window.location.href = "/person-of-interest";
+        window.location.href = `/dashboard/create-celebrity/${data.id}/events`;
       } else {
         alert(data.message || "Failed to create celebrity.");
       }
     } catch (error) {
       alert("An error occurred: " + error.message);
     }
-  }*/
+  }
 </script>
 
 <style>
@@ -115,6 +82,11 @@
     width: 80%;
     min-height: 100vh;
     text-align: center;
+  }
+
+  #quit {
+    background-color: red;
+    border: 1px solid red;
   }
 
   .btn {

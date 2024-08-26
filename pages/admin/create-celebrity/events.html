@@ -1,0 +1,218 @@
+{{navbar}}
+<main id="dashboard">
+  <h1>Dashboard</h1>
+  <div>
+    <div class="dashboard__header">
+      <h2>Create Celebrity</h2>
+      <a class="btn" id="quit">Quit</a>
+    </div>
+    <div class="steps">
+      <span class="active-step">1</span>
+      <span class="active-step">2</span>
+      <span>3</span>
+    </div>
+    <hr />
+    <section class="dashboard__container" id="event-container"></section>
+    <section class="dashboard__container">
+      <button class="btn create-events-btn" id="add-event-btn">Add Event</button>
+      <button class="btn" id="skip-btn">Next</button>
+    </section>
+  </div>
+</main>
+
+<script>
+  const addEvetBtn = document.getElementById("add-event-btn");
+  const skipBtn = document.getElementById("skip-btn");
+  const quitBtn = document.getElementById("quit");
+  const param = window.location.pathname.split("/")[3];
+
+  quitBtn.addEventListener("click", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append("id", param);
+
+    try {
+      const res = await fetch("/api/routes/celebrity/delete-celebrity.php", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        article.remove();
+        overlay.style.display = "none";
+        window.location.href = "/dashboard";
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error("Failed to delete celebrity:", error);
+    }
+  });
+
+  addEvetBtn.addEventListener("click", () => {
+    window.location.href = `/dashboard/create-celebrity/${param}/create-event`;
+  });
+
+  skipBtn.addEventListener("click", () => {
+    window.location.href = `/dashboard/create-celebrity/${param}/preview`;
+  });
+
+  async function getEvents() {
+    const formData = new FormData();
+    formData.append("id", param);
+
+    const response = await fetch("/api/routes/celebrity/data/events.php", {
+      method: "POST",
+      body: formData,
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      for (const event of data.data) {
+        const containerEl = document.getElementById("event-container");
+        const el = document.createElement("h2");
+
+        el.innerText = event.title;
+
+        containerEl.append(el);
+      }
+    } else {
+      console.log(data.message);
+    }
+  }
+
+  getEvents();
+</script>
+
+<style>
+  #dashboard {
+    margin: 0 auto;
+    padding: 10em 0;
+    width: 80%;
+    min-height: 100vh;
+    text-align: center;
+  }
+  #quit {
+    background-color: red;
+    border: 1px solid red;
+  }
+
+  .btn {
+    padding: 0.5em 1.5em;
+    border-radius: 0.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+    background-color: green;
+    border: 1px solid green;
+    color: white;
+    font-size: 1em;
+    cursor: pointer;
+  }
+
+  .dashboard__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
+
+  .dashboard__main-container {
+    margin-top: 5em;
+  }
+
+  #event-container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dashboard__container .btn {
+    width: 100%;
+  }
+
+  .dashboard__container h2 {
+    width: 100%;
+    padding: 0.5em;
+    border: 3px solid black;
+    border-radius: 0.5em;
+    font-weight: 600;
+    cursor: pointer;
+    border-left: 10px solid green;
+    transition: all 0.3s ease;
+    text-align: left;
+  }
+
+  .dashboard__container {
+    display: flex;
+    justify-content: space-between;
+    gap: 1em;
+    margin: 1em 0;
+  }
+
+  .dashboard__container input,
+  .dashboard__container textarea {
+    padding: 0.5em 1em;
+    border: 1px solid gray;
+    border-radius: 5px;
+    resize: none;
+    font-size: 1em;
+  }
+
+  .dashboard__container textarea {
+    height: 200px;
+  }
+  .steps {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5em 0;
+    position: relative;
+  }
+
+  .steps::before {
+    content: "";
+    width: calc(50% - 1em);
+    height: 3px;
+    background-color: green;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0em;
+    z-index: -1;
+  }
+
+  .steps::after {
+    content: "";
+    width: calc(50% - 1em);
+    height: 3px;
+    background-color: gray;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 0em;
+    z-index: -1;
+  }
+
+  .steps span {
+    background-color: white;
+    border: 1px solid black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: black;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+  }
+
+  .steps .active-step {
+    background-color: green;
+    color: white;
+  }
+</style>

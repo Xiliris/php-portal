@@ -52,6 +52,19 @@
       errorMessage += "Description is required.\n";
     }
 
+    if (image) {
+      const allowedTypes = ['image/jpeg', 'image/png'];
+      const maxFileSize = 5 * 1024 * 1024;
+
+      if (!allowedTypes.includes(image.type)) {
+        errorMessage += "Invalid file type. Only JPEG and PNG files are allowed.\n";
+      }
+
+      if (image.size > maxFileSize) {
+        errorMessage += "File size exceeds the maximum limit of 5MB.\n";
+      }
+    }
+
     if (errorMessage) {
       alert(errorMessage);
       return;
@@ -77,6 +90,7 @@
 
       if (resData.success) {
         appendDonation(resData.data.header, resData.data.id);
+        alert("Donation successfully added.");
 
         donationHeader.value = "";
         donationTitle.value = "";
@@ -85,7 +99,7 @@
         donationDescription.value = "";
         donationImage.value = "";
       } else {
-        alert("Failed to add donation");
+        alert("Failed to add donation: " + resData.message);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -127,6 +141,7 @@
 
       if (data.success) {
         article.remove();
+        alert("Donation successfully removed.");
       } else {
         alert("Failed to remove donation: " + data.message);
       }

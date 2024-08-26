@@ -4,34 +4,75 @@
   <div>
     <div class="dashboard__header">
       <h2>Create Celebrity</h2>
-      <a class="btn" href="/dashboard" data-link>Back</a>
+      <a class="btn" id="quit">Quit</a>
     </div>
     <div class="steps">
       <span class="active-step">1</span>
       <span class="active-step">2</span>
-      <span>3</span>
+      <span class="active-step">3</span>
     </div>
     <hr />
     <section class="dashboard__container">
-      <button class="btn create-events-btn">Add Event</button>
-      <button class="btn" id="skip-btn">Skip</button>
+      <button class="btn create-events-btn" id="add-event-btn">View</button>
+      <button class="btn" id="skip-btn">Finish</button>
     </section>
   </div>
 </main>
 
 <script>
-  const createEventBtn = document.getElementById('create-celebrity-btn');
-
-  createEventBtn.addEventListener('click', () => {
-    
-  })
-
-
-
-  /* Skip Button */
+  const addEvetBtn = document.getElementById("add-event-btn");
   const skipBtn = document.getElementById("skip-btn");
-  skipBtn.addEventListener("click", () => {
-    window.location.href = "/dashboard/create-celebrity/preview";
+  const quitBtn = document.getElementById("quit");
+  const param = window.location.pathname.split("/")[3];
+
+  quitBtn.addEventListener("click", async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    formData.append("id", param);
+
+    try {
+      const res = await fetch("/api/routes/celebrity/delete-celebrity.php", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        article.remove();
+        overlay.style.display = "none";
+        window.location.href = "/dashboard";
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error("Failed to delete celebrity:", error);
+    }
+  });
+
+  addEvetBtn.addEventListener("click", () => {
+    window.location.href = `/profile/${param}`;
+  });
+
+  skipBtn.addEventListener("click", async () => {
+    const formData = new FormData();
+
+    formData.append("id", param);
+
+    const res = await fetch("/api/routes/celebrity/finish-celebrity.php", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.text();
+    console.log(data);
+
+    if (data.success) {
+      window.location.href = `/profile/${param}`;
+    } else {
+      alert(data.message);
+    }
   });
 </script>
 
@@ -42,6 +83,10 @@
     width: 80%;
     min-height: 100vh;
     text-align: center;
+  }
+  #quit {
+    background-color: red;
+    border: 1px solid red;
   }
 
   .btn {
@@ -70,13 +115,30 @@
     margin-top: 5em;
   }
 
+  #event-container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dashboard__container .btn {
+    width: 100%;
+  }
+
   .dashboard__container h2 {
-    margin: 1em 0;
+    width: 100%;
+    padding: 0.5em;
+    border: 3px solid black;
+    border-radius: 0.5em;
+    font-weight: 600;
+    cursor: pointer;
+    border-left: 10px solid green;
+    transition: all 0.3s ease;
+    text-align: left;
   }
 
   .dashboard__container {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     gap: 1em;
     margin: 1em 0;
   }
@@ -118,7 +180,7 @@
     content: "";
     width: calc(50% - 1em);
     height: 3px;
-    background-color: gray;
+    background-color: green;
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
@@ -141,42 +203,5 @@
   .steps .active-step {
     background-color: green;
     color: white;
-  }
-
-  /**/
-  .dashboard__container-create-event h2 {
-    margin: 1em 0;
-  }
-
-  .dashboard__container-create-event {
-    display: flex;
-    flex-direction: column;
-    gap: 1em;
-    margin: 1em 0;
-  }
-
-  .dashboard__container-create-event label {
-    text-align: left;
-    margin-bottom: 0em;
-    font-weight: 600;
-  }
-
-  .div-input {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .dashboard__container-create-event input,
-  .dashboard__container-create-event textarea {
-    padding: 0.5em 1em;
-    border: 1px solid gray;
-    border-radius: 5px;
-    resize: none;
-    font-size: 1em;
-  }
-
-  .dashboard__container textarea {
-    height: 200px;
   }
 </style>

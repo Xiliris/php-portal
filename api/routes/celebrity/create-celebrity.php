@@ -4,7 +4,7 @@ require __DIR__ . '/../../../vendor/autoload.php';
 
 use Verot\Upload\Upload;
 
-$response = ["success" => false, "message" => ""];
+$response = ["success" => false, "message" => "", "id" => null];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = $_POST['name'];
@@ -43,8 +43,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $stmt = $pdo->prepare("INSERT INTO celebrity_profile (name, description, image_path) VALUES (?, ?, ?)");
         $stmt->execute([$name, $description, $imagePath]);
+
+        // Retrieve the last inserted ID
+        $lastInsertedId = $pdo->lastInsertId();
         $response["success"] = true;
         $response["message"] = "Celebrity created successfully";
+        $response["id"] = $lastInsertedId; // Include the ID in the response
+
     } catch (PDOException $e) {
         $response["message"] = "Error creating celebrity: " . $e->getMessage();
     }
