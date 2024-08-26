@@ -32,7 +32,6 @@ CREATE TABLE donations (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-
 CREATE TABLE footer (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
@@ -47,17 +46,19 @@ CREATE TABLE celebrity_profile (
     name VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     image_path VARCHAR(255) NOT NULL,
+    preview BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
-
+);
 
 CREATE TABLE celebrity_event_data (
     id INT AUTO_INCREMENT PRIMARY KEY,
     celebrity_profile_id INT NOT NULL,
     title VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
-    views INT default 0,
+    views INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    preview BOOLEAN DEFAULT true,
+    publish_date DATE NOT NULL,
     FOREIGN KEY (celebrity_profile_id) REFERENCES celebrity_profile(id)
 );
 
@@ -85,7 +86,7 @@ CREATE TABLE celebrity_event_audios (
 CREATE TABLE celebrity_event_documents (
     id INT AUTO_INCREMENT PRIMARY KEY,
     event_id INT NOT NULL,
-    doc_type VARCHAR(10) NOT NULL;
+    doc_type VARCHAR(10) NOT NULL,
     document_path VARCHAR(255) NOT NULL,
     FOREIGN KEY (event_id) REFERENCES celebrity_event_data(id)
 );
@@ -110,6 +111,6 @@ CREATE TABLE shop (
     description TEXT NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
     number VARCHAR(11) NOT NULL,
-    image_path VARCHAR(255) NULL,
+    image_path VARCHAR(255) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

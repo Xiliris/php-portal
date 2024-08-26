@@ -51,8 +51,8 @@
         const article = document.createElement("article");
 
         article.innerHTML = `
-          <a>${event.title}</a>
-          <i class="fa-solid fa-chevron-down"></i>
+          <a title="${event.title}">${event.title}</a>
+          <i class="fa-solid fa-chevron-${event.id == params[3] ? 'up' : 'down'}"></i>
         `;
 
         article.addEventListener("click", function () {
@@ -103,12 +103,17 @@
     height: 250px;
     object-fit: cover;
     border-radius: 5px;
+    align-self: flex-start;
   }
 
   #celebrity__container article p {
+    word-break: break-all;
+    hyphens: auto;
+    overflow-wrap: break-word;
     font-size: 1.1em;
     line-height: 1.5em;
-    margin-top: 1em;
+    margin: 0;
+    width: 80vw
   }
 
   #celebrity__event-container {
@@ -131,7 +136,7 @@
   }
 
   #celebrity__event-container article a {
-    max-width: 100%;
+    max-width: 250px;;
     font-size: 1.2em;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -146,4 +151,32 @@
   #celebrity__event-container .active {
     transform: scale(1.2) rotate(180deg);
   }
+
+  @media (max-width: 768px) {
+  .profile-container {
+    margin-top: 8em;
+    margin-bottom: 3em;
+  }
+
+  #celebrity__container {
+    width: 80vw;
+    flex-direction: column;
+  }
+
+  #celebrity__container article {
+    padding-bottom: 2em;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  #celebrity__container article img {
+    width: 150px;
+    height: 200px;
+  }
+
+  #celebrity__container article p {
+    font-size: 0.9em;
+    line-height: 1.3em;
+  }
+}
 </style>
