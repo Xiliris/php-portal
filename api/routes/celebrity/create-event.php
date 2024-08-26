@@ -4,7 +4,7 @@ require __DIR__ . '/../../../vendor/autoload.php';
 
 use Verot\Upload\Upload;
 
-$response = ["success" => false, "message" => ""];
+$response = ["success" => false, "message" => "", "id" => null];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validate required fields
@@ -21,19 +21,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $audio = isset($_FILES['audio']) && is_array($_FILES['audio']['name']) ? $_FILES['audio'] : null;
     $video = isset($_FILES['video']) && is_array($_FILES['video']['name']) ? $_FILES['video'] : null;
 
+    // Check for empty required fields
+    if (empty($title) || empty($description) || empty($publish_date)) {
+        $response["message"] = "Title, description, and publish date are required.";
+        echo json_encode($response);
+        exit;
+    }
 
-    // Insert event data into database
+    // Insert event data into the database
     try {
         $stmt = $pdo->prepare('INSERT INTO celebrity_event_data (title, description, publish_date, celebrity_profile_id) VALUES (?, ?, ?, ?)');
         $stmt->execute([$title, $description, $publish_date, $id]);
         $newEventId = $pdo->lastInsertId();
-
-        $id = $newEventId;
+        $id = $newEventId; // Use this ID for further operations
+        $response["id"] = $id; // Set the ID in the response
     } catch (PDOException $e) {
         error_log("Database error: " . $e->getMessage());
         $response["message"] = "Error: " . $e->getMessage();
+        echo json_encode($response);
+        exit;
     }
-
 
     // Upload images
     if (isset($images['name']) && count($images['name']) > 0) {
@@ -139,8 +146,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-
-
     // Upload videos
     if (isset($video['name']) && count($video['name']) > 0) {
         foreach ($video['name'] as $key => $value) {
@@ -178,15 +183,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
-
-    // Check for empty required fields
-    if (empty($id) || empty($title) || empty($description) || empty($publish_date)) {
-        $response["success"] = false;
-        $response["message"] = "Id, title, description, and publish date are required";
-        echo json_encode($response);
-        exit;
-    }
-
 
     $response["success"] = true;
     $response["message"] = "Event created successfully";

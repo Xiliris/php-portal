@@ -45,9 +45,15 @@ CREATE TABLE celebrity_profile (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
-    image_path VARCHAR(255) NOT NULL,
+    image_path VARCHAR(255) DEFAULT NULL,
     preview BOOLEAN DEFAULT true,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE celebrity_home_position (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    celebrity_profile_id INT DEFAULT NULL,
+    position INT NOT NULL
 );
 
 CREATE TABLE celebrity_event_data (
@@ -86,31 +92,6 @@ CREATE TABLE celebrity_event_audios (
 CREATE TABLE celebrity_event_documents (
     id INT AUTO_INCREMENT PRIMARY KEY,
     event_id INT NOT NULL,
-    doc_type VARCHAR(10) NOT NULL,
     document_path VARCHAR(255) NOT NULL,
     FOREIGN KEY (event_id) REFERENCES celebrity_event_data(id)
-);
-
-CREATE TABLE partners (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    link VARCHAR(255) NOT NULL,
-    image_path TEXT NOT NULL
-);
-
-CREATE TABLE about (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    content TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
-CREATE TABLE shop (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
-    price DECIMAL(10, 2) NOT NULL,
-    number VARCHAR(11) NOT NULL,
-    image_path VARCHAR(255) DEFAULT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

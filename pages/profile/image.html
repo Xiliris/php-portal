@@ -4,7 +4,6 @@
   <div id="celebrity__event-container"></div>
 </main>
 {{footer}}
-
 <script>
   const container = document.getElementById("celebrity__container");
   const eventContainer = document.getElementById("celebrity__event-container");
@@ -24,9 +23,14 @@
     if (data.success) {
       const celebrity = data.data;
       const article = document.createElement("article");
+      if(celebrity.preview) {
+        overlayProfileContainer.style.display = 'flex'
+      }
+
+      let imagePath = celebrity.image_path || "/assets/unknown.jpg";
 
       article.innerHTML = `
-        <img src="${celebrity.image_path}" alt="${celebrity.name}" />
+        <img src="${imagePath}" alt="${celebrity.name}" />
         <p>${celebrity.description}</p>
       `;
 
@@ -50,6 +54,7 @@
     if (data.success) {
       for (const event of data.data) {
         const article = document.createElement("article");
+
         article.id = event.id;
         const itemsContainer = document.createElement("div");
         itemsContainer.className = "items_container";
@@ -127,8 +132,10 @@
           }
         });
 
-        eventContainer.append(article);
-        eventContainer.append(itemsContainer);
+        if(!event.preview) {
+          eventContainer.append(article);
+          eventContainer.append(itemsContainer);
+        }
       }
     } else {
       alert(data.message);

@@ -4,8 +4,37 @@
   <div id="celebrity__event-container"></div>
 </main>
 {{footer}}
+
+<section id="overlay-profile">
+  <article>
+    <p>This <span id="type">celebrity</span> isn't live to the public yet.</p>
+    <button id="back-to-upload">Back</button>
+  </article>
+</section>
+
+
 <script>
-   const container = document.getElementById("celebrity__container");
+  const backToUploadBtn = document.getElementById('back-to-upload');
+  const reqType = localStorage.getItem("type")
+  const reqId = localStorage.getItem('id');
+
+  if(reqType) {
+    document.getElementById('type').innerText = 'event'
+  }
+
+  backToUploadBtn.addEventListener('click', () => {
+    const params = window.location.pathname.split("/");
+
+    if(reqType) {
+       window.location.href = `/dashboard/create-event/${params[2]}/${reqId}/preview`
+    }  else {
+      window.location.href = `/dashboard/create-celebrity/${params[2]}/preview`
+    }
+  })
+
+
+
+  const container = document.getElementById("celebrity__container");
   const eventContainer = document.getElementById("celebrity__event-container");
   async function loadProfile() {
     const params = window.location.pathname.split("/");
@@ -21,15 +50,7 @@
 
     if (data.success) {
       const celebrity = data.data;
-      if(celebrity.preview) {
-          window.location.href = '/404'
-        }
-
       const article = document.createElement("article");
-      if(celebrity.preview) {
-        overlayProfileContainer.style.display = 'flex'
-      }
-
       let imagePath = celebrity.image_path || "/assets/unknown.jpg";
 
       article.innerHTML = `
@@ -57,11 +78,6 @@
     if (data.success) {
       for (const event of data.data) {
         const article = document.createElement("article");
-        let pendingClass = '';
-
-        if(event.preview) {
-          article.style.display = 'none'
-        }
 
         article.innerHTML = `
           <a title="${event.title}">${event.title}</a>
@@ -70,12 +86,10 @@
 
         article.addEventListener("click", function () {
           this.querySelector("i").classList.toggle("active");
-          window.location.href = `/profile/${params[2]}/${event.id}/releases`;
+          window.location.href = `/preview/${params[2]}/${event.id}/releases`;
         });
 
-        if(!event.preview) {
-          eventContainer.append(article);
-        }
+        eventContainer.append(article);
       }
     } else {
       console.log(data.message);

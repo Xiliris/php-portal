@@ -17,12 +17,21 @@
     </section>
   </div>
 </main>
+<div class="overlay" id="pre-overlay">
+    <div class="overlay__container">
+      <h2>Select Event</h2>
+        <ul id="event-list">
+            <!-- Events will be here -->
+        </ul>
+    </div>
+</div>
 <div class="overlay" id="overlay">
   <div class="overlay__container">
-    <p>The celebrity will be permanently deleted. Are you sure you want to proceed with this action?</p>
+    <p>Selected event will be permanently deleted. Are you sure you want to proceed with this action?</p>
+    <p id="event-name"></p>
     <div>
       <button class="btn" id="cancel">Cancel</button>
-      <button class="btn" id="delete">Proceed</button>
+      <button class="btn" id="proceed">Proceed</button>
     </div>
   </div>
 </div>
@@ -64,25 +73,76 @@
 
       container.append(article);
 
-      article.addEventListener("click", () => {
-        const overlay = document.getElementById("overlay");
-        const deleteButton = document.getElementById("delete");
-        const cancelButton = document.getElementById("cancel");
+      article.addEventListener("click", async () => {
+        const overlay = document.getElementById('overlay')
+        const preOverlay = document.getElementById('pre-overlay');
+        const eventList = document.getElementById('event-list')
 
-        overlay.style.display = "flex";
+        const formData = new FormData();
+        formData.append('id', celebrity.id)
 
-        deleteButton.removeEventListener("click", handleDelete);
-        cancelButton.removeEventListener("click", handleCancel);
+        const response = await fetch("/api/routes/celebrity/data/events.php", {
+        method: "POST",
+        body: formData,
+        });
+        const data = await response.json();
+        console.log(data.data)
+        if (data.success) {
+          for (const event of data.data) {
+            const el = document.createElement('p');
+            el.id = event.id
+            el.innerText = `${event.title}`
+            eventList.append(el)
 
-        deleteButton.addEventListener("click", handleDelete);
-        cancelButton.addEventListener("click", handleCancel);
 
-        async function handleDelete() {
+            el.addEventListener('click', async () => {
+              preOverlay.style.display = "none";
+              const proceedBtn = document.getElementById('proceed');
+              const cancelBtn = document.getElementById('cancel')
+
+              document.getElementById('event-name').innerText = event.title
+              overlay.style.display = 'flex'
+
+
+              cancelBtn.addEventListener('click', () => {
+                overlay.style.display = 'none'
+                eventList.innerText = ''
+              })
+
+              proceedBtn.addEventListener('click', () => {
+                handleDelete(event.id)
+              })
+            })
+        }} else {
+          const el = document.createElement('h4');
+            el.innerText = 'This celebrity has no events';
+            eventList.append(el)
+
+            const closeBtn = document.createElement('button');
+
+            closeBtn.innerText= "Close";
+            closeBtn.className = `btn`;
+
+            closeBtn.addEventListener('click', () => {
+                preOverlay.style.display = 'none'
+                eventList.innerText = ''
+            })
+
+            eventList.append(closeBtn)
+        }
+
+
+        preOverlay.style.display = "flex" 
+      });
+    }
+  }
+
+        async function handleDelete(id) {
           const formData = new FormData();
-          formData.append("id", celebrity.id);
+          formData.append("id", id);
 
           try {
-            const res = await fetch("/api/routes/celebrity/delete-celebrity.php", {
+            const res = await fetch("/api/routes/celebrity/delete-event.php", {
               method: "POST",
               body: formData,
             });
@@ -90,8 +150,7 @@
             const data = await res.json();
 
             if (data.success) {
-              article.remove();
-              overlay.style.display = "none";
+              window.location.reload()
             } else {
               alert(data.message);
             }
@@ -99,13 +158,6 @@
             console.error("Failed to delete celebrity:", error);
           }
         }
-
-        function handleCancel() {
-          overlay.style.display = "none";
-        }
-      });
-    }
-  }
 
   document.getElementById("search-users").addEventListener("input", function () {
     const query = this.value.toLowerCase();
@@ -117,6 +169,44 @@
 </script>
 
 <style>
+  #pre-overlay div {
+    text-align: center;
+  }
+
+  #pre-overlay div h2 {
+    margin-bottom: 1em;
+  }
+
+  #event-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+  }
+
+  #event-list p {
+    width: 100%;
+    padding: 0.5em;
+    border: 3px solid black;
+    border-radius: 0.5em;
+    font-weight: 600;
+    border-left: 10px solid green;
+    transition: all 0.3s ease;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  #event-list p:hover {
+    background-color: green;
+    color: white;
+  }
+
+  #event-name {
+    text-align: center;
+    font-weight: bold;
+    margin-top: 1em;
+  }
+
+
   #dashboard {
     margin: 0 auto;
     padding: 10em 0;

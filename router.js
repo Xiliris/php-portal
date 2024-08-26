@@ -27,11 +27,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/change-password": `${baseUrl}/pages/auth/change-password.html`,
     "/login/random": `${baseUrl}/pages/auth/login.html`,
     "/logout": `${baseUrl}/pages/auth/logout.html`,
+
     "/dashboard": `${baseUrl}/pages/admin/dashboard.html`,
-    "/dashboard/create-celebrity": `${baseUrl}/pages/admin/create-celebrity.html`,
-    "/dashboard/select-celebrity": `${baseUrl}/pages/admin/select-celebrity.html`,
+    "/dashboard/create-celebrity": `${baseUrl}/pages/admin/create-celebrity/create-celebrity.html`,
+    "/dashboard/create-celebrity/:id/events": `${baseUrl}/pages/admin/create-celebrity/events.html`,
+    "/dashboard/create-celebrity/:id/create-event": `${baseUrl}/pages/admin/create-celebrity/pre-event.html`,
+    "/dashboard/create-celebrity/:id/preview": `${baseUrl}/pages/admin/create-celebrity/preview.html`,
     "/dashboard/remove-celebrity": `${baseUrl}/pages/admin/remove-celebrity.html`,
-    "/dashboard/create-event/:id": `${baseUrl}/pages/admin/create-event.html`,
+    "/dashboard/select-celebrity": `${baseUrl}/pages/admin/create-event/select-celebrity.html`,
+    "/dashboard/create-event/:id": `${baseUrl}/pages/admin/create-event/create-event.html`,
+    "/dashboard/create-event/:id/:eventId/preview": `${baseUrl}/pages/admin/create-event/preview-event.html`,
+    "/dashboard/remove-event": `${baseUrl}/pages/admin/remove-event.html`,
+    "/dashboard/home-position": `${baseUrl}/pages/admin/celebrity-position/home-position.html`,
+    "/dashboard/home-position/:id": `${baseUrl}/pages/admin/celebrity-position/finish-position.html`,
+
     "/master-panel": `${baseUrl}/pages/master-panel/master-panel.html`,
     "/master-panel/routes": `${baseUrl}/pages/master-panel/routes.html`,
     "/master-panel/users": `${baseUrl}/pages/master-panel/users.html`,
@@ -41,9 +50,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/master-panel/partners": `${baseUrl}/pages/master-panel/partners.html`,
     "/master-panel/editor": `${baseUrl}/pages/master-panel/editor.html`,
     "/master-panel/shop": `${baseUrl}/pages/master-panel/shop.html`,
-    "/documents": `${baseUrl}/pages/documents.html`,
-    "/videos": `${baseUrl}/pages/video.html`,
-    "/audio": `${baseUrl}/pages/audio.html`,
+
     "/news/:id/:document": `${baseUrl}/pages/news.html`,
     "/profile/:userid": `${baseUrl}/pages/profile/main.html`,
     "/profile/:userid/:event/documents": `${baseUrl}/pages/profile/documents.html`,
@@ -51,22 +58,46 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/profile/:userid/:event/audio": `${baseUrl}/pages/profile/audio.html`,
     "/profile/:userid/:event/images": `${baseUrl}/pages/profile/image.html`,
     "/profile/:userid/:event/releases": `${baseUrl}/pages/profile/release.html`,
+
+    "/preview/:userid": `${baseUrl}/pages/preview/main.html`,
+    "/preview/:userid/:event/documents": `${baseUrl}/pages/preview/documents.html`,
+    "/preview/:userid/:event/video": `${baseUrl}/pages/preview/video.html`,
+    "/preview/:userid/:event/audio": `${baseUrl}/pages/preview/audio.html`,
+    "/preview/:userid/:event/images": `${baseUrl}/pages/preview/image.html`,
+    "/preview/:userid/:event/releases": `${baseUrl}/pages/preview/release.html`,
   };
 
   const routePermissions = {
     "/logout": 1,
     "/change-password": 1,
     "/shop": 1,
+
     "/dashboard": 3,
     "/dashboard/create-celebrity": 3,
+    "/dashboard/create-celebrity/:id/events": 3,
+    "/dashboard/create-celebrity/:id/create-event": 3,
+    "/dashboard/create-celebrity/:id/preview": 3,
     "/dashboard/remove-celebrity": 3,
-    "dashboard/create-event": 3,
+    "/dashboard/select-celebrity": 3,
+    "/dashboard/create-event/:id": 3,
+    "/dashboard/create-event/:id/:eventId/preview": 3,
+
+    "/preview/:userid": 3,
+    "/preview/:userid/:event/documents": 3,
+    "/preview/:userid/:event/video": 3,
+    "/preview/:userid/:event/audio": 3,
+    "/preview/:userid/:event/images": 3,
+    "/preview/:userid/:event/releases": 3,
+
     "/master-panel": 4,
     "/master-panel/routes": 4,
     "/master-panel/users": 4,
     "/master-panel/sensitive-data": 4,
     "/master-panel/donations": 4,
     "/master-panel/footer": 4,
+    "/master-panel/partners": 4,
+    "/master-panel/editor": 4,
+    "/master-panel/shop": 4,
   };
 
   const colors = {

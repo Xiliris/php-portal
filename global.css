@@ -36,6 +36,10 @@ a {
   color: inherit;
 }
 
+.none {
+  display: none;
+}
+
 .btn-primary {
   padding: 1em 1.5em;
   border: none;
@@ -113,4 +117,46 @@ a {
   to {
     opacity: 0;
   }
+}
+
+#overlay-profile {
+  width: 100vw;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: red;
+}
+
+#overlay-profile article {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1em;
+  padding: 0.5em;
+}
+
+#overlay-profile article p {
+  font-weight: bold;
+}
+
+#overlay-profile article p span {
+  color: white;
+}
+
+#overlay-profile article button {
+  padding: 0.5em 1.5em;
+  border-radius: 0.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  background-color: green;
+  border: 1px solid green;
+  color: white;
+  font-size: 0.9em;
+  cursor: pointer;
 }
