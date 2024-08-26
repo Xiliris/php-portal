@@ -68,7 +68,7 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 1em;
-    margin-top: 1em;
+    margin-top: 2em;
     width: 70vw;
   }
 
@@ -102,4 +102,32 @@
     font-size: 1.2em;
     text-align: center;
   }
+
+  @media (max-width: 768px) {
+    #celebrity__container {
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+    justify-content: center;
+  }
+
+  #celebrity__container a img {
+    width: 250px;
+    height: 300px;
+  }
+
+  #person-of-interest h1 {
+    text-align: center;
+  }
+
+  #person-of-interest {
+    display: flex;
+    justify-content: flex-start;
+    width: 90vw;
+  }
+
+  #celebrity__container {
+    width: 90vw;
+  }
+}
 </style>

@@ -190,7 +190,7 @@
   #celebrity__container article p {
     font-size: 1.1em;
     line-height: 1.5em;
-    margin-top: 1em;
+    margin: 0;
   }
 
   #celebrity__event-container {
@@ -216,9 +216,11 @@
     max-width: 100%;
     font-size: 1.2em;
     text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-  }
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    cursor: pointer;
+}
 
   #celebrity__event-container article i {
     margin-left: 1em;
@@ -268,4 +270,62 @@
     font-size: 1.2em;
     line-height: 1.5em;
   }
+  
+  @media (max-width: 768px) {
+
+#celebrity__event-container {
+    width: 80vw;
+  }
+#celebrity__event-container article {
+    font-size: 0.9em;
+  }
+
+.items_container ul {
+    flex-direction: column;
+    width: 100%;
+    align-items: flex-start;
+  }
+
+.items_container ul li {
+    padding: 0.5em;
+    text-align: center;
+  }
+
+.items_container div p {
+    font-size: 0.9em;
+  }
+
+.profile-container {
+margin-top: 8em;
+margin-bottom: 3em;
+}
+
+#celebrity__container {
+width: 80vw;
+flex-direction: column;
+}
+
+#celebrity__container article {
+padding-bottom: 2em;
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+width: 100%;
+}
+
+#celebrity__container article img {
+width: 150px;
+height: 200px;
+align-self: flex-start;
+}
+
+#celebrity__container article p {
+font-size: 0.9em;
+line-height: 1.3em;
+word-break: break-all;
+hyphens: auto;
+overflow-wrap: break-word;
+margin: 0;
+}
+}
 </style>
