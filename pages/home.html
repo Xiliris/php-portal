@@ -34,9 +34,7 @@
     section.innerHTML = ''; 
 
     if (data.success) {
-        const positions = data.data; 
-        console.log(data.data)
-
+        const positions = data.data;
 
         const positionsPerContainer = [2, 5, 6]; 
 
@@ -44,7 +42,7 @@
         let currentContainer = createArticleContainer();
         section.appendChild(currentContainer);
 
-        positions.forEach(({ position, name, image_path }) => {
+        positions.forEach(({ id, position, name, image_path }) => {
             if (containerIndex >= positionsPerContainer.length) {
                 containerIndex = positionsPerContainer.length - 1;
             }
@@ -57,12 +55,13 @@
 
             let imagePath = image_path || "/assets/unknown.jpg";
 
-            const article = document.createElement('article');
-            article.innerHTML = `
+            const aTag = document.createElement('a');
+            aTag.href = `/profile/${id}`;
+            aTag.innerHTML = `
                 <img src="${imagePath}" />
                 <h3>${name || 'Unknown'}</h3>
             `;
-            currentContainer.appendChild(article);
+            currentContainer.appendChild(aTag);
         });
     } else {
         alert(data.message);
@@ -140,26 +139,27 @@ iframe {
     gap: 1em;
 }
 
-#celebrity-list .article-container article {
+#celebrity-list .article-container a {
     position: relative;
     border-radius: 5px;
     overflow: hidden;
     height: 250px;
     cursor: pointer;
     transition: transform 0.3s ease;
+    text-decoration: none;
 }
 
-#celebrity-list .article-container article:hover {
+#celebrity-list .article-container a:hover {
     transform: scale(1.05);
 }
 
-#celebrity-list .article-container article img {
+#celebrity-list .article-container a img {
     width: 200px;
     height: 250px;
     object-fit: cover;
 }
 
-#celebrity-list .article-container article h3 {
+#celebrity-list .article-container a h3 {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -178,16 +178,15 @@ iframe {
         gap: 1em;
     }
 
-    #celebrity-list .article-container article {
+    #celebrity-list .article-container a {
         height: 400px;
         width: 350px;
     }
 
-    #celebrity-list .article-container article img {
+    #celebrity-list .article-container a img {
         width: 350px;
         height: 400px;
         object-fit: cover;
     }
 }
-
 </style>
