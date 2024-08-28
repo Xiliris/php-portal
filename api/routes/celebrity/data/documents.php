@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         }
 
         // Fetch file paths and doc_type from celebrity_event_documents
-        $stmt = $pdo->prepare("SELECT document_path, doc_type FROM celebrity_event_documents WHERE event_id = ?");
+        $stmt = $pdo->prepare("SELECT document_path, doc_type, original_name FROM celebrity_event_documents WHERE event_id = ?");
         $stmt->execute([$eventId]);
         $documents = $stmt->fetchAll(PDO::FETCH_ASSOC);
 

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 28, 2024 at 06:35 PM
+-- Generation Time: Aug 28, 2024 at 07:16 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -74,7 +74,8 @@ CREATE TABLE `celebrity_event_documents` (
   `id` int(11) NOT NULL,
   `event_id` int(11) NOT NULL,
   `doc_type` varchar(10) NOT NULL,
-  `document_path` varchar(255) NOT NULL
+  `document_path` varchar(255) NOT NULL,
+  `original_name` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------

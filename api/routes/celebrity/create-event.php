@@ -112,6 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $file_type = $documents['type'][$key];
             $file_size = $documents['size'][$key];
             $file_error = $documents['error'][$key];
+            $original_name = $documents['name'][$key];
 
             if ($file_error === UPLOAD_ERR_OK) {
                 $file_ext = pathinfo($file_name, PATHINFO_EXTENSION);
@@ -123,8 +124,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $document_path = $storagePath . '/documents/' . $new_file_name;
 
                     try {
-                        $stmt = $pdo->prepare('INSERT INTO celebrity_event_documents (event_id, document_path, doc_type) VALUES (?, ?, ?)');
-                        $stmt->execute([$id, $document_path, $file_ext]);
+                        $stmt = $pdo->prepare('INSERT INTO celebrity_event_documents (event_id, document_path, doc_type, original_name) VALUES (?, ?, ?, ?)');
+                        $stmt->execute([$id, $document_path, $file_ext, $original_name]);
                     } catch (PDOException $e) {
                         error_log("Database error: " . $e->getMessage());
                         $response["message"] = "Document upload: Database error";
