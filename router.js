@@ -50,6 +50,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/master-panel/partners": `${baseUrl}/pages/master-panel/partners.html`,
     "/master-panel/editor": `${baseUrl}/pages/master-panel/editor.html`,
     "/master-panel/shop": `${baseUrl}/pages/master-panel/shop.html`,
+    "/master-panel/fixed-track": `${baseUrl}/pages/master-panel/fixed-track.html`,
 
     "/news/:id/:document": `${baseUrl}/pages/news.html`,
     "/profile/:userid": `${baseUrl}/pages/profile/main.html`,
