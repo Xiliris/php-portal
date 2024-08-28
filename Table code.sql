@@ -246,6 +246,24 @@ CREATE TABLE `users` (
   `role` enum('owner','admin','moderator','user') DEFAULT 'user'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `news`
+--
+
+CREATE TABLE news (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    text TEXT NOT NULL,
+    image_path VARCHAR(255),
+    video_path VARCHAR(255),
+    publish_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- --------------------------------------------------------
+
+
 --
 -- Indexes for dumped tables
 --

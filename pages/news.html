@@ -1,19 +1,219 @@
 {{navbar}}
-
-<div id="news">
-  <h1>News</h1>
-  <p>This is the news page.</p>
+<div id="wrapper">
+  <main id="news-page">
+    <h1>The Latest News</h1>
+    <section id="news-list">
+    </section>
+  </main>
 </div>
-
 {{footer}}
 
+<script>
+  async function loadNews() {
+    const newsList = document.getElementById("news-list");
+
+    const params = window.location.pathname.split("/");
+    const currentSlug = params[params.length - 1];
+    const isSpecificNews = currentSlug && currentSlug !== 'news';
+
+    try {
+      const response = await fetch("/api/routes/news/get-news.php", {
+        method: "POST",
+      });
+      const res = await response.json();
+
+      if (response.ok && res.data.length > 0) {
+        newsList.innerHTML = "";
+
+        res.data.forEach(newsItem => {
+          const newsElement = document.createElement("div");
+          newsElement.classList.add("news-item");
+
+          const titleSlug = newsItem.title.toLowerCase()
+            .replace(/ /g, '-')
+            .replace(/[^\w/-]+/g, '');
+
+          const publishDate = new Date(newsItem.publish_date);
+          const options = {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          };
+          const formattedDate = publishDate.toLocaleDateString("en-GB", options);
+
+          newsElement.innerHTML = `
+            <h2 class="news-title" data-slug="${titleSlug}">${newsItem.title}</h2>
+            <p class="news-publish-date">${formattedDate}</p>
+            <p class="news-snippet">${newsItem.text.substring(0, 150)}...</p>
+            <div class="news-full-content" style="display: none;">
+              <pre>${newsItem.text}</pre>
+              ${newsItem.image_path ? `<img src="${newsItem.image_path}" alt="${newsItem.title}" />` : ""}
+              ${newsItem.video_path ? `<video controls src="${newsItem.video_path}"></video>` : ""}
+            </div>`;
+
+          if (isSpecificNews) {
+            if (titleSlug === currentSlug) {
+              const fullContent = newsElement.querySelector('.news-full-content');
+              const snippet = newsElement.querySelector('.news-snippet');
+              fullContent.style.display = "block";
+              snippet.style.display = "none";
+            } else {
+              newsElement.style.display = "none";
+            }
+          }
+
+          newsElement.querySelector('.news-title').addEventListener('click', function () {
+            const clickedSlug = this.getAttribute('data-slug');
+
+            if (isSpecificNews && clickedSlug === currentSlug) {
+              history.pushState(null, '', '/news');
+            } else {
+              history.pushState(null, '', `/news/${clickedSlug}`);
+            }
+
+            loadNews();
+          });
+
+          newsList.appendChild(newsElement);
+        });
+      } else {
+        newsList.innerHTML = "<p>No news added.</p>";
+      }
+    } catch (error) {
+      newsList.innerHTML = `<p>Error loading news: ${error.message}</p>`;
+    }
+  }
+
+  loadNews();
+
+  window.addEventListener('popstate', function () {
+    loadNews();
+  });
+</script>
+
 <style>
-  #news {
+  #news-page {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2em 0;
+    padding-bottom: 150px;
+  }
+
+  #news-page h1 {
+    color: #093a41;
+    font-size: 2.5em;
+    margin-top: 2.5em;
+    margin-bottom: 2em;
+  }
+
+  #news-list {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-    height: 100vh;
+    gap: 2em;
+  }
+
+  .news-item {
+    padding: 1.5em;
+    border: 1px solid #ddd;
+    border-radius: 0.5em;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .news-item:hover {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .news-title {
+    cursor: pointer;
+    color: #0078c6;
+    text-decoration: none;
+    font-size: 1.5em;
+    margin-bottom: 0.5em;
+  }
+
+  .news-publish-date {
+    font-size: 0.9em;
+    color: #555;
+    margin-bottom: 1em;
+  }
+
+  .news-snippet {
+    margin-top: 0.5em;
+    font-size: 1em;
+  }
+
+  .news-full-content {
+    margin-top: 1em;
+  }
+
+  .news-full-content img,
+  .news-full-content video {
+    max-width: 100%;
+    margin-top: 1em;
+    border-radius: 0.5em;
+  }
+
+  .news-full-content small {
+    display: block;
+    margin-top: 1em;
+    font-size: 0.9em;
+    color: #888;
+  }
+
+  #wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .news-item pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    overflow-x: auto;
+    max-width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    #news-page {
+      width: 95%;
+    }
+
+    #news-page h1 {
+      font-size: 2em;
+    }
+
+    .news-title {
+      font-size: 1.25em;
+    }
+
+    .news-snippet {
+      font-size: 0.9em;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .news-item {
+      padding: 1em;
+    }
+
+    #news-page h1 {
+      font-size: 1.75em;
+    }
+
+    .news-title {
+      font-size: 1.1em;
+    }
+
+    .news-snippet {
+      font-size: 0.85em;
+    }
+
+    .news-full-content small {
+      font-size: 0.8em;
+    }
   }
 </style>
