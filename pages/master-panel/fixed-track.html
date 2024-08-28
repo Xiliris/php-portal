@@ -1,0 +1,216 @@
+{{navbar}}
+<main id="master-panel">
+  <h1>Master Panel</h1>
+  <div>
+    <div class="master-panel__header">
+      <h2>Fixed Track</h2>
+      <a class="btn" href="/master-panel" data-link>Back</a>
+    </div>
+    <hr />
+    <section class="fixed-track">
+        <div class="default-container">
+            <textarea id="fixed-content" placeholder="Content" name="text"></textarea>
+        </div>
+        <div class="default-container">
+            <label for="time">Time it takes to go from start to finish in seconds</label>
+            <input type="number" name="time" id="fixed-time" min="1" max="60" value="15">
+        </div>
+        <div class="check-container">
+            <label for="moving">Moving</label>
+            <input type="checkbox" name="moving" id="fixed-moving"/>
+        </div>
+        <div class="check-container"> 
+            <label for="enabled">Enabled</label>
+            <input type="checkbox" name="enabled" id="fixed-enabled">
+        </div>
+      <button class="btn" id="fixed-submit">Add</button>
+    </section>
+  </div>
+</main>
+
+<script>
+const content = document.getElementById('fixed-content');
+const time = document.getElementById('fixed-time');
+const moving = document.getElementById('fixed-moving');
+const enabled = document.getElementById('fixed-enabled');
+const submitButton = document.getElementById('fixed-submit');
+
+    submitButton.addEventListener('click', async () => {
+        const contentValue = content.value.trim();
+        const timeValue = time.value;
+        const movingChecked = moving.checked;
+        const enabledChecked = enabled.checked;
+
+        if(!contentValue || contentValue.length <= 10) {
+            alert('Content must be at least 10 characters long')
+            return
+        }
+
+        if(timeValue < 1 || timeValue > 60) {
+            alert('Time must be between 1 and 60 seconds');
+            return
+        }
+
+        const formData = new FormData()
+
+        formData.append('content', contentValue);
+        formData.append('time', timeValue);
+        formData.append("moving", movingChecked);
+        formData.append('enabled', enabledChecked);
+
+        const res = await fetch('/api/routes/home/create-fixed-track.php', {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await res.json();
+
+        if(data.success) {
+            alert(data.message)
+        } else {
+            alert(data.message)
+        }
+    })
+
+    async function loadFixedTrack() {
+        const res = await fetch('/api/routes/home/get-fixed-track.php');
+
+        const data = await res.json();
+
+        if(data.success) {
+            const loaded = data.data;
+
+            content.value = loaded.content;
+            time.value = loaded.time;
+            moving.checked = loaded.moving;
+            enabled.checked = loaded.enabled;
+        } else {
+            alert(data.message)
+        }
+    }
+
+    loadFixedTrack()
+</script>
+
+<style>
+    .default-container, .check-container {
+        width: 100%;
+    }
+
+    .check-container {
+        border: 1px solid gray;
+        border-radius: 5px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5em
+    }
+
+    .check-container input {
+        width: fit-content;
+        margin-left: auto;
+        cursor: pointer;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        overflow: hidden;
+    }
+
+  #master-panel {
+    margin: 0 auto;
+    padding: 10em 0;
+    width: 80%;
+    min-height: 101vh;
+    text-align: center;
+  }
+
+  #master-panel h2 {
+    text-align: left;
+  }
+
+  .master-panel__main-container {
+    margin-top: 5em;
+  }
+
+  .master-panel__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
+
+  .btn {
+    padding: 0.5em 1.5em;
+    border-radius: 0.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+    background-color: green;
+    border: 1px solid green;
+    color: white;
+    cursor: pointer;
+    font-size: 1em;
+  }
+  .fixed-track { text-align: left;}
+
+  .fixed-track h2 {
+    margin: 1em 0;
+  }
+
+  .fixed-track {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    margin: 1em 0;
+  }
+
+  .fixed-track label {
+    font-weight: bold;
+  }
+
+  .default-container input,
+  .default-container textarea {
+    padding: 0.5em 1em;
+    border: 1px solid gray;
+    border-radius: 5px;
+    resize: none;
+    font-size: 1em;
+    width: 100%;
+  }
+
+  .default-container textarea {
+    height: 200px;
+  }
+
+  #fixed-track-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1em;
+    margin-top: 1em;
+  }
+
+  #fixed-track-container article {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 1em;
+    border: 1px solid black;
+    border-left: 10px solid green;
+    border-radius: 0.5em;
+    gap: 0.5em;
+  }
+
+  #fixed-track-container article i {
+    transform: scale(1.5);
+    cursor: pointer;
+    color: red;
+  }
+
+  @media screen and (max-width: 480px) {
+    #master-panel {
+      width: 95%;
+    }
+  }
+</style>
