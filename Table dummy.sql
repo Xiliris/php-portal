@@ -34,7 +34,7 @@ INSERT INTO fixed_track (description, time, moving, enabled)
 VALUES ('First record', 0, FALSE, FALSE);
 
 INSERT INTO socials (name, link)
-VALUES ('telegram', "https://adnanskopljak.com/1")
-VALUES ('twitter', "https://adnanskopljak.com/2")
-VALUES ('facebook', "https://adnanskopljak.com/3")
-VALUES ('instagram', "https://adnanskopljak.com/4")
+VALUES ('telegram', "https://adnanskopljak.com/1"),
+VALUES ('twitter', "https://adnanskopljak.com/2"),
+VALUES ('facebook', "https://adnanskopljak.com/3"),
+VALUES ('instagram', "https://adnanskopljak.com/4";

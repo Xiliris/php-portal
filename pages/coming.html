@@ -100,6 +100,12 @@
     gap: 2em;
   }
 
+  .coming-soon-content img {
+    max-width: 300px;
+    max-height: 500px;
+    object-fit: contain;
+  }
+
   .coming-soon-media {
     flex-shrink: 0;
     max-width: 40%;
@@ -109,7 +115,6 @@
 
   .coming-soon-text {
     flex: 1;
-    margin-top: 0.5em;
     font-size: 1em;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -128,6 +133,7 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    margin: 0 auto;
   }
 
   @media (max-width: 1920px) {
@@ -167,9 +173,14 @@
     .coming-soon-content {
       flex-direction: column;
     }
+    
+    .coming-soon-text {
+    margin-top: 0.5em;
+    }
 
     .coming-soon-media {
-      max-width: 100%;
+      width: 100%;
+      max-width: 700px;
       margin-right: 0;
       margin-bottom: 1.5em;
     }

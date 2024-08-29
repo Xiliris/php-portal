@@ -100,6 +100,13 @@
     gap: 2em;
   }
 
+  .news-content img {
+    max-width: 300px;
+    max-height: 500px;
+    object-fit: contain;
+  }
+  
+
   .news-media {
     flex-shrink: 0;
     max-width: 40%;
@@ -109,7 +116,6 @@
 
   .news-text {
     flex: 1;
-    margin-top: 0.5em;
     font-size: 1em;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -128,6 +134,7 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    margin: 0 auto;
   }
 
   @media (max-width: 1920px) {
@@ -168,8 +175,13 @@
       flex-direction: column;
     }
 
+    .news-text {
+    margin-top: 0.5em;
+  }
+
     .news-media {
-      max-width: 100%;
+      width: 100%;
+      max-width: 700px;
       margin-right: 0;
       margin-bottom: 1.5em;
     }

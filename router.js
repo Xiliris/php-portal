@@ -204,7 +204,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       app.innerHTML = html;
-      window.scrollTo(0, 0);
+      if(window.location.href !== 'http://php-portal.local/#app') {
+        window.scrollTo(0,0)
+      }
 
       loadingEl.style.display = "none";
 

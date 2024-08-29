@@ -84,20 +84,22 @@
             article.style.backgroundPosition = 'center';
             article.style.backgroundRepeat = 'no-repeat';
             article.style.opacity = '0.7';
-            article.addEventListener('click', handleArticleClick); // Attach click handler
-            assignedPositions.add(position); // Track assigned positions
+            article.addEventListener('click', handleArticleClick); 
+            assignedPositions.add(position); 
           }
         });
 
-        // Attach click event for empty positions
         document.querySelectorAll('article').forEach(article => {
           const position = article.getAttribute('data-position');
           if (!assignedPositions.has(position)) {
-            article.addEventListener('click', handleArticleClick); // Attach click handler for empty positions
+            article.addEventListener('click', handleArticleClick); 
           }
         });
 
       } else {
+        document.querySelectorAll('article').forEach(article => {
+            article.addEventListener('click', handleArticleClick); 
+        });
         console.error('Failed to fetch celebrity data: ', data.message);
       }
     } catch (error) {
