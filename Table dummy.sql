@@ -30,5 +30,5 @@ INSERT INTO users (username, password, changed, role) VALUES
 INSERT INTO about (title, content) VALUES
 ("About Us", "We are a team of developers working on this project.");
 
-INSERT INTO fixed_track (description, time, moving, enabled) 
+INSERT INTO fixed_track (content, time, moving, enabled) 
 VALUES ('First record', 0, FALSE, FALSE);

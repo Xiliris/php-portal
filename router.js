@@ -27,6 +27,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/change-password": `${baseUrl}/pages/auth/change-password.html`,
     "/login/random": `${baseUrl}/pages/auth/login.html`,
     "/logout": `${baseUrl}/pages/auth/logout.html`,
+    "/search": `${baseUrl}/pages/search.html`,
 
     "/dashboard": `${baseUrl}/pages/admin/dashboard.html`,
     "/dashboard/create-celebrity": `${baseUrl}/pages/admin/create-celebrity/create-celebrity.html`,
