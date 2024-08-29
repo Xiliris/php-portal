@@ -1,17 +1,177 @@
 {{navbar}}
-<div id="coming">
-  <h1>Coming Soon</h1>
-  <p>This page is comming soon.</p>
+<div id="wrapper">
+  <main id="coming-soon-page">
+    <h1>Coming Soon</h1>
+    <section id="coming-soon-list">
+    </section>
+  </main>
 </div>
 {{footer}}
 
+<script>
+  async function loadComingSoon() {
+    const comingSoonList = document.getElementById("coming-soon-list");
+
+    try {
+      const response = await fetch("/api/routes/coming/get-coming.php", {
+        method: "POST",
+      });
+      const res = await response.json();
+
+      if (response.ok && res.data.length > 0) {
+        comingSoonList.innerHTML = "";
+
+        res.data.forEach(comingSoonItem => {
+          const comingSoonElement = document.createElement("div");
+          comingSoonElement.classList.add("coming-soon-item");
+
+          const publishDate = new Date(comingSoonItem.publish_date);
+          const options = {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          };
+          const formattedDate = publishDate.toLocaleDateString("en-GB", options);
+
+          comingSoonElement.innerHTML = `
+            <h2 class="coming-soon-title">${comingSoonItem.title}</h2>
+            <p class="coming-soon-publish-date">${formattedDate}</p>
+            <div class="coming-soon-content">
+            ${comingSoonItem.image_path ? `<img src="${comingSoonItem.image_path}" alt="${comingSoonItem.title}" class="coming-soon-media" />` : ""}
+            ${comingSoonItem.video_path ? `<video controls src="${comingSoonItem.video_path}" class="coming-soon-media"></video>` : ""}
+            <pre class="coming-soon-text">${comingSoonItem.text}</pre>
+            </div>
+            <hr />`;
+
+          comingSoonList.appendChild(comingSoonElement);
+        });
+      } else {
+        comingSoonList.innerHTML = "<p>No upcoming items added.</p>";
+      }
+    } catch (error) {
+      comingSoonList.innerHTML = `<p>Error loading upcoming items: ${error.message}</p>`;
+    }
+  }
+
+  loadComingSoon();
+</script>
+
 <style>
-  #coming {
+  #coming-soon-page {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2em 0;
+    padding-bottom: 150px;
+  }
+
+  #coming-soon-page h1 {
+    color: #093a41;
+    font-size: 2.5em;
+    margin-top: 2.5em;
+    margin-bottom: 2em;
+  }
+
+  #coming-soon-list {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto;
-    height: 100vh;
+    gap: 2em;
+  }
+
+  .coming-soon-item {
+    padding: 1.5em;
+  }
+
+  .coming-soon-title {
+    color: #0078c6;
+    font-size: 1.5em;
+    margin-bottom: 0.5em;
+  }
+
+  .coming-soon-publish-date {
+    font-size: 0.9em;
+    color: #555;
+    margin-bottom: 1em;
+  }
+
+  .coming-soon-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 2em;
+  }
+
+  .coming-soon-media {
+    flex-shrink: 0;
+    max-width: 40%;
+    height: auto;
+    margin-right: 1.5em;
+  }
+
+  .coming-soon-text {
+    flex: 1;
+    margin-top: 0.5em;
+    font-size: 1em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-width: 100%
+  }
+
+  .coming-soon-item hr {
+    margin-top: 2em;
+    border: 0;
+    border-top: 2px solid #ccc;
+  }
+
+  #wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  @media (max-width: 1920px) {
+    #coming-soon-page {
+      width: 95%;
+    }
+
+    #coming-soon-page h1 {
+      margin-top: 5em;
+      margin-left: 0.5em;
+      font-size: 2em;
+    }
+
+    .coming-soon-title {
+      font-size: 1.25em;
+    }
+  }
+
+  @media (max-width: 1280px) {
+    .coming-soon-item {
+      padding: 1em;
+    }
+
+    #coming-soon-page h1 {
+      margin-left: 0.5em;
+      font-size: 1.75em;
+    }
+
+    #coming-soon-page h2 {
+      margin-bottom: 1em;
+    }
+
+    .coming-soon-title {
+      font-size: 1.1em;
+    }
+
+    .coming-soon-content {
+      flex-direction: column;
+    }
+
+    .coming-soon-media {
+      max-width: 100%;
+      margin-right: 0;
+      margin-bottom: 1.5em;
+    }
   }
 </style>

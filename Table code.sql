@@ -263,6 +263,21 @@ CREATE TABLE news (
 
 -- --------------------------------------------------------
 
+--
+-- Table structure for table `coming`
+--
+
+CREATE TABLE coming (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    text TEXT NOT NULL,
+    image_path VARCHAR(255),
+    video_path VARCHAR(255),
+    publish_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- --------------------------------------------------------
+
 
 --
 -- Indexes for dumped tables
