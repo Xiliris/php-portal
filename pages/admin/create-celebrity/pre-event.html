@@ -94,8 +94,7 @@
       method: "POST",
       body: formData,
     });
-    const data = await res.text();
-    console.log(data)
+    const data = await res.json();
 
     if (data.success) {
       window.location.href = `/dashboard/create-celebrity/${params[3]}/events`;
