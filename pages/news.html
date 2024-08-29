@@ -12,10 +12,6 @@
   async function loadNews() {
     const newsList = document.getElementById("news-list");
 
-    const params = window.location.pathname.split("/");
-    const currentSlug = params[params.length - 1];
-    const isSpecificNews = currentSlug && currentSlug !== 'news';
-
     try {
       const response = await fetch("/api/routes/news/get-news.php", {
         method: "POST",
@@ -29,10 +25,6 @@
           const newsElement = document.createElement("div");
           newsElement.classList.add("news-item");
 
-          const titleSlug = newsItem.title.toLowerCase()
-            .replace(/ /g, '-')
-            .replace(/[^\w/-]+/g, '');
-
           const publishDate = new Date(newsItem.publish_date);
           const options = {
             day: "numeric",
@@ -42,37 +34,12 @@
           const formattedDate = publishDate.toLocaleDateString("en-GB", options);
 
           newsElement.innerHTML = `
-            <h2 class="news-title" data-slug="${titleSlug}">${newsItem.title}</h2>
+            <h2 class="news-title">${newsItem.title}</h2>
             <p class="news-publish-date">${formattedDate}</p>
-            <p class="news-snippet">${newsItem.text.substring(0, 150)}...</p>
-            <div class="news-full-content" style="display: none;">
-              <pre>${newsItem.text}</pre>
-              ${newsItem.image_path ? `<img src="${newsItem.image_path}" alt="${newsItem.title}" />` : ""}
-              ${newsItem.video_path ? `<video controls src="${newsItem.video_path}"></video>` : ""}
-            </div>`;
-
-          if (isSpecificNews) {
-            if (titleSlug === currentSlug) {
-              const fullContent = newsElement.querySelector('.news-full-content');
-              const snippet = newsElement.querySelector('.news-snippet');
-              fullContent.style.display = "block";
-              snippet.style.display = "none";
-            } else {
-              newsElement.style.display = "none";
-            }
-          }
-
-          newsElement.querySelector('.news-title').addEventListener('click', function () {
-            const clickedSlug = this.getAttribute('data-slug');
-
-            if (isSpecificNews && clickedSlug === currentSlug) {
-              history.pushState(null, '', '/news');
-            } else {
-              history.pushState(null, '', `/news/${clickedSlug}`);
-            }
-
-            loadNews();
-          });
+            <pre class="news-text">${newsItem.text}</pre>
+            ${newsItem.image_path ? `<img src="${newsItem.image_path}" alt="${newsItem.title}" />` : ""}
+            ${newsItem.video_path ? `<video controls src="${newsItem.video_path}"></video>` : ""}
+            <hr />`;
 
           newsList.appendChild(newsElement);
         });
@@ -85,11 +52,9 @@
   }
 
   loadNews();
-
-  window.addEventListener('popstate', function () {
-    loadNews();
-  });
 </script>
+
+
 
 <style>
   #news-page {
@@ -115,20 +80,10 @@
 
   .news-item {
     padding: 1.5em;
-    border: 1px solid #ddd;
-    border-radius: 0.5em;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    transition: box-shadow 0.3s ease;
-  }
-
-  .news-item:hover {
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   }
 
   .news-title {
-    cursor: pointer;
     color: #0078c6;
-    text-decoration: none;
     font-size: 1.5em;
     margin-bottom: 0.5em;
   }
@@ -139,27 +94,27 @@
     margin-bottom: 1em;
   }
 
-  .news-snippet {
+  .news-text {
     margin-top: 0.5em;
     font-size: 1em;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
 
-  .news-full-content {
-    margin-top: 1em;
-  }
-
-  .news-full-content img,
-  .news-full-content video {
+  .news-item img,
+  .news-item video {
     max-width: 100%;
     margin-top: 1em;
     border-radius: 0.5em;
   }
 
-  .news-full-content small {
-    display: block;
-    margin-top: 1em;
-    font-size: 0.9em;
-    color: #888;
+  .news-item hr {
+    margin-top: 2em;
+    border: 0;
+    border-top: 2px solid #ccc;
   }
 
   #wrapper {
@@ -168,30 +123,19 @@
     min-height: 100vh;
   }
 
-  .news-item pre {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    word-break: break-word;
-    overflow-x: auto;
-    max-width: 100%;
-  }
-
-  @media (max-width: 768px) {
+  @media (max-width: 1920px) {
     #news-page {
       width: 95%;
     }
 
     #news-page h1 {
+      margin-top: 5em;
+      margin-left: 0.5em;
       font-size: 2em;
     }
 
     .news-title {
       font-size: 1.25em;
-    }
-
-    .news-snippet {
-      font-size: 0.9em;
     }
   }
 
@@ -201,19 +145,12 @@
     }
 
     #news-page h1 {
+      margin-left: 0.5em;
       font-size: 1.75em;
     }
 
     .news-title {
       font-size: 1.1em;
-    }
-
-    .news-snippet {
-      font-size: 0.85em;
-    }
-
-    .news-full-content small {
-      font-size: 0.8em;
     }
   }
 </style>
