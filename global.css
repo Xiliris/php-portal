@@ -40,45 +40,6 @@ a {
   display: none;
 }
 
-.btn-primary {
-  padding: 1em 1.5em;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-  background-color: rgb(92, 114, 125);
-  color: white;
-}
-
-.btn-secondary {
-  padding: 1em 1.5em;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-  background-color: #d22b2b;
-  color: white;
-}
-
-.btn-tertiary {
-  padding: 1em 1.5em;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-  background-color: #ffd500;
-  color: white;
-}
-
-.btn-fortiary {
-  padding: 1em 1.5em;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-  background-color: green;
-  color: white;
-}
 
 #loading {
   width: 100vw;

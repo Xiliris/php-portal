@@ -73,7 +73,7 @@
 
         if (event.id == params[3]) {
           article.innerHTML = `
-          <a title="${event.title}">${event.title}</a>
+          <a class="current-active">${event.title}</a>
           <i class="fa-solid fa-chevron-${event.id == params[3] ? 'up' : 'down'}"></i>
           `;
 
@@ -221,6 +221,10 @@
     font-size: 1.1em;
     line-height: 1.5em;
     margin: 0;
+    word-break: break-all;
+    hyphens: auto;
+    overflow-wrap: break-word;
+    width: 80vw
   }
 
   #celebrity__event-container {
@@ -243,6 +247,14 @@
   }
 
   #celebrity__event-container article a {
+    max-width: 250px;
+    font-size: 1.2em;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  #celebrity__event-container article .current-active {
     max-width: 100%;
     font-size: 1.2em;
     text-overflow: ellipsis;
@@ -250,7 +262,7 @@
     word-break: break-word;
     overflow-wrap: break-word;
     cursor: pointer;
-}
+  }
 
   #celebrity__event-container article i {
     margin-left: 1em;
@@ -299,7 +311,7 @@
   .items_container div p {
     font-size: 1.2em;
     line-height: 1.5em;
-    width: 80vw;
+    width: 70vw;
     word-break: break-all;
     hyphens: auto;
     overflow-wrap: break-word;
@@ -309,6 +321,7 @@
     font-weight: bold;
     text-align: right;
     margin-top: 1em;
+    width: 70vw;
   }
 
   #event_status i {

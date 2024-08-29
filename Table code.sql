@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Aug 28, 2024 at 07:16 PM
+-- Generation Time: Aug 29, 2024 at 02:00 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -180,6 +180,21 @@ CREATE TABLE `footer` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `news`
+--
+
+CREATE TABLE `news` (
+  `id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `text` text NOT NULL,
+  `image_path` varchar(255) DEFAULT NULL,
+  `video_path` varchar(255) DEFAULT NULL,
+  `publish_date` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `partners`
 --
 
@@ -215,6 +230,18 @@ CREATE TABLE `shop` (
   `number` varchar(11) NOT NULL,
   `image_path` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `socials`
+--
+
+CREATE TABLE `socials` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `link` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -277,7 +304,6 @@ CREATE TABLE coming (
 );
 
 -- --------------------------------------------------------
-
 
 --
 -- Indexes for dumped tables
@@ -355,6 +381,12 @@ ALTER TABLE `footer`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `news`
+--
+ALTER TABLE `news`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `partners`
 --
 ALTER TABLE `partners`
@@ -371,6 +403,13 @@ ALTER TABLE `routes`
 --
 ALTER TABLE `shop`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `socials`
+--
+ALTER TABLE `socials`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `name` (`name`);
 
 --
 -- Indexes for table `userdata`
@@ -457,6 +496,12 @@ ALTER TABLE `footer`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `news`
+--
+ALTER TABLE `news`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `partners`
 --
 ALTER TABLE `partners`
@@ -472,6 +517,12 @@ ALTER TABLE `routes`
 -- AUTO_INCREMENT for table `shop`
 --
 ALTER TABLE `shop`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `socials`
+--
+ALTER TABLE `socials`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --

@@ -27,6 +27,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/change-password": `${baseUrl}/pages/auth/change-password.html`,
     "/login/random": `${baseUrl}/pages/auth/login.html`,
     "/logout": `${baseUrl}/pages/auth/logout.html`,
+    "/search": `${baseUrl}/pages/search.html`,
 
     "/dashboard": `${baseUrl}/pages/admin/dashboard.html`,
     "/dashboard/create-celebrity": `${baseUrl}/pages/admin/create-celebrity/create-celebrity.html`,
@@ -53,6 +54,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/master-panel/news": `${baseUrl}/pages/master-panel/news.html`,
     "/master-panel/coming-soon": `${baseUrl}/pages/master-panel/coming.html`,
     "/master-panel/fixed-track": `${baseUrl}/pages/master-panel/fixed-track.html`,
+    "/master-panel/socials": `${baseUrl}/pages/master-panel/socials.html`,
 
     "/news/:id": `${baseUrl}/pages/news.html`,
     "/coming-soon/:id": `${baseUrl}/pages/coming.html`,
@@ -104,6 +106,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/master-panel/shop": 4,
     "/master-panel/news": 4,
     "/master-panel/coming-soon": 4,
+    "/master-panel/fixed-track": 4,
+    "/master-panel/socials": 4,
   };
 
   const colors = {
