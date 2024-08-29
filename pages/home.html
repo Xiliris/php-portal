@@ -69,7 +69,7 @@
             currentContainer.appendChild(aTag);
         });
     } else {
-        alert(data.message);
+        console.log(data.message);
     }
   }
 
@@ -163,8 +163,8 @@ iframe {
 }
 
 #home .input-search {
-    width: 50vw;
-    padding: 0.1em 0.6em;
+    width: 40vw;
+    padding: 0.4em 0.9em;
     font-size: 1.2em;
     border: 1px solid gray;
     border-radius: 5px;
@@ -241,7 +241,7 @@ iframe {
     text-align: center;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1400px) {
     #celebrity-list .article-container {
         flex-direction: column;
         width: 90%;
@@ -257,6 +257,12 @@ iframe {
         width: 350px;
         height: 400px;
         object-fit: cover;
+    }
+}
+
+@media (max-width: 768px) {
+    #home .input-search {
+        width: 350px;
     }
 }
 </style>

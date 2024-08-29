@@ -1,19 +1,189 @@
 {{navbar}}
-
-<div id="news">
-  <h1>News</h1>
-  <p>This is the news page.</p>
+<div id="wrapper">
+  <main id="news-page">
+    <h1>The Latest News</h1>
+    <section id="news-list">
+    </section>
+  </main>
 </div>
-
 {{footer}}
 
+<script>
+  async function loadNews() {
+    const newsList = document.getElementById("news-list");
+
+    try {
+      const response = await fetch("/api/routes/news/get-news.php", {
+        method: "POST",
+      });
+      const res = await response.json();
+
+      if (response.ok && res.data.length > 0) {
+        newsList.innerHTML = "";
+
+        res.data.forEach(newsItem => {
+          const newsElement = document.createElement("div");
+          newsElement.classList.add("news-item");
+
+          const publishDate = new Date(newsItem.publish_date);
+          const options = {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          };
+          const formattedDate = publishDate.toLocaleDateString("en-GB", options);
+
+          newsElement.innerHTML = `
+            <h2 class="news-title">${newsItem.title}</h2>
+            <p class="news-publish-date">${formattedDate}</p>
+            <div class="news-content">
+            ${newsItem.image_path ? `<img src="${newsItem.image_path}" alt="${newsItem.title}" class="news-media" />` : ""}
+            ${newsItem.video_path ? `<video controls src="${newsItem.video_path}" class="news-media"></video>` : ""}
+            <pre class="news-text">${newsItem.text}</pre>
+            </div>
+            <hr />`;
+
+          newsList.appendChild(newsElement);
+        });
+      } else {
+        newsList.innerHTML = "<p>No news added.</p>";
+      }
+    } catch (error) {
+      newsList.innerHTML = `<p>Error loading news: ${error.message}</p>`;
+    }
+  }
+
+  loadNews();
+</script>
+
 <style>
-  #news {
+  #news-page {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2em 0;
+    padding-bottom: 150px;
+  }
+
+  #news-page h1 {
+    color: #093a41;
+    font-size: 2.5em;
+    margin-top: 2.5em;
+    margin-bottom: 2em;
+  }
+
+  #news-list {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    gap: 2em;
+  }
+
+  .news-item {
+    padding: 1.5em;
+  }
+
+  .news-title {
+    color: #0078c6;
+    font-size: 1.5em;
+    margin-bottom: 0.5em;
+  }
+
+  .news-publish-date {
+    font-size: 0.9em;
+    color: #555;
+    margin-bottom: 1em;
+  }
+
+  .news-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 2em;
+  }
+
+  .news-content img {
+    max-width: 300px;
+    max-height: 500px;
+    object-fit: contain;
+  }
+  
+
+  .news-media {
+    flex-shrink: 0;
+    max-width: 40%;
+    height: auto;
+    margin-right: 1.5em;
+  }
+
+  .news-text {
+    flex: 1;
+    font-size: 1em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-width: 100%
+  }
+
+  .news-item hr {
+    margin-top: 2em;
+    border: 0;
+    border-top: 2px solid #ccc;
+  }
+
+  #wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
     margin: 0 auto;
-    height: 100vh;
+  }
+
+  @media (max-width: 1920px) {
+    #news-page {
+      width: 95%;
+    }
+
+    #news-page h1 {
+      margin-top: 5em;
+      margin-left: 0.5em;
+      font-size: 2em;
+    }
+
+    .news-title {
+      font-size: 1.25em;
+    }
+  }
+
+  @media (max-width: 1280px) {
+    .news-item {
+      padding: 1em;
+    }
+
+    #news-page h1 {
+      margin-left: 0.5em;
+      font-size: 1.75em;
+    }
+
+    #news-page h2 {
+      margin-bottom: 1em;
+    }
+
+    .news-title {
+      font-size: 1.1em;
+    }
+
+    .news-content {
+      flex-direction: column;
+    }
+
+    .news-text {
+    margin-top: 0.5em;
+  }
+
+    .news-media {
+      width: 100%;
+      max-width: 700px;
+      margin-right: 0;
+      margin-bottom: 1.5em;
+    }
   }
 </style>

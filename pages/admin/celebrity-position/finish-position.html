@@ -12,33 +12,35 @@
     </div>
     <hr />
     <section class="select-container">
-       <div>
-        <article>1</article>
-        <article>2</article>
-       </div>
-       <div>
-        <article>3</article>
-        <article>4</article>
-        <article>5</article>
-        <article>6</article>
-        <article>7</article>
-       </div>
-       <div>
-        <article>8</article>
-        <article>9</article>
-        <article>10</article>
-        <article>11</article>
-        <article>12</article>
-        <article>13</article>
-       </div>
+      <div>
+        <article data-position="1">1</article>
+        <article data-position="2">2</article>
+      </div>
+      <div>
+        <article data-position="3">3</article>
+        <article data-position="4">4</article>
+        <article data-position="5">5</article>
+        <article data-position="6">6</article>
+        <article data-position="7">7</article>
+      </div>
+      <div>
+        <article data-position="8">8</article>
+        <article data-position="9">9</article>
+        <article data-position="10">10</article>
+        <article data-position="11">11</article>
+        <article data-position="12">12</article>
+        <article data-position="13">13</article>
+      </div>
     </section>
   </div>
 </main>
+
 <script>
   const celebrityId = window.location.pathname.split("/")[3];
 
+  // Function to handle article click and set celebrity position
   const handleArticleClick = (event) => {
-    const position = event.target.innerText; 
+    const position = event.target.getAttribute('data-position');
     fetch('/api/routes/celebrity/set-celebrity-position.php', {
       method: 'POST',
       headers: {
@@ -49,27 +51,68 @@
         position: position,
       }),
     })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        window.location.href = '/'
-      } else {
-        alert('Failed to set position: ' + data.message);
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert('An error occurred while setting the position.');
-    });
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          window.location.href = '/';
+        } else {
+          alert('Failed to set position: ' + data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while setting the position.');
+      });
   };
 
-  // Add the click event listener to each article
-  document.querySelectorAll('.select-container div article').forEach(article => {
-    article.addEventListener('click', handleArticleClick);
-  });
+  // Function to fetch celebrity positions and set their background images
+  const setCelebrityBackgrounds = async () => {
+    try {
+      const res = await fetch('/api/routes/celebrity/get-celebrity-position.php');
+      const data = await res.json();
+      
+      if (data.success) {
+        const assignedPositions = new Set();
+
+        data.data.forEach(celebrity => {
+          const { position, image_path } = celebrity;
+          const article = document.querySelector(`article[data-position="${position}"]`);
+
+          if (article) {
+            article.style.backgroundImage = `url(${image_path})`;
+            article.style.backgroundSize = 'cover';
+            article.style.backgroundPosition = 'center';
+            article.style.backgroundRepeat = 'no-repeat';
+            article.style.opacity = '0.7';
+            article.addEventListener('click', handleArticleClick); 
+            assignedPositions.add(position); 
+          }
+        });
+
+        document.querySelectorAll('article').forEach(article => {
+          const position = article.getAttribute('data-position');
+          if (!assignedPositions.has(position)) {
+            article.addEventListener('click', handleArticleClick); 
+          }
+        });
+
+      } else {
+        document.querySelectorAll('article').forEach(article => {
+            article.addEventListener('click', handleArticleClick); 
+        });
+        console.error('Failed to fetch celebrity data: ', data.message);
+      }
+    } catch (error) {
+      console.error('Error fetching celebrity data: ', error);
+    }
+  };
+
+  // Load celebrity images when the page loads
+  setCelebrityBackgrounds();
 </script>
 
 <style>
+  /* Same styles as before */
   #dashboard {
     margin: 0 auto;
     padding: 10em 0;
@@ -82,7 +125,6 @@
     background-color: red;
     border: 1px solid red;
   }
-
 
   .btn {
     padding: 0.5em 1.5em;
@@ -112,7 +154,7 @@
     justify-content: center;
     flex-direction: column;
     gap: 1em;
-    margin-top: 2em
+    margin-top: 2em;
   }
 
   .select-container div {
@@ -120,7 +162,7 @@
     flex-direction: column;
     align-items: center;
     flex-direction: row;
-    gap: 1em
+    gap: 1em;
   }
 
   .select-container div article {
@@ -134,12 +176,17 @@
     border-radius: 8px;
     transition: all 0.3s ease;
     cursor: pointer;
+    position: relative;
+    background-color: rgba(0, 0, 0, 0.3);
+    color: white;
+    overflow: hidden;
   }
 
   .select-container div article:hover {
     background-color: green;
     color: white;
     transform: scale(1.05);
+    opacity: 1;
   }
 
   .steps {
