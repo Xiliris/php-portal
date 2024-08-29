@@ -1,5 +1,51 @@
 {{navbar}}
-<main class="search">Search Page</main>
+<main class="search">
+    <h1>Advance search</h1>
+    
+    <div class="search-item">
+        <h2>Celebrity name</h2>
+        <div class="input-search">
+            <input type="text" placeholder="Enter celebrity name">
+        </div>
+    </div>
+    
+    <div class="search-item">
+        <h2>Event include words</h2>
+        <div class="input-search">
+            <input type="text" placeholder="Words to include">
+        </div>
+    </div>
+    
+    <div class="search-item">
+        <h2>Event exclude words</h2>
+        <div class="input-search">
+            <input type="text" placeholder="Words to exclude">
+        </div>
+    </div>
+    
+    <div class="search-item">
+        <h2>Publish date</h2>
+        <div class="input-date">
+            <input type="date" id="date-from" name="date-from">
+            
+            <input type="date" id="date-to" name="date-to">
+        </div>
+    </div>
+    
+    <div class="search-item">
+        <h2>Date created</h2>
+        <div class="input-date">
+            <input type="date" id="created-from" name="created-from">
+            
+            <input type="date" id="created-to" name="created-to">
+        </div>
+    </div>
+
+    <section id="search-container">
+        
+    </section>
+</main>
+
 {{footer}}
 
 <script></script>
@@ -7,9 +53,136 @@
 
 <style>
     .search {
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    margin: 0 auto;
+    margin-top: 10em;
+    height: 100vh;
+    width: 70vw;
+}
+
+.search h1 {
+    text-align: left;
+    width: 100%;
+    margin-bottom: 2.5em;
+    font-size: 2em;
+}
+
+.search h2 {
+    text-align: left;
+    padding-top: 1em;
+    width: 25%;
+    font-size: 1.5em;
+    margin-right: 2em;
+}
+
+#search-container {
+    max-width: 80vw;
+    display: flex;
+}
+
+.search-item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: 100%;
+    margin-bottom: 1.5em;
+}
+
+.input-search {
+    width: 70%;
+    padding: 0.4em 0.9em;
+    font-size: 1.2em;
+    border: 1px solid gray;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.input-date {
+    width: 70%;
+    padding: 0.4em 0.9em;
+    font-size: 1.2em;
+    display: flex;
+    align-items: center;
+}
+
+.input-date input {
+    width: 40%;
+    height: 100%;
+    border: 1px solid gray;
+    border-radius: 5px;
+    font-size: 1.2em;
+    color: gray;
+    margin-right: 1em;
+    box-sizing: border-box;
+}
+
+.input-date input:last-of-type {
+    margin-right: 0;
+}
+
+
+.input-search input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: none;
+    font-size: 1.2em;
+    color: gray;
+}
+
+.input-search label {
+    font-size: 1.2em;
+    color: gray;
+    margin-right: 1em;
+}
+
+.input-search input[type="date"] {
+    width: calc(50% - 1.5em);
+    padding: 0.4em;
+    font-size: 1em;
+    border: 1px solid gray;
+    border-radius: 5px;
+}
+
+@media (max-width: 1150px) {
+    .search-item {
+        flex-direction: column;
+        align-items: flex-start;
+        padding-left: 0;
     }
+
+    .search h2 {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 0.5em;
+    }
+
+    .input-search {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .input-date {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .input-date input[type="date"] {
+        width: 100%;
+        margin-bottom: 0.5em;
+    }
+
+    .input-date label {
+        width: 100%;
+        margin-bottom: 0.5em;
+    }
+}
+
+
 </style>
