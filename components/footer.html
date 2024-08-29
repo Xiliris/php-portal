@@ -7,16 +7,16 @@
     <!-- Footer items will be appended here -->
   </section>
   <section class="footer--links">
-    <a href="#">
+    <a id="telegram" target="_blank">
       <i class="fa-brands fa-telegram"></i>
     </a>
-    <a href="#">
+    <a id="twitter" target="_blank">
       <i class="fa-brands fa-x-twitter"></i>
     </a>
-    <a href="#">
+    <a id="facebook" target="_blank">
       <i class="fa-brands fa-facebook"></i>
     </a>
-    <a href="#">
+    <a id="instagram" target="_blank">
       <i class="fa-brands fa-instagram"></i>
     </a>
   </section>
@@ -48,6 +48,44 @@
     }
   }
 
+  async function loadSocials() {
+      const res = await fetch('/api/routes/footer/get-socials.php')
+
+      const data = await res.json();
+
+      if(data.success) {
+        for(const links of data.data) {
+          const { name, link } = links
+
+          if(name === "telegram"){
+            telegram.href = link;
+         
+          }
+          else if(name === 'twitter') {
+            twitter.href = link
+      
+          } 
+
+          else if(name === 'facebook') {
+            facebook.href = link
+
+          }
+
+          else if(name === 'instagram') {
+            instagram.href = link
+
+          } else {
+            console.log('undefined elemet.')
+          }
+        }
+      } else {
+        alert(data.message)
+      }
+
+    }
+
+  
+  loadSocials()
   loadFooter();
 </script>
 

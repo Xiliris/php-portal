@@ -62,9 +62,10 @@
 
         if (event.id == params[3]) {
           article.innerHTML = `
-            <a>${event.title}</a>
+            <a class="current-active">${event.title}</a>
             <i class="fa-solid fa-chevron-up"></i>
           `;
+
 
           const docsRes = await fetch(`/api/routes/celebrity/data/documents.php?id=${event.id}`);
           const docsData = await docsRes.json();

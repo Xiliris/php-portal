@@ -3,44 +3,123 @@
   <h1>Master Panel</h1>
   <div>
     <div class="master-panel__header">
-      <h2>Fixed Track</h2>
+      <h2>Socials</h2>
       <a class="btn" href="/master-panel" data-link>Back</a>
     </div>
     <hr />
     <section class="master_socials">
-
+        <article>
+          <i class="fa-brands fa-telegram"></i>
+          <input type="text" id="telegram"/>
+        </article>
+        <article>
+          <i class="fa-brands fa-x-twitter"></i>
+          <input type="text" id="twitter"/>
+        </article>
+        <article>
+          <i class="fa-brands fa-facebook"></i>
+          <input type="text" id="facebook"/>
+        </article>
+        <article>
+          <i class="fa-brands fa-instagram"></i>
+          <input type="text" id="instagram"/>
+        </article>
     </section>
+    <button class="btn" id="socials-submit">Submit</button>
   </div>
 </main>
 
 <script>
+  const telegram = document.getElementById('telegram');
+  const twitter = document.getElementById('twitter');
+  const facebook = document.getElementById('facebook');
+  const instagram = document.getElementById('instagram');
+  const submitBtn = document.getElementById('socials-submit');
 
+  submitBtn.addEventListener('click', async () => {
+    const telegramValue = telegram.value;
+    const twitterValue = twitter.value;
+    const facebookValue = facebook.value;
+    const instagramValue = instagram.value;
+
+    if(!telegramValue.startsWith('https://')){
+      alert('Telegram must be a link!')
+      return
+    }
+    if(!twitterValue.startsWith('https://')){
+      alert('Twitter must be a link!')
+      return
+    }
+    if(!facebookValue.startsWith('https://')){
+      alert('Facebook must be a link!')
+      return
+    }
+    if(!instagramValue.startsWith('https://')){
+      alert('Instagram must be a link!')
+      return
+    }
+    const formData = new FormData();
+
+    formData.append("telegram", telegramValue);
+    formData.append("twitter", twitterValue);
+    formData.append("facebook", facebookValue);
+    formData.append("instagram", instagramValue);
+
+
+    const res = await fetch('/api/routes/footer/add-socials.php', {
+      method: "POST",
+      body: formData
+    })
+
+    const data = await res.json();
+    if(data.success){
+      alert(data.message)
+    } else {
+      alert(data.message)
+    }
+  })
+
+  async function loadSocials() {
+      const res = await fetch('/api/routes/footer/get-socials.php')
+
+      const data = await res.json();
+
+      if(data.success) {
+        for(const links of data.data) {
+          const { name, link } = links
+
+          if(name === "telegram"){
+            telegram.value = link;
+         
+          }
+          else if(name === 'twitter') {
+            twitter.value = link
+      
+          } 
+
+          else if(name === 'facebook') {
+            facebook.value = link
+
+          }
+
+          else if(name === 'instagram') {
+            instagram.value = link
+
+          } else {
+            console.log('undefined elemet.')
+          }
+        }
+      } else {
+        alert(data.message)
+      }
+
+    }
+
+  
+  loadSocials()
 </script>
 
 <style>
-    .default-container, .check-container {
-        width: 100%;
-    }
-
-    .check-container {
-        border: 1px solid gray;
-        border-radius: 5px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.5em
-    }
-
-    .check-container input {
-        width: fit-content;
-        margin-left: auto;
-        cursor: pointer;
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        overflow: hidden;
-    }
-
   #master-panel {
     margin: 0 auto;
     padding: 10em 0;
@@ -78,35 +157,42 @@
     cursor: pointer;
     font-size: 1em;
   }
-  .fixed-track { text-align: left;}
 
-  .fixed-track h2 {
-    margin: 1em 0;
-  }
-
-  .fixed-track {
+  .master_socials {
+    width: 100%;
     display: flex;
+    justify-content: center;
+    align-self: center;
     flex-direction: column;
     gap: 1em;
-    margin: 1em 0;
+    margin-top: 1em;
   }
 
-  .fixed-track label {
-    font-weight: bold;
-  }
-
-  .default-container input,
-  .default-container textarea {
-    padding: 0.5em 1em;
-    border: 1px solid gray;
-    border-radius: 5px;
-    resize: none;
-    font-size: 1em;
+  .master_socials article {
     width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1em;
   }
 
-  .default-container textarea {
-    height: 200px;
+  .master_socials input {
+    width: 100%;
+    padding: 0.5em 1em;
+        border: 1px solid gray;
+        border-radius: 5px;
+        resize: none;
+        font-size: 1em;
+  }
+
+  .master_socials i {
+    width: 30px;
+    transform: scale(2);
+  }
+
+  #socials-submit {
+    width: 100%;
+    margin-top: 1.5em;
   }
 
   @media screen and (max-width: 480px) {
