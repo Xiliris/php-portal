@@ -82,8 +82,10 @@
       const res = await fetch('/api/routes/celebrity/get-search.php');
       const data = await res.json();
       if (data.success) {
-        allResults = data.data; // Store all fetched data
-        renderResults(allResults); // Render all data initially
+        allResults = data.data; 
+        renderResults(allResults); 
+
+        applyFilters();
       } else {
         console.error(data.message);
       }
@@ -101,8 +103,8 @@
 
 
 function renderResults(results) {
-    searchContainer.innerHTML = ''; // Clear previous results
-    resultLength.innerText = results.length; // Update result count
+    searchContainer.innerHTML = ''; 
+    resultLength.innerText = results.length; 
 
     results.forEach(result => {
         const { celebrity, events } = result;
@@ -110,7 +112,6 @@ function renderResults(results) {
         let image_path = celebrity.image_path || "/assets/unknown.jpg";
         let publish_date = celebrity.publish_date || celebrity.created_at;
 
-        // Highlighting the description and event descriptions
         const includeWords = eventIncludeInput.value.toLowerCase();
         const excludeWords = eventExcludeInput.value.toLowerCase();
 
@@ -164,74 +165,75 @@ function renderResults(results) {
 }
 
 
-  function applyFilters() {
-    let filteredResults = allResults;
+function applyFilters() {
+  let filteredResults = allResults;
 
-    // Filter by celebrity name
-    const celebrityName = celebrityInput.value.toLowerCase();
-    if (celebrityName) {
-        filteredResults = filteredResults.filter(result =>
-            result.celebrity.name.toLowerCase().includes(celebrityName)
-        );
-    }
+  const searchResult = urlParams.get('result');
+  if (searchResult) {
+    filteredResults = filteredResults.filter(result =>
+      result.celebrity.name.toLowerCase().includes(searchResult.toLowerCase()) ||
+      result.events.some(event => event.description.toLowerCase().includes(searchResult.toLowerCase())) ||
+      result.celebrity.description.toLowerCase().includes(searchResult.toLowerCase())
+    );
+  }
 
-    // Filter by event include words
-    const includeWords = eventIncludeInput.value.toLowerCase();
-    if (includeWords) {
-        filteredResults = filteredResults.filter(result =>
-            result.events.some(event => event.description.toLowerCase().includes(includeWords)) ||
-            result.celebrity.description.toLowerCase().includes(includeWords)
-        );
-    }
+  const celebrityName = celebrityInput.value.toLowerCase();
+  if (celebrityName) {
+    filteredResults = filteredResults.filter(result =>
+      result.celebrity.name.toLowerCase().includes(celebrityName)
+    );
+  }
 
-    // Filter by event exclude words
-    const excludeWords = eventExcludeInput.value.toLowerCase();
-    if (excludeWords) {
-        filteredResults = filteredResults.filter(result =>
-            !result.events.some(event => event.description.toLowerCase().includes(excludeWords)) &&
-            !result.celebrity.description.toLowerCase().includes(excludeWords)
-        );
-    }
+  const includeWords = eventIncludeInput.value.toLowerCase();
+  if (includeWords) {
+    filteredResults = filteredResults.filter(result =>
+      result.events.some(event => event.description.toLowerCase().includes(includeWords)) ||
+      result.celebrity.description.toLowerCase().includes(includeWords)
+    );
+  }
 
-    // Filter by publish date
-    const publishFrom = publishDateFromInput.value;
-    const publishTo = publishDateToInput.value;
-    if (publishFrom || publishTo) {
-        filteredResults = filteredResults.filter(result => {
-            const publishDate = new Date(result.celebrity.publish_date || result.celebrity.created_at);
-            return (!publishFrom || publishDate >= new Date(publishFrom)) &&
-                   (!publishTo || publishDate <= new Date(publishTo));
-        });
-    }
+  const excludeWords = eventExcludeInput.value.toLowerCase();
+  if (excludeWords) {
+    filteredResults = filteredResults.filter(result =>
+      !result.events.some(event => event.description.toLowerCase().includes(excludeWords)) &&
+      !result.celebrity.description.toLowerCase().includes(excludeWords)
+    );
+  }
 
-    // Filter by created date
-    const createdFrom = createdDateFromInput.value;
-    const createdTo = createdDateToInput.value;
-    if (createdFrom || createdTo) {
-        filteredResults = filteredResults.filter(result => {
-            const createdDate = new Date(result.celebrity.created_at);
-            return (!createdFrom || createdDate >= new Date(createdFrom)) &&
-                   (!createdTo || createdDate <= new Date(createdTo));
-        });
-    }
+  const publishFrom = publishDateFromInput.value;
+  const publishTo = publishDateToInput.value;
+  if (publishFrom || publishTo) {
+    filteredResults = filteredResults.filter(result => {
+      const publishDate = new Date(result.celebrity.publish_date || result.celebrity.created_at);
+      return (!publishFrom || publishDate >= new Date(publishFrom)) &&
+             (!publishTo || publishDate <= new Date(publishTo));
+    });
+  }
 
-    // Sort Results
-    const sortValue = sortSelect.value;
-    if (sortValue === "created-desc") {
-        filteredResults.sort((a, b) => new Date(b.celebrity.created_at) - new Date(a.celebrity.created_at));
-    } else if (sortValue === "created-asc") {
-        filteredResults.sort((a, b) => new Date(a.celebrity.created_at) - new Date(b.celebrity.created_at));
-    } else if (sortValue === "published-desc") {
-        filteredResults.sort((a, b) => new Date(b.celebrity.publish_date || b.celebrity.created_at) - new Date(a.celebrity.publish_date || a.celebrity.created_at));
-    } else if (sortValue === "published-asc") {
-        filteredResults.sort((a, b) => new Date(a.celebrity.publish_date || a.celebrity.created_at) - new Date(b.celebrity.publish_date || b.celebrity.created_at));
-    }
+  const createdFrom = createdDateFromInput.value;
+  const createdTo = createdDateToInput.value;
+  if (createdFrom || createdTo) {
+    filteredResults = filteredResults.filter(result => {
+      const createdDate = new Date(result.celebrity.created_at);
+      return (!createdFrom || createdDate >= new Date(createdFrom)) &&
+             (!createdTo || createdDate <= new Date(createdTo));
+    });
+  }
 
-    renderResults(filteredResults);
+  const sortValue = sortSelect.value;
+  if (sortValue === "created-desc") {
+    filteredResults.sort((a, b) => new Date(b.celebrity.created_at) - new Date(a.celebrity.created_at));
+  } else if (sortValue === "created-asc") {
+    filteredResults.sort((a, b) => new Date(a.celebrity.created_at) - new Date(b.celebrity.created_at));
+  } else if (sortValue === "published-desc") {
+    filteredResults.sort((a, b) => new Date(b.celebrity.publish_date || b.celebrity.created_at) - new Date(a.celebrity.publish_date || a.celebrity.created_at));
+  } else if (sortValue === "published-asc") {
+    filteredResults.sort((a, b) => new Date(a.celebrity.publish_date || a.celebrity.created_at) - new Date(b.celebrity.publish_date || b.celebrity.created_at));
+  }
+
+  renderResults(filteredResults);
 }
 
-
-  // Event Listeners
   celebrityInput.addEventListener('input', applyFilters);
   eventIncludeInput.addEventListener('input', applyFilters);
   eventExcludeInput.addEventListener('input', applyFilters);
@@ -241,7 +243,14 @@ function renderResults(results) {
   createdDateToInput.addEventListener('input', applyFilters);
   sortSelect.addEventListener('change', applyFilters);
 
-  // Initial Load
+  const urlParams = new URLSearchParams(window.location.search);
+  const searchResult = urlParams.get('result');
+
+   if (searchResult) {
+        celebrityInput.value = searchResult;
+        urlParams.delete('result')
+    }
+
   loadResults();
 </script>
 
