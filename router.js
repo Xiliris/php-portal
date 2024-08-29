@@ -53,6 +53,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/master-panel/shop": `${baseUrl}/pages/master-panel/shop.html`,
     "/master-panel/news": `${baseUrl}/pages/master-panel/news.html`,
     "/master-panel/fixed-track": `${baseUrl}/pages/master-panel/fixed-track.html`,
+    "/master-panel/socials": `${baseUrl}/pages/master-panel/socials.html`,
 
     "/news/:id": `${baseUrl}/pages/news.html`,
     "/profile/:userid": `${baseUrl}/pages/profile/main.html`,
@@ -102,6 +103,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/master-panel/editor": 4,
     "/master-panel/shop": 4,
     "/master-panel/news": 4,
+    "/master-panel/fixed-track": 4,
+    "/master-panel/socials": 4,
   };
 
   const colors = {
