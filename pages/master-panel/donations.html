@@ -55,11 +55,11 @@
     }
 
     if (image) {
-      const allowedTypes = ['image/jpeg', 'image/png'];
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
       const maxFileSize = 5 * 1024 * 1024;
 
       if (!allowedTypes.includes(image.type)) {
-        errorMessage += "Invalid file type. Only JPEG and PNG files are allowed.\n";
+        errorMessage += "Invalid file type. Only JPEG, PNG, and WebP files are allowed.\n";
       }
 
       if (image.size > maxFileSize) {

@@ -14,7 +14,7 @@
             <input type="number" id="product-number" min="1" placeholder="Product Number" />
             <div class="div-input">
                 <label for="images">IMAGES</label>
-                <input type="file" id="product-image" accept="image/*" />
+                <input type="file" id="product-image" accept="image/*,image/webp" />
             </div>
             <button class="btn" id="product-submit">Add</button>
         </section>
@@ -57,9 +57,9 @@
         }
 
         if (image) {
-            const validTypes = ["image/jpeg", "image/png", "image/gif"];
+            const validTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
             if (!validTypes.includes(image.type)) {
-                errorMessage += "Invalid file type. Only JPEG, PNG, and GIF are allowed.\n";
+                errorMessage += "Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.\n";
             }
             if (image.size > 2 * 1024 * 1024) {
                 errorMessage += "File size exceeds 2MB.\n";
@@ -198,7 +198,6 @@
     }
 
     getProducts();
-
 </script>
 
 <style>
@@ -296,7 +295,8 @@
     }
 
     #product-container article img {
-        height: 200px;
+        width: 100%;
+        max-height: auto;
         object-fit: cover;
         border-radius: 4px;
     }
