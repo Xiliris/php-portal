@@ -12,7 +12,10 @@
             <textarea id="product-description" placeholder="Product Description"></textarea>
             <input type="number" id="product-price" min="1" placeholder="Product Price" />
             <input type="number" id="product-number" min="1" placeholder="Product Number" />
-            <input type="file" id="product-image" accept="image/*" />
+            <div class="div-input">
+                <label for="images">IMAGES</label>
+                <input type="file" id="product-image" accept="image/*" />
+            </div>
             <button class="btn" id="product-submit">Add</button>
         </section>
         <section id="product-container">
@@ -296,6 +299,18 @@
         height: 200px;
         object-fit: cover;
         border-radius: 4px;
+    }
+
+    .div-input {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-add label {
+        text-align: left;
+        margin-bottom: 0em;
+        font-weight: 600;
     }
 
     @media screen and (max-width: 480px) {
