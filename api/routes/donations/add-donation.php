@@ -22,11 +22,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!empty($_FILES['image']['name'])) {
         $handle = new Upload($_FILES['image']);
-        $allowedTypes = ['image/jpeg', 'image/png'];
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
         $maxFileSize = 5 * 1024 * 1024;
 
         if (!in_array($handle->file_src_mime, $allowedTypes)) {
-            $response['message'] = "Invalid file type. Only JPEG and PNG files are allowed.";
+            $response['message'] = "Invalid file type. Only JPEG, PNG, GIF, and WebP files are allowed.";
             echo json_encode($response);
             exit;
         }

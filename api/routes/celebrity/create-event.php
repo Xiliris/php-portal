@@ -14,7 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $publish_date = isset($_POST['publish_date']) ? $_POST['publish_date'] : null;
 
     $protocol = strtolower(substr($_SERVER["SERVER_PROTOCOL"], 0, 5)) == 'https' ? 'https' : 'http';
-    $storagePath = $protocol . '://' .  $_SERVER["SERVER_NAME"] . '/api/storage/celebrity/data';
+    $storagePath = __DIR__ . '/../../storage/celebrity/data';
+    $storageUrl = $protocol . '://' . $_SERVER["SERVER_NAME"] . '/api/storage/celebrity/data';
 
     $images = isset($_FILES['images']) && is_array($_FILES['images']['name']) ? $_FILES['images'] : null;
     $documents = isset($_FILES['documents']) && is_array($_FILES['documents']['name']) ? $_FILES['documents'] : null;
@@ -46,13 +47,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($images['name']) && count($images['name']) > 0) {
         foreach ($images['name'] as $key => $value) {
             $file_tmp = $images['tmp_name'][$key];
+            $file_type = mime_content_type($file_tmp);
+            $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
+            if (!in_array($file_type, $allowedTypes)) {
+                $response["message"] = "Invalid image type. Only JPG, PNG, GIF, and WebP are allowed.";
+                echo json_encode($response);
+                exit;
+            }
 
             $upload = new Upload($file_tmp);
             $upload->file_new_name_body = uniqid();
-            $upload->process(__DIR__ . '/../../storage/celebrity/data/images');
+            $upload->process($storagePath . '/images');
 
             if ($upload->processed) {
-                $image_path = $storagePath . '/images/' . $upload->file_dst_name;
+                $image_path = $storageUrl . '/images/' . $upload->file_dst_name;
                 $upload->clean();
 
                 try {
@@ -77,14 +86,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($audio['name']) && count($audio['name']) > 0) {
         foreach ($audio['name'] as $key => $value) {
             $file_tmp = $audio['tmp_name'][$key];
+            $file_type = mime_content_type($file_tmp);
+            $allowedTypes = ['audio/mpeg', 'audio/wav'];
+
+            if (!in_array($file_type, $allowedTypes)) {
+                $response["message"] = "Invalid audio type. Only MP3 and WAV are allowed.";
+                echo json_encode($response);
+                exit;
+            }
 
             $upload = new Upload($file_tmp);
             $upload->file_new_name_body = uniqid();
-            $upload->allowed = array('audio/mpeg', 'audio/wav');
-            $upload->process(__DIR__ . '/../../storage/celebrity/data/audio');
+            $upload->process($storagePath . '/audio');
 
             if ($upload->processed) {
-                $audio_path = $storagePath . '/audio/' . $upload->file_dst_name;
+                $audio_path = $storageUrl . '/audio/' . $upload->file_dst_name;
                 $upload->clean();
 
                 try {
@@ -109,8 +125,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($documents['name']) && count($documents['name']) > 0) {
         foreach ($documents['name'] as $key => $file_name) {
             $file_tmp = $documents['tmp_name'][$key];
-            $file_type = $documents['type'][$key];
-            $file_size = $documents['size'][$key];
+            $file_type = mime_content_type($file_tmp);
+            $allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+
+            if (!in_array($file_type, $allowedTypes)) {
+                $response["message"] = "Invalid document type. Only PDF, DOC, DOCX, and XLSX are allowed.";
+                echo json_encode($response);
+                exit;
+            }
+
             $file_error = $documents['error'][$key];
             $original_name = $documents['name'][$key];
 
@@ -119,9 +142,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $new_file_name = uniqid() . '.' . $file_ext;
                 $destination = __DIR__ . '/../../storage/celebrity/data/documents/' . $new_file_name;
 
-                // Move file from temp directory to final destination
                 if (move_uploaded_file($file_tmp, $destination)) {
-                    $document_path = $storagePath . '/documents/' . $new_file_name;
+                    $document_path = $storageUrl . '/documents/' . $new_file_name;
 
                     try {
                         $stmt = $pdo->prepare('INSERT INTO celebrity_event_documents (event_id, document_path, doc_type, original_name) VALUES (?, ?, ?, ?)');
@@ -151,20 +173,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($video['name']) && count($video['name']) > 0) {
         foreach ($video['name'] as $key => $value) {
             $file_tmp = $video['tmp_name'][$key];
+            $file_type = mime_content_type($file_tmp);
+            $allowedTypes = ['video/mp4', 'video/avi', 'video/mpeg', 'video/quicktime', 'video/x-ms-wmv'];
+
+            if (!in_array($file_type, $allowedTypes)) {
+                $response["message"] = "Invalid video type. Only MP4, AVI, MPEG, QuickTime, and WMV are allowed.";
+                echo json_encode($response);
+                exit;
+            }
 
             $upload = new Upload($file_tmp);
             $upload->file_new_name_body = uniqid();
-            $upload->allowed = array(
-                'video/mp4',
-                'video/avi',
-                'video/mpeg',
-                'video/quicktime',
-                'video/x-ms-wmv'
-            );
-            $upload->process(__DIR__ . '/../../storage/celebrity/data/videos');
+            $upload->process($storagePath . '/videos');
 
             if ($upload->processed) {
-                $video_path = $storagePath . '/videos/' . $upload->file_dst_name;
+                $video_path = $storageUrl . '/videos/' . $upload->file_dst_name;
                 $upload->clean();
 
                 try {
