@@ -19,12 +19,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (!empty($_FILES['image']['name'])) {
-        $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
         $fileTmpPath = $_FILES['image']['tmp_name'];
         $fileMimeType = mime_content_type($fileTmpPath);
 
         if (!in_array($fileMimeType, $allowedMimeTypes)) {
-            $response['message'] = "Invalid image type. Only JPEG, PNG, and GIF are allowed.";
+            $response['message'] = "Invalid image type. Only JPEG, PNG, GIF, and WebP are allowed.";
             echo json_encode($response);
             exit;
         }

@@ -10,8 +10,14 @@
         <section class="coming-soon-add">
             <input type="text" id="coming-soon-title" placeholder="Title" required />
             <textarea id="coming-soon-text" placeholder="Text" required></textarea>
-            <input type="file" id="coming-soon-image" accept="image/*" />
-            <input type="file" id="coming-soon-video" accept="video/mp4,video/webm" />
+            <div class="div-input">
+                <label for="images">IMAGES</label>
+                <input type="file" id="coming-soon-image" accept="image/*" />
+            </div>
+            <div class="div-input">
+                <label for="images">VIDEO</label>
+                <input type="file" id="coming-soon-video" accept="video/mp4,video/webm" />
+            </div>
             <button class="btn" id="coming-soon-submit">Add</button>
         </section>
         <section id="coming-soon-container">
@@ -243,6 +249,18 @@
 
     .coming-soon-item small {
         color: #999;
+    }
+
+    .div-input {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .coming-soon-add label {
+        text-align: left;
+        margin-bottom: 0em;
+        font-weight: 600;
     }
 
     @media screen and (max-width: 480px) {

@@ -15,7 +15,10 @@
     <section class="dashboard__container">
       <input type="text" id="celebrity-name" placeholder="Name" />
       <textarea id="celebrity-description" placeholder="Description"></textarea>
-      <input type="file" id="celebrity-image" accept="image/*" />
+      <div class="div-input">
+        <label for="images">IMAGES</label>
+        <input type="file" id="celebrity-image" accept="image/*" />
+      </div>
       <input type="datetime-local" name="datetime" id="c-datetime" />
       <button class="btn" id="create-celebrity-btn">Next</button>
     </section>
@@ -49,7 +52,7 @@
       return;
     }
 
-    if(!publishDateValue){
+    if (!publishDateValue) {
       alert('Missing publish date');
       return
     }
@@ -142,6 +145,7 @@
   .dashboard__container textarea {
     height: 200px;
   }
+
   .steps {
     width: 100%;
     display: flex;
@@ -227,5 +231,17 @@
 
   .dashboard__container textarea {
     height: 200px;
+  }
+
+  .div-input {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dashboard__container label {
+    text-align: left;
+    margin-bottom: 0em;
+    font-weight: 600;
   }
 </style>
