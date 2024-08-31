@@ -52,10 +52,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/master-panel/editor": `${baseUrl}/pages/master-panel/editor.html`,
     "/master-panel/shop": `${baseUrl}/pages/master-panel/shop.html`,
     "/master-panel/news": `${baseUrl}/pages/master-panel/news.html`,
+    "/master-panel/coming-soon": `${baseUrl}/pages/master-panel/coming.html`,
     "/master-panel/fixed-track": `${baseUrl}/pages/master-panel/fixed-track.html`,
     "/master-panel/socials": `${baseUrl}/pages/master-panel/socials.html`,
 
     "/news/:id": `${baseUrl}/pages/news.html`,
+    "/coming-soon/:id": `${baseUrl}/pages/coming.html`,
     "/profile/:userid": `${baseUrl}/pages/profile/main.html`,
     "/profile/:userid/:event/documents": `${baseUrl}/pages/profile/documents.html`,
     "/profile/:userid/:event/video": `${baseUrl}/pages/profile/video.html`,
@@ -103,6 +105,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/master-panel/editor": 4,
     "/master-panel/shop": 4,
     "/master-panel/news": 4,
+    "/master-panel/coming-soon": 4,
     "/master-panel/fixed-track": 4,
     "/master-panel/socials": 4,
   };
@@ -201,7 +204,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       app.innerHTML = html;
-      window.scrollTo(0, 0);
+      if(window.location.href !== 'http://php-portal.local/#app') {
+        window.scrollTo(0,0)
+      }
 
       loadingEl.style.display = "none";
 

@@ -1,0 +1,271 @@
+{{navbar}}
+<main id="coming-soon-panel">
+    <h1>Master Panel</h1>
+    <div>
+        <div class="coming-soon__header">
+            <h2>Coming Soon</h2>
+            <a class="btn" href="/master-panel" data-link>Back</a>
+        </div>
+        <hr />
+        <section class="coming-soon-add">
+            <input type="text" id="coming-soon-title" placeholder="Title" required />
+            <textarea id="coming-soon-text" placeholder="Text" required></textarea>
+            <div class="div-input">
+                <label for="images">IMAGES</label>
+                <input type="file" id="coming-soon-image" accept="image/*" />
+            </div>
+            <div class="div-input">
+                <label for="images">VIDEO</label>
+                <input type="file" id="coming-soon-video" accept="video/mp4,video/webm" />
+            </div>
+            <button class="btn" id="coming-soon-submit">Add</button>
+        </section>
+        <section id="coming-soon-container">
+        </section>
+    </div>
+</main>
+
+<script>
+    const comingSoonTitle = document.getElementById("coming-soon-title");
+    const comingSoonText = document.getElementById("coming-soon-text");
+    const comingSoonImage = document.getElementById("coming-soon-image");
+    const comingSoonVideo = document.getElementById("coming-soon-video");
+    const comingSoonContainer = document.getElementById("coming-soon-container");
+    const comingSoonSubmit = document.getElementById("coming-soon-submit");
+
+    comingSoonImage.addEventListener("change", () => {
+        if (comingSoonImage.files.length > 0) {
+            comingSoonVideo.disabled = true;
+        } else {
+            comingSoonVideo.disabled = false;
+        }
+    });
+
+    comingSoonVideo.addEventListener("change", () => {
+        if (comingSoonVideo.files.length > 0) {
+            comingSoonImage.disabled = true;
+        } else {
+            comingSoonImage.disabled = false;
+        }
+    });
+
+    comingSoonSubmit.addEventListener("click", async () => {
+        const title = comingSoonTitle.value.trim();
+        const text = comingSoonText.value.trim();
+        const image = comingSoonImage.files[0];
+        const video = comingSoonVideo.files[0];
+
+        if (!title || !text) {
+            alert("Title and text are required.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("title", title);
+        formData.append("text", text);
+        if (image) formData.append("image", image);
+        if (video) formData.append("video", video);
+
+        try {
+            const response = await fetch("/api/routes/coming/add-coming.php", {
+                method: "POST",
+                body: formData,
+            });
+
+            const res = await response.json();
+            if (response.ok && res.success) {
+                comingSoonTitle.value = "";
+                comingSoonText.value = "";
+                comingSoonImage.value = "";
+                comingSoonVideo.value = "";
+                comingSoonImage.disabled = false;
+                comingSoonVideo.disabled = false;
+
+                alert("Coming Soon added successfully!");
+                loadComingSoon();
+            } else {
+                alert(res.message || "An error occurred while adding the Coming Soon item.");
+            }
+        } catch (error) {
+            alert("An error occurred: " + error.message);
+        }
+    });
+
+    async function loadComingSoon() {
+        try {
+            const response = await fetch("/api/routes/coming/get-coming.php");
+            const res = await response.json();
+            if (response.ok) {
+                comingSoonContainer.innerHTML = "";
+                res.data.forEach(comingSoonItem => {
+                    const comingSoonElement = document.createElement("div");
+                    comingSoonElement.classList.add("coming-soon-item");
+                    comingSoonElement.innerHTML = `
+                        <i class="fas fa-trash remove" data-id="${comingSoonItem.id}"></i>
+                        <br>
+                        <h3>${comingSoonItem.title}</h3>
+                        <p>${comingSoonItem.text.substring(0, 100)}...</p>
+                        <p><small>Published on: ${new Date(comingSoonItem.publish_date).toLocaleString()}</small></p>`;
+                    comingSoonContainer.appendChild(comingSoonElement);
+                });
+
+                document.querySelectorAll(".coming-soon-item .remove").forEach(button => {
+                    button.addEventListener("click", async () => {
+                        const id = button.getAttribute("data-id");
+                        const formData = new FormData();
+                        formData.append("id", id);
+
+                        try {
+                            const deleteResponse = await fetch("/api/routes/coming/remove-coming.php", {
+                                method: "POST",
+                                body: formData,
+                            });
+
+                            const deleteRes = await deleteResponse.json();
+                            if (deleteResponse.ok && deleteRes.success) {
+                                alert("Coming Soon item deleted successfully!");
+                                loadComingSoon();
+                            } else {
+                                alert(deleteRes.message || "An error occurred while deleting the Coming Soon item.");
+                            }
+                        } catch (error) {
+                            alert("An error occurred: " + error.message);
+                        }
+                    });
+                });
+
+            } else {
+                comingSoonContainer.innerHTML = "<p>No Coming Soon items available.</p>";
+            }
+        } catch (error) {
+            comingSoonContainer.innerHTML = `<p>Error loading Coming Soon items: ${error.message}</p>`;
+        }
+    }
+
+    loadComingSoon();
+
+</script>
+
+<style>
+    #coming-soon-panel {
+        margin: 0 auto;
+        padding: 10em 0;
+        width: 80%;
+        min-height: 101vh;
+        text-align: center;
+    }
+
+    #coming-soon-panel h2 {
+        text-align: left;
+    }
+
+    .coming-soon__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        margin-top: 1em;
+        margin-bottom: 1em;
+    }
+
+    .btn {
+        padding: 0.5em 1.5em;
+        border-radius: 0.5em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1em;
+        background-color: green;
+        border: 1px solid green;
+        color: white;
+        cursor: pointer;
+        font-size: 1em;
+        text-decoration: none;
+    }
+
+    .coming-soon-add {
+        display: flex;
+        flex-direction: column;
+        gap: 1em;
+        margin: 1em 0;
+    }
+
+    .coming-soon-add input[type="text"],
+    .coming-soon-add textarea,
+    .coming-soon-add input[type="file"] {
+        padding: 0.5em 1em;
+        border: 1px solid gray;
+        border-radius: 5px;
+        resize: none;
+        font-size: 1em;
+    }
+
+    .coming-soon-add textarea {
+        height: 150px;
+    }
+
+    #coming-soon-container {
+        margin-top: 2em;
+    }
+
+    .coming-soon-item {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1em;
+        border: 1px solid black;
+        border-left: 10px solid green;
+        border-radius: 0.5em;
+        gap: 0.5em;
+        background-color: #f9f9f9;
+        margin-bottom: 1em;
+        position: relative;
+        padding-left: 3em;
+    }
+
+    .coming-soon-item i {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        transform: scale(1.5);
+        cursor: pointer;
+        color: red;
+    }
+
+    .coming-soon-item img,
+    .coming-soon-item video {
+        max-width: 100%;
+        border-radius: 5px;
+    }
+
+    .coming-soon-item h3 {
+        margin-top: 0;
+        font-size: 1.25em;
+    }
+
+    .coming-soon-item p {
+        margin-bottom: 0.5em;
+        color: #555;
+    }
+
+    .coming-soon-item small {
+        color: #999;
+    }
+
+    .div-input {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .coming-soon-add label {
+        text-align: left;
+        margin-bottom: 0em;
+        font-weight: 600;
+    }
+
+    @media screen and (max-width: 480px) {
+        #coming-soon-panel {
+            width: 95%;
+        }
+    }
+</style>

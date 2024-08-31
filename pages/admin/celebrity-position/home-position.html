@@ -40,21 +40,49 @@
     }
   }
 
-  function displayCelebrities(list) {
+  async function displayCelebrities(list) {
     const container = document.getElementById("dashboard__select-container");
     container.innerHTML = ""; // Clear previous results
 
     for (const celebrity of list) {
-      const article = document.createElement("a");
-      article.href = `/dashboard/home-position/${celebrity.id}`;
-      let imagePath = celebrity.image_path || "/assets/unknown.jpg";
+      if(!celebrity.preview) {
+        const article = document.createElement("a");
+        article.href = `/dashboard/home-position/${celebrity.id}`;
+        let imagePath = celebrity.image_path || "/assets/unknown.jpg";
 
-      article.innerHTML = `
-        <img src="${imagePath}" alt="${celebrity.name}" />
-        <h3>${celebrity.name}</h3>
-      `;
+        article.innerHTML = `
+          <img src="${imagePath}" alt="${celebrity.name}" />
+          <h3>${celebrity.name}</h3>
+        `;
 
-      container.append(article);
+        container.append(article);
+      } else {
+        const currentDateTime = new Date();
+        const createdAtDateTime = new Date(celebrity.created_at);
+        const timeDifferenceInMilliseconds = currentDateTime - createdAtDateTime ; 
+        const timeDifferenceInSeconds = timeDifferenceInMilliseconds / 1000;
+
+        if(timeDifferenceInSeconds > 600) {
+          const deleteForm = new FormData();
+
+          deleteForm.append("id", celebrity.id)
+
+
+          const res = await fetch("/api/routes/celebrity/delete-celebrity.php", {
+            method: "POST",
+            body: deleteForm
+          })
+
+          const data = await res.json();
+
+          if(data.success) {
+            console.log(data.message)
+          } else {
+            console.error(data.message)
+          }
+        }
+      }
+
     }
   }
 

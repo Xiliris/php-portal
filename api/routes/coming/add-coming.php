@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        $directory = __DIR__ . '/../../storage/news';
+        $directory = __DIR__ . '/../../storage/coming';
         if (!is_dir($directory)) {
             mkdir($directory, 0755, true);
         }
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $handle->file_new_name_body = uniqid();
             $handle->process($directory);
             if ($handle->processed) {
-                $imagePath = '/api/storage/news/' . $handle->file_dst_name;
+                $imagePath = '/api/storage/coming/' . $handle->file_dst_name;
                 $handle->clean();
             } else {
                 $response['message'] = "Image upload failed: " . $handle->error;
@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        $directory = __DIR__ . '/../../storage/news';
+        $directory = __DIR__ . '/../../storage/coming';
         if (!is_dir($directory)) {
             mkdir($directory, 0755, true);
         }
@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $handle->file_new_name_body = uniqid();
             $handle->process($directory);
             if ($handle->processed) {
-                $videoPath = '/api/storage/news/' . $handle->file_dst_name;
+                $videoPath = '/api/storage/coming/' . $handle->file_dst_name;
                 $handle->clean();
             } else {
                 $response['message'] = "Video upload failed: " . $handle->error;
@@ -79,11 +79,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        $stmt = $pdo->prepare("INSERT INTO news (title, text, image_path, video_path, publish_date) VALUES (?, ?, ?, ?, ?)");
+        $stmt = $pdo->prepare("INSERT INTO coming (title, text, image_path, video_path, publish_date) VALUES (?, ?, ?, ?, ?)");
         $stmt->execute([$title, $text, $imagePath, $videoPath, date('Y-m-d H:i:s')]);
 
         $response['success'] = true;
-        $response['message'] = "News added successfully!";
+        $response['message'] = "Coming soon added successfully!";
     } catch (Exception $e) {
         $response['message'] = "Database error: " . $e->getMessage();
     }

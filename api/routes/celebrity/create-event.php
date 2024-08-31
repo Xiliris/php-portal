@@ -14,7 +14,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $publish_date = isset($_POST['publish_date']) ? $_POST['publish_date'] : null;
 
     $protocol = strtolower(substr($_SERVER["SERVER_PROTOCOL"], 0, 5)) == 'https' ? 'https' : 'http';
-    $storagePath = $protocol . '://' .  $_SERVER["SERVER_NAME"] . '/api/storage/celebrity/data';
+    $storagePath = __DIR__ . '/../../storage/celebrity/data';
+    $storageUrl = $protocol . '://' . $_SERVER["SERVER_NAME"] . '/api/storage/celebrity/data';
 
     $images = isset($_FILES['images']) && is_array($_FILES['images']['name']) ? $_FILES['images'] : null;
     $documents = isset($_FILES['documents']) && is_array($_FILES['documents']['name']) ? $_FILES['documents'] : null;
@@ -24,6 +25,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Check for empty required fields
     if (empty($title) || empty($description) || empty($publish_date)) {
         $response["message"] = "Title, description, and publish date are required.";
+        echo json_encode($response);
+        exit;
+    }
+
+    $allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    $allowedAudioTypes = ['audio/mpeg', 'audio/wav'];
+    $allowedDocumentTypes = ['application/pdf', 'application/msword', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+    $allowedVideoTypes = ['video/mp4', 'video/avi', 'video/mpeg', 'video/quicktime', 'video/x-ms-wmv'];
+
+    function validateFiles($files, $allowedTypes)
+    {
+        foreach ($files['name'] as $key => $file_name) {
+            $file_tmp = $files['tmp_name'][$key];
+            $file_type = mime_content_type($file_tmp);
+
+            if (!in_array($file_type, $allowedTypes)) {
+                return "Invalid file type: " . $file_type;
+            }
+        }
+        return null;
+    }
+
+    if ($images && ($error = validateFiles($images, $allowedImageTypes))) {
+        $response["message"] = "Image validation failed: " . $error;
+        echo json_encode($response);
+        exit;
+    }
+    if ($audio && ($error = validateFiles($audio, $allowedAudioTypes))) {
+        $response["message"] = "Audio validation failed: " . $error;
+        echo json_encode($response);
+        exit;
+    }
+    if ($documents && ($error = validateFiles($documents, $allowedDocumentTypes))) {
+        $response["message"] = "Document validation failed: " . $error;
+        echo json_encode($response);
+        exit;
+    }
+    if ($video && ($error = validateFiles($video, $allowedVideoTypes))) {
+        $response["message"] = "Video validation failed: " . $error;
         echo json_encode($response);
         exit;
     }
@@ -42,75 +82,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Upload images
-    if (isset($images['name']) && count($images['name']) > 0) {
-        foreach ($images['name'] as $key => $value) {
-            $file_tmp = $images['tmp_name'][$key];
-
+    function uploadFiles($files, $path, $urlPath, $pdo, $id, $table, $column)
+    {
+        foreach ($files['name'] as $key => $file_name) {
+            $file_tmp = $files['tmp_name'][$key];
             $upload = new Upload($file_tmp);
             $upload->file_new_name_body = uniqid();
-            $upload->process(__DIR__ . '/../../storage/celebrity/data/images');
+            $upload->process($path);
 
             if ($upload->processed) {
-                $image_path = $storagePath . '/images/' . $upload->file_dst_name;
+                $file_path = $urlPath . '/' . $upload->file_dst_name;
                 $upload->clean();
 
                 try {
-                    $stmt = $pdo->prepare('INSERT INTO celebrity_event_images (event_id, image_path) VALUES (?, ?)');
-                    $stmt->execute([$id, $image_path]);
+                    $stmt = $pdo->prepare("INSERT INTO $table (event_id, $column) VALUES (?, ?)");
+                    $stmt->execute([$id, $file_path]);
                 } catch (PDOException $e) {
                     error_log("Database error: " . $e->getMessage());
-                    $response["message"] = "Image upload: Database error";
+                    $response["message"] = ucfirst($column) . " upload: Database error";
                     echo json_encode($response);
                     exit;
                 }
             } else {
-                error_log("Image upload failed: " . $upload->error);
-                $response["message"] = "Image upload failed: " . $upload->error;
+                error_log(ucfirst($column) . " upload failed: " . $upload->error);
+                $response["message"] = ucfirst($column) . " upload failed: " . $upload->error;
                 echo json_encode($response);
                 exit;
             }
         }
+    }
+
+    // Upload images
+    if ($images) {
+        uploadFiles($images, $storagePath . '/images', $storageUrl . '/images', $pdo, $id, 'celebrity_event_images', 'image_path');
     }
 
     // Upload audio
-    if (isset($audio['name']) && count($audio['name']) > 0) {
-        foreach ($audio['name'] as $key => $value) {
-            $file_tmp = $audio['tmp_name'][$key];
-
-            $upload = new Upload($file_tmp);
-            $upload->file_new_name_body = uniqid();
-            $upload->allowed = array('audio/mpeg', 'audio/wav');
-            $upload->process(__DIR__ . '/../../storage/celebrity/data/audio');
-
-            if ($upload->processed) {
-                $audio_path = $storagePath . '/audio/' . $upload->file_dst_name;
-                $upload->clean();
-
-                try {
-                    $stmt = $pdo->prepare('INSERT INTO celebrity_event_audios (event_id, audio_path) VALUES (?, ?)');
-                    $stmt->execute([$id, $audio_path]);
-                } catch (PDOException $e) {
-                    error_log("Database error: " . $e->getMessage());
-                    $response["message"] = "Audio upload: Database error";
-                    echo json_encode($response);
-                    exit;
-                }
-            } else {
-                error_log("Audio upload failed: " . $upload->error);
-                $response["message"] = "Audio upload failed: " . $upload->error;
-                echo json_encode($response);
-                exit;
-            }
-        }
+    if ($audio) {
+        uploadFiles($audio, $storagePath . '/audio', $storageUrl . '/audio', $pdo, $id, 'celebrity_event_audios', 'audio_path');
     }
 
     // Upload documents
-    if (isset($documents['name']) && count($documents['name']) > 0) {
+    if ($documents) {
         foreach ($documents['name'] as $key => $file_name) {
             $file_tmp = $documents['tmp_name'][$key];
-            $file_type = $documents['type'][$key];
-            $file_size = $documents['size'][$key];
+            $file_type = mime_content_type($file_tmp);
+            $allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+
+            if (!in_array($file_type, $allowedTypes)) {
+                $response["message"] = "Invalid document type. Only PDF, DOC, DOCX, and XLSX are allowed.";
+                echo json_encode($response);
+                exit;
+            }
+
             $file_error = $documents['error'][$key];
             $original_name = $documents['name'][$key];
 
@@ -119,9 +143,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $new_file_name = uniqid() . '.' . $file_ext;
                 $destination = __DIR__ . '/../../storage/celebrity/data/documents/' . $new_file_name;
 
-                // Move file from temp directory to final destination
                 if (move_uploaded_file($file_tmp, $destination)) {
-                    $document_path = $storagePath . '/documents/' . $new_file_name;
+                    $document_path = $storageUrl . '/documents/' . $new_file_name;
 
                     try {
                         $stmt = $pdo->prepare('INSERT INTO celebrity_event_documents (event_id, document_path, doc_type, original_name) VALUES (?, ?, ?, ?)');
@@ -148,41 +171,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Upload videos
-    if (isset($video['name']) && count($video['name']) > 0) {
-        foreach ($video['name'] as $key => $value) {
-            $file_tmp = $video['tmp_name'][$key];
-
-            $upload = new Upload($file_tmp);
-            $upload->file_new_name_body = uniqid();
-            $upload->allowed = array(
-                'video/mp4',
-                'video/avi',
-                'video/mpeg',
-                'video/quicktime',
-                'video/x-ms-wmv'
-            );
-            $upload->process(__DIR__ . '/../../storage/celebrity/data/videos');
-
-            if ($upload->processed) {
-                $video_path = $storagePath . '/videos/' . $upload->file_dst_name;
-                $upload->clean();
-
-                try {
-                    $stmt = $pdo->prepare('INSERT INTO celebrity_event_videos (event_id, video_path) VALUES (?, ?)');
-                    $stmt->execute([$id, $video_path]);
-                } catch (PDOException $e) {
-                    error_log("Database error: " . $e->getMessage());
-                    $response["message"] = "Video upload: Database error";
-                    echo json_encode($response);
-                    exit;
-                }
-            } else {
-                error_log("Video upload failed: " . $upload->error);
-                $response["message"] = "Video upload failed: " . $upload->error;
-                echo json_encode($response);
-                exit;
-            }
-        }
+    if ($video) {
+        uploadFiles($video, $storagePath . '/videos', $storageUrl . '/videos', $pdo, $id, 'celebrity_event_videos', 'video_path');
     }
 
     $response["success"] = true;

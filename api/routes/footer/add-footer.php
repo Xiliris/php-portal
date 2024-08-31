@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $storagePath = __DIR__ . '/../../storage/footer';
-    $storageUrl = $protocol . '://' .  $_SERVER["SERVER_NAME"] . '/api/storage/footer/';
+    $storageUrl = $protocol . '://' . $_SERVER["SERVER_NAME"] . '/api/storage/footer/';
     $imagePath = null;
 
     if (!is_dir($storagePath)) {
@@ -41,9 +41,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!empty($_FILES['image']['name'])) {
         $handle = new Upload($_FILES['image']);
 
-        $allowed_types = ['image/jpeg', 'image/png', 'image/gif'];
-        if (!in_array($handle->file_src_mime, $allowed_types)) {
-            $response['message'] = "Invalid file type. Only JPG, PNG, and GIF files are allowed.";
+        $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (!in_array($handle->file_src_mime, $allowedTypes)) {
+            $response['message'] = "Invalid file type. Only JPG, PNG, GIF, and WebP files are allowed.";
             echo json_encode($response);
             exit;
         }

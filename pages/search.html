@@ -1,69 +1,365 @@
 {{navbar}}
 <main class="search">
-    <h1>Advance search</h1>
-    
-    <div class="search-item">
-        <h2>Celebrity name</h2>
-        <div class="input-search">
-            <input type="text" placeholder="Enter celebrity name">
-        </div>
-    </div>
-    
-    <div class="search-item">
-        <h2>Event include words</h2>
-        <div class="input-search">
-            <input type="text" placeholder="Words to include">
-        </div>
-    </div>
-    
-    <div class="search-item">
-        <h2>Event exclude words</h2>
-        <div class="input-search">
-            <input type="text" placeholder="Words to exclude">
-        </div>
-    </div>
-    
-    <div class="search-item">
-        <h2>Publish date</h2>
-        <div class="input-date">
-            <input type="date" id="date-from" name="date-from">
-            
-            <input type="date" id="date-to" name="date-to">
-        </div>
-    </div>
-    
-    <div class="search-item">
-        <h2>Date created</h2>
-        <div class="input-date">
-            <input type="date" id="created-from" name="created-from">
-            
-            <input type="date" id="created-to" name="created-to">
-        </div>
-    </div>
+  <h1 class="search-title">Advanced Search</h1>
 
-    <section id="search-container">
-        
-    </section>
+  <!-- Search Filters -->
+  <div class="search-item">
+    <h2>Celebrity name</h2>
+    <div class="input-search">
+      <input type="text" placeholder="Enter celebrity name" id="celebrity-search">
+    </div>
+  </div>
+
+  <div class="search-item">
+    <h2>Include words</h2>
+    <div class="input-search">
+      <input type="text" placeholder="Words to include" id="event-include-search">
+    </div>
+  </div>
+
+  <div class="search-item">
+    <h2>Exclude words</h2>
+    <div class="input-search">
+      <input type="text" placeholder="Words to exclude" id="event-exclude-search">
+    </div>
+  </div>
+
+  <div class="search-item">
+    <h2>Publish date</h2>
+    <div class="input-date">
+      <input type="date" name="date-from" id="publish-date-from">
+      <input type="date" name="date-to" id="publish-date-to">
+    </div>
+  </div>
+
+  <div class="search-item">
+    <h2>Date created</h2>
+    <div class="input-date">
+      <input type="date" name="created-from" id="created-date-from">
+      <input type="date" name="created-to" id="created-date-to">
+    </div>
+  </div>
+
+  <!-- Results Section -->
+  <section class="search-container">
+    <div class="search-header">
+      <select id="sort-select">
+        <option value="created-desc">Created (Newest first)</option>
+        <option value="created-asc">Created (Oldest first)</option>
+        <option value="published-desc">Published (Newest first)</option>
+        <option value="published-asc">Published (Oldest first)</option>
+      </select>
+      <h1><span id="search-header__result-number">69</span> results</h1>
+    </div>
+    <div id="search-container__results"></div>
+  </section>
 </main>
-
+<hr>
 {{footer}}
 
-<script></script>
+<script>
+  const searchContainer = document.getElementById('search-container__results');
+  const celebrityInput = document.getElementById('celebrity-search');
+  const eventIncludeInput = document.getElementById('event-include-search');
+  const eventExcludeInput = document.getElementById('event-exclude-search');
+  const publishDateFromInput = document.getElementById('publish-date-from');
+  const publishDateToInput = document.getElementById('publish-date-to');
+  const createdDateFromInput = document.getElementById('created-date-from');
+  const createdDateToInput = document.getElementById('created-date-to');
+  const sortSelect = document.getElementById('sort-select');
+  const resultLength = document.getElementById('search-header__result-number');
+
+  let allResults = [];
+
+  function formatDate(date) {
+    const formDate = new Date(date);
+    const options = { day: "numeric", month: "numeric", year: "numeric" };
+    return formDate.toLocaleDateString("en-GB", options).replaceAll("/", '-');
+  }
+
+  async function loadResults() {
+    try {
+      const res = await fetch('/api/routes/celebrity/get-search.php');
+      const data = await res.json();
+      if (data.success) {
+        allResults = data.data; 
+        renderResults(allResults); 
+
+        applyFilters();
+      } else {
+        console.error(data.message);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  function highlightText(text, words) {
+    if (!words) return text;
+
+    const regex = new RegExp(`(${words.split(' ').join('|')})`, 'gi');
+    return text.replace(regex, '<mark>$1</mark>');
+}
+
+
+function renderResults(results) {
+    searchContainer.innerHTML = ''; 
+    resultLength.innerText = results.length; 
+
+    results.forEach(result => {
+        const { celebrity, events } = result;
+        const article = document.createElement('article');
+        let image_path = celebrity.image_path || "/assets/unknown.jpg";
+        let publish_date = celebrity.publish_date || celebrity.created_at;
+
+        const includeWords = eventIncludeInput.value.toLowerCase();
+        const excludeWords = eventExcludeInput.value.toLowerCase();
+
+        let eventList = '';
+        events.forEach(e => {
+            let description = e.description;
+            if (includeWords) {
+                description = highlightText(description, includeWords);
+            }
+            if (excludeWords) {
+                description = highlightText(description, excludeWords);
+            }
+            eventList += `
+                <hr class="event-line" />
+                <h4 class="event-result-title">${highlightText(e.title, includeWords)}</h4>
+                <p class="event-result-description">${description}</p>
+            `;
+        });
+
+        const celebDescription = celebrity.description;
+        const highlightedCelebDescription = includeWords
+            ? highlightText(celebDescription, includeWords)
+            : excludeWords
+            ? highlightText(celebDescription, excludeWords)
+            : celebDescription;
+
+        article.innerHTML = `
+            <div>
+                <h3>${highlightText(celebrity.name, includeWords)}</h3>
+                <p>${highlightedCelebDescription}</p>
+                ${eventList}
+            </div>
+            <div>
+                <img src="${image_path}" alt="celebrity-image"/>
+                <div class="date-layout">
+                    <p>Created</p>
+                    <p>${formatDate(celebrity.created_at)}</p>
+                </div>
+                <div class="date-layout">
+                    <p>Published</p>
+                    <p>${formatDate(publish_date)}</p>
+                </div>
+                <div class="date-layout">
+                    <p>Events</p>
+                    <p>${events.length}</p>
+                </div>
+            </div>
+        `;
+        searchContainer.append(article);
+    });
+}
+
+
+function applyFilters() {
+  let filteredResults = allResults;
+
+  const searchResult = urlParams.get('result');
+  if (searchResult) {
+    filteredResults = filteredResults.filter(result =>
+      result.celebrity.name.toLowerCase().includes(searchResult.toLowerCase()) ||
+      result.events.some(event => event.description.toLowerCase().includes(searchResult.toLowerCase())) ||
+      result.celebrity.description.toLowerCase().includes(searchResult.toLowerCase())
+    );
+  }
+
+  const celebrityName = celebrityInput.value.toLowerCase();
+  if (celebrityName) {
+    filteredResults = filteredResults.filter(result =>
+      result.celebrity.name.toLowerCase().includes(celebrityName)
+    );
+  }
+
+  const includeWords = eventIncludeInput.value.toLowerCase();
+  if (includeWords) {
+    filteredResults = filteredResults.filter(result =>
+      result.events.some(event => event.description.toLowerCase().includes(includeWords)) ||
+      result.celebrity.description.toLowerCase().includes(includeWords)
+    );
+  }
+
+  const excludeWords = eventExcludeInput.value.toLowerCase();
+  if (excludeWords) {
+    filteredResults = filteredResults.filter(result =>
+      !result.events.some(event => event.description.toLowerCase().includes(excludeWords)) &&
+      !result.celebrity.description.toLowerCase().includes(excludeWords)
+    );
+  }
+
+  const publishFrom = publishDateFromInput.value;
+  const publishTo = publishDateToInput.value;
+  if (publishFrom || publishTo) {
+    filteredResults = filteredResults.filter(result => {
+      const publishDate = new Date(result.celebrity.publish_date || result.celebrity.created_at);
+      return (!publishFrom || publishDate >= new Date(publishFrom)) &&
+             (!publishTo || publishDate <= new Date(publishTo));
+    });
+  }
+
+  const createdFrom = createdDateFromInput.value;
+  const createdTo = createdDateToInput.value;
+  if (createdFrom || createdTo) {
+    filteredResults = filteredResults.filter(result => {
+      const createdDate = new Date(result.celebrity.created_at);
+      return (!createdFrom || createdDate >= new Date(createdFrom)) &&
+             (!createdTo || createdDate <= new Date(createdTo));
+    });
+  }
+
+  const sortValue = sortSelect.value;
+  if (sortValue === "created-desc") {
+    filteredResults.sort((a, b) => new Date(b.celebrity.created_at) - new Date(a.celebrity.created_at));
+  } else if (sortValue === "created-asc") {
+    filteredResults.sort((a, b) => new Date(a.celebrity.created_at) - new Date(b.celebrity.created_at));
+  } else if (sortValue === "published-desc") {
+    filteredResults.sort((a, b) => new Date(b.celebrity.publish_date || b.celebrity.created_at) - new Date(a.celebrity.publish_date || a.celebrity.created_at));
+  } else if (sortValue === "published-asc") {
+    filteredResults.sort((a, b) => new Date(a.celebrity.publish_date || a.celebrity.created_at) - new Date(b.celebrity.publish_date || b.celebrity.created_at));
+  }
+
+  renderResults(filteredResults);
+}
+
+  celebrityInput.addEventListener('input', applyFilters);
+  eventIncludeInput.addEventListener('input', applyFilters);
+  eventExcludeInput.addEventListener('input', applyFilters);
+  publishDateFromInput.addEventListener('input', applyFilters);
+  publishDateToInput.addEventListener('input', applyFilters);
+  createdDateFromInput.addEventListener('input', applyFilters);
+  createdDateToInput.addEventListener('input', applyFilters);
+  sortSelect.addEventListener('change', applyFilters);
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const searchResult = urlParams.get('result');
+
+   if (searchResult) {
+        celebrityInput.value = searchResult;
+        urlParams.delete('result')
+    }
+
+  loadResults();
+</script>
+
+
 
 
 <style>
+    .event-result-title, .event-result-description {
+        color: #0096ff;
+    }
+
+    .event-result-title {
+        margin-bottom: 0 !important;
+        margin-top:1em;
+    }
+
+    .event-result-description {
+        margin-top: 0.5em;
+        line-height: 1.2em;
+    }
+
+    .event-line {
+        margin-top: 0.5em;
+    }
+
+    .search-container {
+        width: 100vw;
+        background-color: rgb(235, 235, 235);
+        padding-bottom: 9em;
+    }
+
+    .search-header, #search-container__results {
+        width: 70vw;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 2.5em
+    }
+
+    .search-header h1 {
+        width: 100%;
+        text-align: right;
+        margin: 0;
+    }
+
+    .search-header select {
+        width: 100%;
+        padding: 0.5em 1em;
+        font-size: 1em;
+        border: 1px solid gray;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+    }
+    #search-container__results {
+        display: flex;
+        flex-direction: column;
+        gap: 1em;
+    }
+    
+    #search-container__results article {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        background-color: white;
+        padding: 1em;
+        border-radius: 6px;
+        width: 100%;
+    }
+
+    #search-container__results article div {
+        padding: 0.3em;
+        height: 100%;
+    }
+
+    #search-container__results article div h3 {
+        margin-bottom: 1em;
+    }
+
+    #search-container__results article div p {
+        line-height: 1.2em;
+    }
+
+    #search-container__results article img {
+        width: 200px;
+        height: 250px;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+
+    #search-container__results article .date-layout {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
     .search {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
     margin: 0 auto;
-    margin-top: 10em;
-    height: 100vh;
+    margin-top: 9em;
     width: 70vw;
+    gap: 2em;
 }
 
-.search h1 {
+.search-title {
     text-align: left;
     width: 100%;
     margin-bottom: 2.5em;
@@ -72,16 +368,16 @@
 
 .search h2 {
     text-align: left;
-    padding-top: 1em;
-    width: 25%;
+    width: 30%;
     font-size: 1.5em;
     margin-right: 2em;
 }
 
-#search-container {
-    max-width: 80vw;
-    display: flex;
-}
+    #search-container {
+        margin: 0 auto;
+        width: 70vw;
+        display: flex;
+    }
 
 .search-item {
     display: flex;
@@ -89,12 +385,13 @@
     justify-content: flex-start;
     width: 100%;
     margin-bottom: 1.5em;
+    gap: 1em;
 }
 
 .input-search {
     width: 70%;
-    padding: 0.4em 0.9em;
-    font-size: 1.2em;
+    padding: 0.5em 1em;
+    font-size: 1em;
     border: 1px solid gray;
     border-radius: 5px;
     display: flex;
@@ -103,21 +400,23 @@
 
 .input-date {
     width: 70%;
-    padding: 0.4em 0.9em;
-    font-size: 1.2em;
+    font-size: 1em;
     display: flex;
     align-items: center;
+    justify-content: space-between;
 }
 
 .input-date input {
-    width: 40%;
+    width: 100%;
     height: 100%;
     border: 1px solid gray;
     border-radius: 5px;
-    font-size: 1.2em;
+    font-size: 1em;
     color: gray;
     margin-right: 1em;
     box-sizing: border-box;
+    padding: 0.5em 1em;
+    
 }
 
 .input-date input:last-of-type {
@@ -130,7 +429,7 @@
     height: 100%;
     border: none;
     outline: none;
-    font-size: 1.2em;
+    font-size: 1em;
     color: gray;
 }
 
@@ -184,5 +483,10 @@
     }
 }
 
+@media (max-width: 768px) {
+    #search-container__results article {
+        flex-direction: column-reverse;
+    }
+}
 
 </style>
