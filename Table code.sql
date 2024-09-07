@@ -239,9 +239,12 @@ CREATE TABLE `shop` (
 --
 
 CREATE TABLE `socials` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
-  `link` text DEFAULT NULL
+  `link` text DEFAULT NULL,
+  `svg_path` VARCHAR(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
