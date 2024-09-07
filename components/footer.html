@@ -4,21 +4,12 @@
     <p>Top</p>
   </a>
   <section id="footer--container">
-    <!-- Footer items will be appended here -->
   </section>
   <section class="footer--links">
-    <a id="telegram" target="_blank">
-      <i class="fa-brands fa-telegram"></i>
-    </a>
-    <a id="twitter" target="_blank">
-      <i class="fa-brands fa-x-twitter"></i>
-    </a>
-    <a id="facebook" target="_blank">
-      <i class="fa-brands fa-facebook"></i>
-    </a>
-    <a id="instagram" target="_blank">
-      <i class="fa-brands fa-instagram"></i>
-    </a>
+    <a id="social-network-1" target="_blank"></a>
+    <a id="social-network-2" target="_blank"></a>
+    <a id="social-network-3" target="_blank"></a>
+    <a id="social-network-4" target="_blank"></a>
   </section>
 </footer>
 
@@ -36,57 +27,52 @@
           a.innerHTML = `
             <img src="${item.image_path}" alt="Placeholder" />
             <p>${item.description}</p>
-            `;
+          `;
           a.href = item.link;
           a.target = "_blank";
           a.rel = "noopener";
           footerContainer.appendChild(a);
         });
+      } else {
+        console.error("Footer load failed:", resData.message);
       }
     } catch (error) {
-      console.error(error);
+      console.error("Error loading footer data:", error);
     }
   }
 
   async function loadSocials() {
-      const res = await fetch('/api/routes/footer/get-socials.php')
-
+    try {
+      const res = await fetch('/api/routes/footer/get-socials.php');
       const data = await res.json();
 
-      if(data.success) {
-        for(const links of data.data) {
-          const { name, link } = links
+      if (data.success) {
+        data.data.forEach(({ name, link, svg_path }) => {
+          const anchor = document.getElementById(name);
 
-          if(name === "telegram"){
-            telegram.href = link;
-         
-          }
-          else if(name === 'twitter') {
-            twitter.href = link
-      
-          } 
-
-          else if(name === 'facebook') {
-            facebook.href = link
-
-          }
-
-          else if(name === 'instagram') {
-            instagram.href = link
-
+          if (anchor) {
+            anchor.href = link;
+            if (svg_path.startsWith('fa-')) {
+              anchor.innerHTML = `<i class="${svg_path}"></i>`;
+            } else if (svg_path) {
+              anchor.innerHTML = `<img src="${svg_path}" alt="${name} Icon" />`;
+            }
           } else {
-            console.log('undefined elemet.')
+            console.error(`Anchor with ID ${name} not found.`);
           }
-        }
+        });
       } else {
-        alert(data.message)
+        console.error("Failed to load social media data:", data.message);
       }
-
+    } catch (error) {
+      console.error("Error loading social media data:", error);
     }
+  }
 
-  
-  loadSocials()
+  loadSocials();
+
   loadFooter();
+
 </script>
 
 <style>
@@ -159,8 +145,17 @@
     margin: 4em 0;
   }
 
+  .footer--links a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 48px;
+    height: 48px;
+    font-size: 1.5em;
+  }
+
   .footer--links a i {
     font-size: 1.5em;
-    color: gray;
+    color: #555555;
   }
 </style>

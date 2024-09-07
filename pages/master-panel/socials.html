@@ -8,196 +8,264 @@
     </div>
     <hr />
     <section class="master_socials">
-        <article>
-          <i class="fa-brands fa-telegram"></i>
-          <input type="text" id="telegram"/>
-        </article>
-        <article>
-          <i class="fa-brands fa-x-twitter"></i>
-          <input type="text" id="twitter"/>
-        </article>
-        <article>
-          <i class="fa-brands fa-facebook"></i>
-          <input type="text" id="facebook"/>
-        </article>
-        <article>
-          <i class="fa-brands fa-instagram"></i>
-          <input type="text" id="instagram"/>
-        </article>
+      <article>
+        <i id="social-network-1-icon" class="fa-solid fa-globe"></i>
+        <input type="text" id="social-network-1" />
+        <input type="file" id="social-network-1-svg" accept=".svg" />
+      </article>
+      <article>
+        <i id="social-network-2-icon" class="fa-solid fa-globe"></i>
+        <input type="text" id="social-network-2" />
+        <input type="file" id="social-network-2-svg" accept=".svg" />
+      </article>
+      <article>
+        <i id="social-network-3-icon" class="fa-solid fa-globe"></i>
+        <input type="text" id="social-network-3" />
+        <input type="file" id="social-network-3-svg" accept=".svg" />
+      </article>
+      <article>
+        <i id="social-network-4-icon" class="fa-solid fa-globe"></i>
+        <input type="text" id="social-network-4" />
+        <input type="file" id="social-network-4-svg" accept=".svg" />
+      </article>
     </section>
-    <button class="btn" id="socials-submit">Submit</button>
+    <button class="btn" id="socials-submit">Add</button>
   </div>
 </main>
 
 <script>
-  const telegram = document.getElementById('telegram');
-  const twitter = document.getElementById('twitter');
-  const facebook = document.getElementById('facebook');
-  const instagram = document.getElementById('instagram');
+  const socialNetwork1 = document.getElementById('social-network-1');
+  const socialNetwork2 = document.getElementById('social-network-2');
+  const socialNetwork3 = document.getElementById('social-network-3');
+  const socialNetwork4 = document.getElementById('social-network-4');
+  const socialNetwork1Svg = document.getElementById('social-network-1-svg');
+  const socialNetwork2Svg = document.getElementById('social-network-2-svg');
+  const socialNetwork3Svg = document.getElementById('social-network-3-svg');
+  const socialNetwork4Svg = document.getElementById('social-network-4-svg');
   const submitBtn = document.getElementById('socials-submit');
 
-  submitBtn.addEventListener('click', async () => {
-    const telegramValue = telegram.value;
-    const twitterValue = twitter.value;
-    const facebookValue = facebook.value;
-    const instagramValue = instagram.value;
+  if (submitBtn) {
+    submitBtn.addEventListener('click', async () => {
+      const socialNetwork1Value = socialNetwork1.value;
+      const socialNetwork2Value = socialNetwork2.value;
+      const socialNetwork3Value = socialNetwork3.value;
+      const socialNetwork4Value = socialNetwork4.value;
 
-    if(!telegramValue.startsWith('https://')){
-      alert('Telegram must be a link!')
-      return
-    }
-    if(!twitterValue.startsWith('https://')){
-      alert('Twitter must be a link!')
-      return
-    }
-    if(!facebookValue.startsWith('https://')){
-      alert('Facebook must be a link!')
-      return
-    }
-    if(!instagramValue.startsWith('https://')){
-      alert('Instagram must be a link!')
-      return
-    }
-    const formData = new FormData();
-
-    formData.append("telegram", telegramValue);
-    formData.append("twitter", twitterValue);
-    formData.append("facebook", facebookValue);
-    formData.append("instagram", instagramValue);
-
-
-    const res = await fetch('/api/routes/footer/add-socials.php', {
-      method: "POST",
-      body: formData
-    })
-
-    const data = await res.json();
-    if(data.success){
-      alert(data.message)
-    } else {
-      alert(data.message)
-    }
-  })
-
-  async function loadSocials() {
-      const res = await fetch('/api/routes/footer/get-socials.php')
-
-      const data = await res.json();
-
-      if(data.success) {
-        for(const links of data.data) {
-          const { name, link } = links
-
-          if(name === "telegram"){
-            telegram.value = link;
-         
-          }
-          else if(name === 'twitter') {
-            twitter.value = link
-      
-          } 
-
-          else if(name === 'facebook') {
-            facebook.value = link
-
-          }
-
-          else if(name === 'instagram') {
-            instagram.value = link
-
-          } else {
-            console.log('undefined elemet.')
-          }
-        }
-      } else {
-        alert(data.message)
+      if (!socialNetwork1Value.startsWith('https://')) {
+        alert('Social Network 1 must be a link!');
+        return;
+      }
+      if (!socialNetwork2Value.startsWith('https://')) {
+        alert('Social Network 2 must be a link!');
+        return;
+      }
+      if (!socialNetwork3Value.startsWith('https://')) {
+        alert('Social Network 3 must be a link!');
+        return;
+      }
+      if (!socialNetwork4Value.startsWith('https://')) {
+        alert('Social Network 4 must be a link!');
+        return;
       }
 
-    }
+      const formData = new FormData();
+      formData.append('social-network-1', socialNetwork1Value);
+      formData.append('social-network-2', socialNetwork2Value);
+      formData.append('social-network-3', socialNetwork3Value);
+      formData.append('social-network-4', socialNetwork4Value);
+      formData.append('social-network-1-svg', socialNetwork1Svg.files[0]);
+      formData.append('social-network-2-svg', socialNetwork2Svg.files[0]);
+      formData.append('social-network-3-svg', socialNetwork3Svg.files[0]);
+      formData.append('social-network-4-svg', socialNetwork4Svg.files[0]);
 
-  
-  loadSocials()
+      try {
+        const res = await fetch('/api/routes/footer/add-socials.php', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data = await res.json();
+        alert(data.message);
+      } catch (error) {
+        alert('Failed to submit: ' + error.message);
+      }
+    });
+  } else {
+    console.error('submitBtn is not defined or not available in the DOM.');
+  }
+
+  async function loadSocials() {
+    try {
+      const res = await fetch('/api/routes/footer/get-socials.php');
+      const data = await res.json();
+
+      if (data.success) {
+        data.data.forEach(({ name, link, svg_path }) => {
+          const inputField = document.getElementById(name);
+          const iconElement = document.getElementById(`${name}-icon`);
+
+          inputField.value = link;
+
+          if (svg_path) {
+            iconElement.classList.add('svg-icon');
+            iconElement.style.backgroundImage = `url(${svg_path})`;
+            iconElement.classList.remove('fa-solid', 'fa-globe');
+          } else {
+            iconElement.classList.add('fa-solid', 'fa-globe');
+            iconElement.classList.remove('svg-icon');
+            iconElement.style.backgroundImage = '';
+          }
+        });
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      alert('Failed to load socials: ' + error.message);
+    }
+  }
+
+  loadSocials();
+
 </script>
 
 <style>
+#master-panel {
+  margin: 0 auto;
+  padding: 10em 0;
+  width: 80%;
+  min-height: 101vh;
+  text-align: center;
+}
+
+#master-panel h2 {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+#master-panel h1 {
+  margin-top: 2em;
+  margin-bottom: 2em;
+}
+
+.master-panel__main-container {
+  margin-top: 5em;
+}
+
+.master-panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+
+.btn {
+  padding: 0.5em 1.5em;
+  border-radius: 0.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1em;
+  background-color: green;
+  border: 1px solid green;
+  color: white;
+  cursor: pointer;
+  font-size: 1em;
+  width: auto;
+}
+
+.master_socials {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  margin-top: 1em;
+}
+
+.master_socials article {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.master_socials input {
+  flex: 1;
+  padding: 0.5em 1em;
+  border: 1px solid gray;
+  border-radius: 5px;
+  font-size: 1em;
+}
+
+.master_socials i,
+.master_socials .svg-icon {
+  font-size: 30px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.master_socials i {
+  flex-shrink: 0;
+}
+
+#socials-submit {
+  width: 100%;
+  margin-top: 1.5em;
+}
+
+@media screen and (max-width: 820px) {
   #master-panel {
-    margin: 0 auto;
-    padding: 10em 0;
-    width: 80%;
-    min-height: 101vh;
-    text-align: center;
-  }
-
-  #master-panel h2 {
-    text-align: left;
-  }
-
-  .master-panel__main-container {
-    margin-top: 5em;
+      width: 85%;
+      padding: 5em 0;
   }
 
   .master-panel__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: end;
-    margin-top: 1em;
-    margin-bottom: 1em;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
   }
 
   .btn {
-    padding: 0.5em 1.5em;
-    border-radius: 0.5em;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1em;
-    background-color: green;
-    border: 1px solid green;
-    color: white;
-    cursor: pointer;
-    font-size: 1em;
-  }
-
-  .master_socials {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-self: center;
-    flex-direction: column;
-    gap: 1em;
-    margin-top: 1em;
+      width: auto;
   }
 
   .master_socials article {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 1em;
+      flex-direction: column;
+      align-items: flex-start;
   }
 
-  .master_socials input {
-    width: 100%;
-    padding: 0.5em 1em;
-        border: 1px solid gray;
-        border-radius: 5px;
-        resize: none;
-        font-size: 1em;
-  }
-
-  .master_socials i {
-    width: 30px;
-    transform: scale(2);
+  .master_socials input[type="text"],
+  .master_socials input[type="file"] {
+      width: 100%;
   }
 
   #socials-submit {
-    width: 100%;
-    margin-top: 1.5em;
+      width: 100%;
+      margin-top: 2em;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  #master-panel {
+      width: 85%;
+      padding: 3em 0;
   }
 
-  @media screen and (max-width: 480px) {
-    #master-panel {
-      width: 95%;
-    }
+  .master_socials i,
+  .master_socials .svg-icon {
+      font-size: 30px;
+      width: 50px;
+      height: 50px;
   }
+
+  .master_socials input {
+      font-size: 0.9em;
+      padding: 0.5em;
+  }
+
+  #socials-submit {
+      font-size: 0.9em;
+  }
+}
 </style>
