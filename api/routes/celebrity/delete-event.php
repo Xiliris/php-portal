@@ -3,6 +3,8 @@ require __DIR__ . '/../../config.php';
 
 $response = ["success" => false, "message" => ""];
 
+$basePath = realpath(__DIR__ . '/../../storage/celebrity/data');
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $eventId = $_POST["id"];
 
@@ -25,8 +27,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 foreach ($images as $image) {
                     $imagePath = $image['image_path'];
-                    if ($imagePath && file_exists($imagePath)) {
-                        unlink($imagePath);
+                    $fullImagePath = $basePath . '/images/' . basename($imagePath);
+                    if ($fullImagePath && file_exists($fullImagePath)) {
+                        unlink($fullImagePath);
                     }
                 }
                 $stmt = $pdo->prepare("DELETE FROM celebrity_event_images WHERE event_id = ?");
@@ -39,8 +42,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 foreach ($videos as $video) {
                     $videoPath = $video['video_path'];
-                    if ($videoPath && file_exists($videoPath)) {
-                        unlink($videoPath);
+                    $fullVideoPath = $basePath . '/videos/' . basename($videoPath);
+                    if ($fullVideoPath && file_exists($fullVideoPath)) {
+                        unlink($fullVideoPath);
                     }
                 }
                 $stmt = $pdo->prepare("DELETE FROM celebrity_event_videos WHERE event_id = ?");
@@ -53,8 +57,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 foreach ($audios as $audio) {
                     $audioPath = $audio['audio_path'];
-                    if ($audioPath && file_exists($audioPath)) {
-                        unlink($audioPath);
+                    $fullAudioPath = $basePath . '/audio/' . basename($audioPath);
+                    if ($fullAudioPath && file_exists($fullAudioPath)) {
+                        unlink($fullAudioPath);
                     }
                 }
                 $stmt = $pdo->prepare("DELETE FROM celebrity_event_audios WHERE event_id = ?");
@@ -67,8 +72,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                 foreach ($documents as $document) {
                     $documentPath = $document['document_path'];
-                    if ($documentPath && file_exists($documentPath)) {
-                        unlink($documentPath);
+                    $fullDocumentPath = $basePath . '/documents/' . basename($documentPath);
+                    if ($fullDocumentPath && file_exists($fullDocumentPath)) {
+                        unlink($fullDocumentPath);
                     }
                 }
                 $stmt = $pdo->prepare("DELETE FROM celebrity_event_documents WHERE event_id = ?");

@@ -86,14 +86,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     {
         foreach ($files['name'] as $key => $file_name) {
             $file_tmp = $files['tmp_name'][$key];
-            $upload = new Upload($file_tmp);
-            $upload->file_new_name_body = uniqid();
-            $upload->process($path);
-
-            if ($upload->processed) {
-                $file_path = $urlPath . '/' . $upload->file_dst_name;
-                $upload->clean();
-
+            $file_ext = pathinfo($file_name, PATHINFO_EXTENSION);
+            $new_file_name = uniqid() . '.' . $file_ext;
+            $destination = $path . '/' . $new_file_name;
+    
+            if (move_uploaded_file($file_tmp, $destination)) {
+                $file_path = $urlPath . '/' . $new_file_name;
+    
                 try {
                     $stmt = $pdo->prepare("INSERT INTO $table (event_id, $column) VALUES (?, ?)");
                     $stmt->execute([$id, $file_path]);
@@ -104,8 +103,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     exit;
                 }
             } else {
-                error_log(ucfirst($column) . " upload failed: " . $upload->error);
-                $response["message"] = ucfirst($column) . " upload failed: " . $upload->error;
+                error_log(ucfirst($column) . " upload failed: Could not move file.");
+                $response["message"] = ucfirst($column) . " upload failed: Could not move file.";
                 echo json_encode($response);
                 exit;
             }

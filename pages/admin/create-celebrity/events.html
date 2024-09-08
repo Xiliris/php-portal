@@ -41,8 +41,6 @@
       const data = await res.json();
 
       if (data.success) {
-        article.remove();
-        overlay.style.display = "none";
         window.location.href = "/dashboard";
       } else {
         alert(data.message);
@@ -95,6 +93,7 @@
     min-height: 100vh;
     text-align: center;
   }
+
   #quit {
     background-color: red;
     border: 1px solid red;
@@ -165,6 +164,7 @@
   .dashboard__container textarea {
     height: 200px;
   }
+
   .steps {
     width: 100%;
     display: flex;

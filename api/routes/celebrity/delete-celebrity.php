@@ -3,8 +3,11 @@ require __DIR__ . '/../../config.php';
 
 $response = ["success" => false, "message" => ""];
 
+$basePath = realpath(__DIR__ . '/../../storage/celebrity/data');
+$imagePath = realpath(__DIR__ . '/../../storage/celebrity/image');
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $id = $_POST["id"];
+    $id = $_POST["id"] ?? '';
 
     if (empty($id)) {
         $response["message"] = "ID is required";
@@ -18,7 +21,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $celebrity = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($celebrity) {
-                $imagePath = $celebrity['image_path'];
+                $profileImagePath = $celebrity['image_path'];
+                $fullProfileImagePath = $imagePath . '/' . basename($profileImagePath);
 
                 // Fetch event data linked to this celebrity
                 $stmt = $pdo->prepare("SELECT id FROM celebrity_event_data WHERE celebrity_profile_id = ?");
@@ -35,8 +39,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                     foreach ($images as $image) {
                         $imagePath = $image['image_path'];
-                        if ($imagePath && file_exists($imagePath)) {
-                            unlink($imagePath);
+                        $fullImagePath = $basePath . '/images/' . basename($imagePath);
+                        if (file_exists($fullImagePath)) {
+                            unlink($fullImagePath);
                         }
                     }
                     $stmt = $pdo->prepare("DELETE FROM celebrity_event_images WHERE event_id = ?");
@@ -49,8 +54,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                     foreach ($videos as $video) {
                         $videoPath = $video['video_path'];
-                        if ($videoPath && file_exists($videoPath)) {
-                            unlink($videoPath);
+                        $fullVideoPath = $basePath . '/videos/' . basename($videoPath);
+                        if (file_exists($fullVideoPath)) {
+                            unlink($fullVideoPath);
                         }
                     }
                     $stmt = $pdo->prepare("DELETE FROM celebrity_event_videos WHERE event_id = ?");
@@ -63,8 +69,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                     foreach ($audios as $audio) {
                         $audioPath = $audio['audio_path'];
-                        if ($audioPath && file_exists($audioPath)) {
-                            unlink($audioPath);
+                        $fullAudioPath = $basePath . '/audio/' . basename($audioPath);
+                        if (file_exists($fullAudioPath)) {
+                            unlink($fullAudioPath);
                         }
                     }
                     $stmt = $pdo->prepare("DELETE FROM celebrity_event_audios WHERE event_id = ?");
@@ -77,8 +84,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                     foreach ($documents as $document) {
                         $documentPath = $document['document_path'];
-                        if ($documentPath && file_exists($documentPath)) {
-                            unlink($documentPath);
+                        $fullDocumentPath = $basePath . '/documents/' . basename($documentPath);
+                        if (file_exists($fullDocumentPath)) {
+                            unlink($fullDocumentPath);
                         }
                     }
                     $stmt = $pdo->prepare("DELETE FROM celebrity_event_documents WHERE event_id = ?");
@@ -90,8 +98,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
 
                 // Delete the main image if it exists
-                if ($imagePath && file_exists($imagePath)) {
-                    unlink($imagePath);
+                if (file_exists($fullProfileImagePath)) {
+                    unlink($fullProfileImagePath);
                 }
 
                 // Delete the main record in celebrity_profile

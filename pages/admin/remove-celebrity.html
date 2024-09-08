@@ -27,8 +27,8 @@
   </div>
 </div>
 <script>
-  document.getElementById("openInput").addEventListener("click", () => {
-    document.getElementById("search-users").focus();
+  document.getElementById("openInput")?.addEventListener("click", () => {
+    document.getElementById("search-users")?.focus();
   });
 
   let celebrities = [];
@@ -51,101 +51,116 @@
 
   async function displayCelebrities(list) {
     const container = document.getElementById("dashboard__select-container");
-    container.innerHTML = "";
+    if (container) {
+      container.innerHTML = "";
 
-    for (const celebrity of list) {
-      if(!celebrity.preview) {
+      for (const celebrity of list) {
+        if (!celebrity.preview) {
+          const article = document.createElement("article");
+          let imagePath = celebrity.image_path || "/assets/unknown.jpg";
 
-      const article = document.createElement("article");
-      let imagePath = celebrity.image_path || "/assets/unknown.jpg";
+          article.innerHTML = `
+            <img src="${imagePath}" alt="${celebrity.name}" />
+            <h3>${celebrity.name}</h3>`;
 
-      article.innerHTML = `
-          <img src="${imagePath}" alt="${celebrity.name}" />
-          <h3>${celebrity.name}</h3>
-        `;
+          container.append(article);
 
-      container.append(article);
+          article.addEventListener("click", () => {
+            const overlay = document.getElementById("overlay");
+            const deleteButton = document.getElementById("delete");
+            const cancelButton = document.getElementById("cancel");
 
-      article.addEventListener("click", () => {
-        const overlay = document.getElementById("overlay");
-        const deleteButton = document.getElementById("delete");
-        const cancelButton = document.getElementById("cancel");
+            if (overlay && deleteButton && cancelButton) {
+              overlay.style.display = "flex";
 
-        overlay.style.display = "flex";
+              deleteButton.removeEventListener("click", handleDelete);
+              cancelButton.removeEventListener("click", handleCancel);
 
-        deleteButton.removeEventListener("click", handleDelete);
-        cancelButton.removeEventListener("click", handleCancel);
+              deleteButton.addEventListener("click", handleDelete);
+              cancelButton.addEventListener("click", handleCancel);
 
-        deleteButton.addEventListener("click", handleDelete);
-        cancelButton.addEventListener("click", handleCancel);
+              async function handleDelete() {
+                const formData = new FormData();
+                formData.append("id", celebrity.id);
 
-        async function handleDelete() {
-          const formData = new FormData();
-          formData.append("id", celebrity.id);
+                try {
+                  const res = await fetch("/api/routes/celebrity/delete-celebrity.php", {
+                    method: "POST",
+                    body: formData,
+                  });
 
-          try {
-            const res = await fetch("/api/routes/celebrity/delete-celebrity.php", {
-              method: "POST",
-              body: formData,
-            });
+                  const data = await res.json();
 
-            const data = await res.json();
+                  if (data.success) {
+                    article.remove();
+                    overlay.style.display = "none";
+                  } else {
+                    alert(data.message);
+                  }
+                } catch (error) {
+                  console.error("Failed to delete celebrity:", error);
+                }
+              }
 
-            if (data.success) {
-              article.remove();
-              overlay.style.display = "none";
+              function handleCancel() {
+                overlay.style.display = "none";
+              }
             } else {
-              alert(data.message);
+              console.error("Overlay or buttons not found");
             }
-          } catch (error) {
-            console.error("Failed to delete celebrity:", error);
+          });
+        } else {
+          const currentDateTime = new Date();
+          const createdAtDateTime = new Date(celebrity.created_at);
+          const timeDifferenceInMilliseconds = currentDateTime - createdAtDateTime;
+          const timeDifferenceInSeconds = timeDifferenceInMilliseconds / 1000;
+
+          if (timeDifferenceInSeconds > 600) {
+            const deleteForm = new FormData();
+            deleteForm.append("id", celebrity.id);
+
+            try {
+              const res = await fetch("/api/routes/celebrity/delete-celebrity.php", {
+                method: "POST",
+                body: deleteForm,
+              });
+
+              const data = await res.json();
+
+              if (data.success) {
+                console.log(data.message);
+              } else {
+                console.error(data.message);
+              }
+            } catch (error) {
+              console.error("Failed to delete celebrity:", error);
+            }
           }
         }
-
-        function handleCancel() {
-          overlay.style.display = "none";
-        }
-      });
+      }
     } else {
-      const currentDateTime = new Date();
-        const createdAtDateTime = new Date(celebrity.created_at);
-        const timeDifferenceInMilliseconds = currentDateTime - createdAtDateTime ; 
-        const timeDifferenceInSeconds = timeDifferenceInMilliseconds / 1000;
-
-        if(timeDifferenceInSeconds > 600) {
-          const deleteForm = new FormData();
-
-          deleteForm.append("id", celebrity.id)
-
-
-          const res = await fetch("/api/routes/celebrity/delete-celebrity.php", {
-            method: "POST",
-            body: deleteForm
-          })
-
-          const data = await res.json();
-
-          if(data.success) {
-            console.log(data.message)
-          } else {
-            console.error(data.message)
-          }
-        }
-    }
+      console.error("Element #dashboard__select-container not found");
     }
   }
 
-  document.getElementById("search-users").addEventListener("input", function () {
+  document.getElementById("search-users")?.addEventListener("input", function () {
     const query = this.value.toLowerCase();
-    const filteredCelebrities = celebrities.filter((celebrity) => celebrity.name.toLowerCase().includes(query));
+    const filteredCelebrities = celebrities.filter((celebrity) =>
+      celebrity.name.toLowerCase().includes(query)
+    );
     displayCelebrities(filteredCelebrities);
   });
 
   loadCelebrities();
+
 </script>
 
 <style>
   #dashboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
     margin: 0 auto;
     padding: 10em 0;
     width: 80%;
@@ -159,9 +174,12 @@
 
   #dashboard h2 {
     text-align: left;
-    margin-bottom: 0.5em;
+    width: 100%;
     margin-top: 2em;
+    margin-bottom: 0.5em;
+    font-size: 2.5em;
   }
+
   .btn {
     padding: 0.5em 1.5em;
     border-radius: 0.5em;
@@ -169,11 +187,11 @@
     align-items: center;
     justify-content: center;
     gap: 1em;
-    background-color: green;
-    border: 1px solid green;
     color: white;
     font-size: 1em;
     cursor: pointer;
+    background-color: green;
+    border: 1px solid green;
   }
 
   .dashboard__header {
@@ -211,30 +229,34 @@
   }
 
   #dashboard__select-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 1em;
-    margin-top: 1em;
+    margin-top: 2em;
+    width: 87%;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-bottom: 150px;
   }
 
   #dashboard__select-container article {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     position: relative;
     border-radius: 5px;
     overflow: hidden;
     height: 250px;
+    width: 100%;
     cursor: pointer;
-    transition: all 0.3s ease;
-  }
-
-  #dashboard__select-container article:hover {
-    transform: scale(1.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
 
   #dashboard__select-container article img {
-    width: 200px;
-    height: 250px;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
   }
 
@@ -246,8 +268,10 @@
     padding: 0.5em;
     background-color: rgba(0, 0, 0, 0.5);
     color: white;
-    font-size: 1.2em;
+    font-size: 1em;
     text-align: center;
+    margin: 0;
+    box-sizing: border-box;
   }
 
   .overlay {
@@ -270,6 +294,7 @@
     border-radius: 5px;
     font-size: 1.2em;
   }
+
   .overlay__container div {
     display: flex;
     justify-content: flex-end;
@@ -284,10 +309,58 @@
   }
 
   #cancel {
-    background-color: green;
+    background-color: gray;
+    border: 1px solid gray;
   }
 
-  #delete {
-    background-color: gray;
+  #delete,
+  #proceed {
+    background-color: green;
+    border: 1px solid green;
+  }
+
+  @media screen and (min-width: 1024px) and (max-width: 1279px) {
+    #dashboard__select-container {
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1em;
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    #dashboard h2 {
+      font-size: 1.5em;
+    }
+  }
+
+  @media screen and (min-width: 700px) and (max-width: 1024px) {
+    #dashboard__select-container {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1em;
+      padding-left: 0;
+      padding-right: 0;
+      width: 65%;
+    }
+
+    #dashboard__select-container article {
+      height: auto;
+    }
+
+    #dashboard h2 {
+      font-size: 1.3em;
+    }
+  }
+
+  @media (min-width: 300px) and (max-width: 699px) {
+    #dashboard__select-container {
+      grid-template-columns: repeat(1, 1fr);
+      gap: 1em;
+      padding-left: 0;
+      padding-right: 0;
+      width: 70%;
+    }
+
+    #dashboard h2 {
+      font-size: 0.8em;
+    }
   }
 </style>

@@ -30,67 +30,104 @@
         return container;
     }
 
+    async function fetchCarouselData(excludedIds) {
+        try {
+            const res = await fetch('/api/routes/celebrity/list-celebrity.php');
+            const data = await res.json();
+
+            if (!data.success) {
+                throw new Error(data.message);
+            }
+            const filteredData = data.data.filter(item => !excludedIds.includes(item.id));
+            return filteredData;
+        } catch (error) {
+            console.error('Error fetching carousel data:', error);
+            return [];
+        }
+    }
+
     async function loadCelebrities() {
-        const res = await fetch('/api/routes/celebrity/get-celebrity-position.php');
-        const data = await res.json();
+        try {
+            const res = await fetch('/api/routes/celebrity/get-celebrity-position.php');
+            const data = await res.json();
 
-        const section = document.getElementById('celebrity-list');
-        section.innerHTML = '';
+            const section = document.getElementById('celebrity-list');
+            section.innerHTML = '';
 
-        if (data.success) {
-            const positions = data.data;
+            if (data.success) {
+                const positions = data.data;
+                const positionsPerContainer = [2, 5, 6];
+                let containerIndex = 0;
+                let currentContainer = createArticleContainer();
+                section.appendChild(currentContainer);
+                const displayedIds = new Set();
 
-            const positionsPerContainer = [2, 5, 6];
+                positions.forEach(({ id, position, name, image_path }) => {
+                    if (containerIndex >= positionsPerContainer.length) {
+                        containerIndex = positionsPerContainer.length - 1;
+                    }
 
-            let containerIndex = 0;
-            let currentContainer = createArticleContainer();
-            section.appendChild(currentContainer);
+                    if (currentContainer.childElementCount >= positionsPerContainer[containerIndex]) {
+                        currentContainer = createArticleContainer();
+                        section.appendChild(currentContainer);
+                        containerIndex++;
+                    }
 
-            positions.forEach(({ id, position, name, image_path }) => {
-                if (containerIndex >= positionsPerContainer.length) {
-                    containerIndex = positionsPerContainer.length - 1;
-                }
-
-                if (currentContainer.childElementCount >= positionsPerContainer[containerIndex]) {
-                    currentContainer = createArticleContainer();
-                    section.appendChild(currentContainer);
-                    containerIndex++;
-                }
-
-                let imagePath = image_path || "/assets/unknown.jpg";
-
-                const aTag = document.createElement('a');
-                aTag.href = `/profile/${id}`;
-                aTag.innerHTML = `
+                    displayedIds.add(id);
+                    let imagePath = image_path || "/assets/unknown.jpg";
+                    const aTag = document.createElement('a');
+                    aTag.href = `/profile/${id}`;
+                    aTag.className = 'celebrity-link';
+                    aTag.innerHTML = `
                     <div class="carousel-item">
                         <img src="${imagePath}" />
                         <h3>${name || 'Unknown'}</h3>
                     </div>
                 `;
-                currentContainer.appendChild(aTag);
-            });
+                    currentContainer.appendChild(aTag);
+                });
 
-            if (positions.length > 10) {
-                const carouselContainer = document.createElement('div');
-                carouselContainer.classList.add('carousel-container');
-                carouselContainer.innerHTML = `
-                    <button id="carousel-prev" class="carousel-btn prev">&lt;</button>
-                    <div class="carousel">
-                        ${section.children[2].innerHTML}
-                    </div>
-                    <button id="carousel-next" class="carousel-btn next">&gt;</button>
-                `;
-                section.children[2].innerHTML = '';
-                section.children[2].appendChild(carouselContainer);
+                if (positions.length > 10) {
+                    const carouselData = await fetchCarouselData(Array.from(displayedIds));
 
-                initCarousel();
+                    if (carouselData.length > 0) {
+                        const carouselContainer = document.createElement('div');
+                        carouselContainer.classList.add('carousel-container');
+                        carouselContainer.innerHTML = `
+                        <button id="carousel-prev" class="carousel-btn prev">&lt;</button>
+                        <div class="carousel">
+                            ${carouselData.map(item => `
+                                <a href="/profile/${item.id}" class="carousel-item-link">
+                                    <div class="carousel-item">
+                                        <img src="${item.image_path || '/assets/unknown.jpg'}" />
+                                        <h3>${item.name || 'Unknown'}</h3>
+                                    </div>
+                                </a>
+                            `).join('')}
+                        </div>
+                        <button id="carousel-next" class="carousel-btn next">&gt;</button>
+                    `;
+
+                        if (section.children.length > 2) {
+                            section.children[2].innerHTML = '';
+                            section.children[2].appendChild(carouselContainer);
+                        } else {
+                            const newCarouselContainer = document.createElement('div');
+                            section.appendChild(newCarouselContainer);
+                            newCarouselContainer.appendChild(carouselContainer);
+                        }
+
+                        initCarousel();
+                    }
+                }
+
+            } else {
+                console.error(data.message);
             }
-
-        } else {
-            console.error(data.message);
+        } catch (error) {
+            console.error('Error loading celebrities:', error);
         }
     }
-
     document.getElementById("openInput").addEventListener("click", () => {
         const searchKeywords = document.getElementById("search-keywords").value;
         window.location.href = `/search?result=${encodeURIComponent(searchKeywords)}`;
@@ -167,32 +204,34 @@
         loadCelebrities();
     });
 
-
     async function loadFixedTrack() {
         const trackContent = document.getElementById('track-content');
         const trackElement = document.getElementById('track');
         const trackStyle = document.getElementById('track-style');
-        const res = await fetch('/api/routes/home/get-fixed-track.php');
-        const data = await res.json();
+        try {
+            const res = await fetch('/api/routes/home/get-fixed-track.php');
+            const data = await res.json();
 
-        if (data.success) {
-            const loaded = data.data;
+            if (data.success) {
+                const loaded = data.data;
 
-            if (loaded.enabled) {
-                trackElement.style.opacity = 1
+                if (loaded.enabled) {
+                    trackElement.style.opacity = 1;
+                }
+
+                if (loaded.moving) {
+                    trackStyle.style.textAlign = 'left';
+                    trackStyle.style.animation = `scrollText ${loaded.time}s linear infinite`;
+                }
+
+                trackContent.innerText = loaded.content;
+            } else {
+                console.log(data.message);
             }
-
-            if (loaded.moving) {
-                trackStyle.style.textAlign = 'left';
-                trackStyle.style.animation = `scrollText ${loaded.time}s linear infinite`;
-            }
-
-            trackContent.innerText = loaded.content
-        } else {
-            console.log(data.message)
+        } catch (error) {
+            console.error('Error loading fixed track:', error);
         }
     }
-
 
     loadCelebrities();
 
@@ -201,6 +240,7 @@
     loadFixedTrack();
 
 </script>
+
 
 <style>
     .track {

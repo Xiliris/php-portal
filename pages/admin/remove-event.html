@@ -82,8 +82,8 @@
         formData.append('id', celebrity.id)
 
         const response = await fetch("/api/routes/celebrity/data/events.php", {
-        method: "POST",
-        body: formData,
+          method: "POST",
+          body: formData,
         });
         const data = await response.json();
         console.log(data.data)
@@ -113,51 +113,52 @@
                 handleDelete(event.id)
               })
             })
-        }} else {
+          }
+        } else {
           const el = document.createElement('h4');
-            el.innerText = 'This celebrity has no events';
-            eventList.append(el)
+          el.innerText = 'This celebrity has no events';
+          eventList.append(el)
 
-            const closeBtn = document.createElement('button');
+          const closeBtn = document.createElement('button');
 
-            closeBtn.innerText= "Close";
-            closeBtn.className = `btn`;
+          closeBtn.innerText = "Close";
+          closeBtn.className = `btn`;
 
-            closeBtn.addEventListener('click', () => {
-                preOverlay.style.display = 'none'
-                eventList.innerText = ''
-            })
+          closeBtn.addEventListener('click', () => {
+            preOverlay.style.display = 'none'
+            eventList.innerText = ''
+          })
 
-            eventList.append(closeBtn)
+          eventList.append(closeBtn)
         }
 
 
-        preOverlay.style.display = "flex" 
+        preOverlay.style.display = "flex";
       });
     }
   }
 
-        async function handleDelete(id) {
-          const formData = new FormData();
-          formData.append("id", id);
+  async function handleDelete(id) {
+    const formData = new FormData();
+    formData.append("id", id);
 
-          try {
-            const res = await fetch("/api/routes/celebrity/delete-event.php", {
-              method: "POST",
-              body: formData,
-            });
+    try {
+      const res = await fetch("/api/routes/celebrity/delete-event.php", {
+        method: "POST",
+        body: formData,
+      });
 
-            const data = await res.json();
+      const data = await res.json();
 
-            if (data.success) {
-              window.location.reload()
-            } else {
-              alert(data.message);
-            }
-          } catch (error) {
-            console.error("Failed to delete celebrity:", error);
-          }
-        }
+      if (data.success) {
+        window.location.reload()
+      } else {
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error("Failed to delete celebrity:", error);
+    }
+  }
 
   document.getElementById("search-users").addEventListener("input", function () {
     const query = this.value.toLowerCase();
@@ -166,6 +167,7 @@
   });
 
   loadCelebrities();
+  
 </script>
 
 <style>
@@ -206,8 +208,11 @@
     margin-top: 1em;
   }
 
-
   #dashboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
     margin: 0 auto;
     padding: 10em 0;
     width: 80%;
@@ -221,9 +226,12 @@
 
   #dashboard h2 {
     text-align: left;
-    margin-bottom: 0.5em;
+    width: 100%;
     margin-top: 2em;
+    margin-bottom: 0.5em;
+    font-size: 2.5em;
   }
+
   .btn {
     padding: 0.5em 1.5em;
     border-radius: 0.5em;
@@ -231,11 +239,11 @@
     align-items: center;
     justify-content: center;
     gap: 1em;
-    background-color: green;
-    border: 1px solid green;
     color: white;
     font-size: 1em;
     cursor: pointer;
+    background-color: green;
+    border: 1px solid green;
   }
 
   .dashboard__header {
@@ -273,30 +281,34 @@
   }
 
   #dashboard__select-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 1em;
-    margin-top: 1em;
+    margin-top: 2em;
+    width: 87%;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-bottom: 150px;
   }
 
   #dashboard__select-container article {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     position: relative;
     border-radius: 5px;
     overflow: hidden;
     height: 250px;
+    width: 100%;
     cursor: pointer;
-    transition: all 0.3s ease;
-  }
-
-  #dashboard__select-container article:hover {
-    transform: scale(1.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
 
   #dashboard__select-container article img {
-    width: 200px;
-    height: 250px;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
   }
 
@@ -308,8 +320,10 @@
     padding: 0.5em;
     background-color: rgba(0, 0, 0, 0.5);
     color: white;
-    font-size: 1.2em;
+    font-size: 1em;
     text-align: center;
+    margin: 0;
+    box-sizing: border-box;
   }
 
   .overlay {
@@ -332,6 +346,7 @@
     border-radius: 5px;
     font-size: 1.2em;
   }
+
   .overlay__container div {
     display: flex;
     justify-content: flex-end;
@@ -346,10 +361,58 @@
   }
 
   #cancel {
-    background-color: green;
+    background-color: gray;
+    border: 1px solid gray;
   }
 
-  #delete {
-    background-color: gray;
+  #delete,
+  #proceed {
+    background-color: green;
+    border: 1px solid green;
+  }
+
+  @media screen and (min-width: 1024px) and (max-width: 1279px) {
+    #dashboard__select-container {
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1em;
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    #dashboard h2 {
+      font-size: 1.5em;
+    }
+  }
+
+  @media screen and (min-width: 700px) and (max-width: 1024px) {
+    #dashboard__select-container {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1em;
+      padding-left: 0;
+      padding-right: 0;
+      width: 65%;
+    }
+
+    #dashboard__select-container article {
+      height: auto;
+    }
+
+    #dashboard h2 {
+      font-size: 1.3em;
+    }
+  }
+
+  @media (min-width: 300px) and (max-width: 699px) {
+    #dashboard__select-container {
+      grid-template-columns: repeat(1, 1fr);
+      gap: 1em;
+      padding-left: 0;
+      padding-right: 0;
+      width: 70%;
+    }
+
+    #dashboard h2 {
+      font-size: 0.8em;
+    }
   }
 </style>
