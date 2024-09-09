@@ -26,12 +26,15 @@
     </div>
   </div>
 </div>
+
 <script>
   document.getElementById("openInput")?.addEventListener("click", () => {
     document.getElementById("search-users")?.focus();
   });
 
   let celebrities = [];
+  let selectedCelebrityId = null;
+  let selectedArticle = null;
 
   async function loadCelebrities() {
     try {
@@ -49,99 +52,65 @@
     }
   }
 
-  async function displayCelebrities(list) {
+  function displayCelebrities(list) {
     const container = document.getElementById("dashboard__select-container");
     if (container) {
       container.innerHTML = "";
 
       for (const celebrity of list) {
-        if (!celebrity.preview) {
-          const article = document.createElement("article");
-          let imagePath = celebrity.image_path || "/assets/unknown.jpg";
+        const article = document.createElement("article");
+        let imagePath = celebrity.image_path || "/assets/unknown.jpg";
 
-          article.innerHTML = `
-            <img src="${imagePath}" alt="${celebrity.name}" />
-            <h3>${celebrity.name}</h3>`;
+        article.innerHTML = `
+          <img src="${imagePath}" alt="${celebrity.name}" />
+          <h3>${celebrity.name}</h3>`;
 
-          container.append(article);
+        container.append(article);
 
-          article.addEventListener("click", () => {
-            const overlay = document.getElementById("overlay");
-            const deleteButton = document.getElementById("delete");
-            const cancelButton = document.getElementById("cancel");
-
-            if (overlay && deleteButton && cancelButton) {
-              overlay.style.display = "flex";
-
-              deleteButton.removeEventListener("click", handleDelete);
-              cancelButton.removeEventListener("click", handleCancel);
-
-              deleteButton.addEventListener("click", handleDelete);
-              cancelButton.addEventListener("click", handleCancel);
-
-              async function handleDelete() {
-                const formData = new FormData();
-                formData.append("id", celebrity.id);
-
-                try {
-                  const res = await fetch("/api/routes/celebrity/delete-celebrity.php", {
-                    method: "POST",
-                    body: formData,
-                  });
-
-                  const data = await res.json();
-
-                  if (data.success) {
-                    article.remove();
-                    overlay.style.display = "none";
-                  } else {
-                    alert(data.message);
-                  }
-                } catch (error) {
-                  console.error("Failed to delete celebrity:", error);
-                }
-              }
-
-              function handleCancel() {
-                overlay.style.display = "none";
-              }
-            } else {
-              console.error("Overlay or buttons not found");
-            }
-          });
-        } else {
-          const currentDateTime = new Date();
-          const createdAtDateTime = new Date(celebrity.created_at);
-          const timeDifferenceInMilliseconds = currentDateTime - createdAtDateTime;
-          const timeDifferenceInSeconds = timeDifferenceInMilliseconds / 1000;
-
-          if (timeDifferenceInSeconds > 600) {
-            const deleteForm = new FormData();
-            deleteForm.append("id", celebrity.id);
-
-            try {
-              const res = await fetch("/api/routes/celebrity/delete-celebrity.php", {
-                method: "POST",
-                body: deleteForm,
-              });
-
-              const data = await res.json();
-
-              if (data.success) {
-                console.log(data.message);
-              } else {
-                console.error(data.message);
-              }
-            } catch (error) {
-              console.error("Failed to delete celebrity:", error);
-            }
-          }
-        }
+        article.addEventListener("click", () => {
+          selectedCelebrityId = celebrity.id;
+          selectedArticle = article;
+          const overlay = document.getElementById("overlay");
+          overlay.style.display = "flex";
+        });
       }
     } else {
       console.error("Element #dashboard__select-container not found");
     }
   }
+
+  document.getElementById("delete")?.addEventListener("click", async () => {
+    if (!selectedCelebrityId) {
+      alert("No celebrity selected for deletion.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("id", selectedCelebrityId);
+
+    try {
+      const response = await fetch("/api/routes/celebrity/delete-celebrity.php", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        selectedArticle.remove();
+        document.getElementById("overlay").style.display = "none";
+        selectedCelebrityId = null;
+      } else {
+        alert("Failed to remove celebrity: " + data.message);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  });
+
+  document.getElementById("cancel")?.addEventListener("click", () => {
+    document.getElementById("overlay").style.display = "none";
+    selectedCelebrityId = null;
+  });
 
   document.getElementById("search-users")?.addEventListener("input", function () {
     const query = this.value.toLowerCase();
