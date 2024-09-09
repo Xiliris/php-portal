@@ -60,20 +60,21 @@
                 let containerIndex = 0;
                 let currentContainer = createArticleContainer();
                 section.appendChild(currentContainer);
+                let itemCount = 0;
                 const displayedIds = new Set();
 
                 positions.forEach(({ id, position, name, image_path }) => {
-                    if (containerIndex >= positionsPerContainer.length) {
-                        containerIndex = positionsPerContainer.length - 1;
-                    }
-
-                    if (currentContainer.childElementCount >= positionsPerContainer[containerIndex]) {
-                        currentContainer = createArticleContainer();
-                        section.appendChild(currentContainer);
+                    if (itemCount >= positionsPerContainer[containerIndex]) {
                         containerIndex++;
+                        if (containerIndex < positionsPerContainer.length) {
+                            currentContainer = createArticleContainer();
+                            section.appendChild(currentContainer);
+                            itemCount = 0;
+                        } else {
+                            return;
+                        }
                     }
 
-                    displayedIds.add(id);
                     let imagePath = image_path || "/assets/unknown.jpg";
                     const aTag = document.createElement('a');
                     aTag.href = `/profile/${id}`;
@@ -85,16 +86,18 @@
                     </div>
                 `;
                     currentContainer.appendChild(aTag);
+                    itemCount++;
+                    displayedIds.add(id);
                 });
 
-                if (positions.length > 10) {
+                if (positions.length > 6) {
                     const carouselData = await fetchCarouselData(Array.from(displayedIds));
 
                     if (carouselData.length > 0) {
                         const carouselContainer = document.createElement('div');
                         carouselContainer.classList.add('carousel-container');
                         carouselContainer.innerHTML = `
-                        <button id="carousel-prev" class="carousel-btn prev">&lt;</button>
+                        <button class="carousel-btn prev" id="carousel-prev">&lt;</button>
                         <div class="carousel">
                             ${carouselData.map(item => `
                                 <a href="/profile/${item.id}" class="carousel-item-link">
@@ -105,17 +108,10 @@
                                 </a>
                             `).join('')}
                         </div>
-                        <button id="carousel-next" class="carousel-btn next">&gt;</button>
-                    `;
-
-                        if (section.children.length > 2) {
-                            section.children[2].innerHTML = '';
-                            section.children[2].appendChild(carouselContainer);
-                        } else {
-                            const newCarouselContainer = document.createElement('div');
-                            section.appendChild(newCarouselContainer);
-                            newCarouselContainer.appendChild(carouselContainer);
-                        }
+                        <button class="carousel-btn next" id="carousel-next">&gt;</button>`;
+                        const carouselContainerWrapper = createArticleContainer();
+                        carouselContainerWrapper.appendChild(carouselContainer);
+                        section.appendChild(carouselContainerWrapper);
 
                         initCarousel();
                     }
