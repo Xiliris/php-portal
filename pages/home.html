@@ -24,229 +24,219 @@
 {{footer}}
 
 <script>
-    function createArticleContainer() {
-        const container = document.createElement('div');
-        container.className = 'article-container';
-        return container;
-    }
+function createArticleContainer() {
+    const container = document.createElement('div');
+    container.className = 'article-container';
+    return container;
+}
 
-    async function fetchCarouselData(excludedIds) {
-        try {
-            const res = await fetch('/api/routes/celebrity/list-celebrity.php');
-            const data = await res.json();
+async function fetchCarouselData(excludedIds) {
+    try {
+        const res = await fetch('/api/routes/celebrity/list-celebrity.php');
+        const data = await res.json();
 
-            if (!data.success) {
-                throw new Error(data.message);
-            }
-            const filteredData = data.data.filter(item => !excludedIds.includes(item.id));
-            return filteredData;
-        } catch (error) {
-            console.error('Error fetching carousel data:', error);
-            return [];
+        if (!data.success) {
+            throw new Error(data.message);
         }
+        return data.data.filter(item => !excludedIds.includes(item.id));
+    } catch (error) {
+        console.error('Error fetching carousel data:', error);
+        return [];
     }
+}
 
-    async function loadCelebrities() {
-        try {
-            const res = await fetch('/api/routes/celebrity/get-celebrity-position.php');
-            const data = await res.json();
+async function loadCelebrities() {
+    try {
+        const res = await fetch('/api/routes/celebrity/get-celebrity-position.php');
+        const data = await res.json();
 
-            const section = document.getElementById('celebrity-list');
-            section.innerHTML = '';
-
-            if (data.success) {
-                const positions = data.data;
-                const positionsPerContainer = [2, 5, 6];
-                let containerIndex = 0;
-                let currentContainer = createArticleContainer();
-                section.appendChild(currentContainer);
-                let itemCount = 0;
-                const displayedIds = new Set();
-
-                positions.forEach(({ id, position, name, image_path }) => {
-                    if (itemCount >= positionsPerContainer[containerIndex]) {
-                        containerIndex++;
-                        if (containerIndex < positionsPerContainer.length) {
-                            currentContainer = createArticleContainer();
-                            section.appendChild(currentContainer);
-                            itemCount = 0;
-                        } else {
-                            return;
-                        }
-                    }
-
-                    let imagePath = image_path || "/assets/unknown.jpg";
-                    const aTag = document.createElement('a');
-                    aTag.href = `/profile/${id}`;
-                    aTag.className = 'celebrity-link';
-                    aTag.innerHTML = `
-                    <div class="carousel-item">
-                        <img src="${imagePath}" />
-                        <h3>${name || 'Unknown'}</h3>
-                    </div>
-                `;
-                    currentContainer.appendChild(aTag);
-                    itemCount++;
-                    displayedIds.add(id);
-                });
-
-                if (positions.length > 6) {
-                    const carouselData = await fetchCarouselData(Array.from(displayedIds));
-
-                    if (carouselData.length > 0) {
-                        const carouselContainer = document.createElement('div');
-                        carouselContainer.classList.add('carousel-container');
-                        carouselContainer.innerHTML = `
-                        <button class="carousel-btn prev" id="carousel-prev">&lt;</button>
-                        <div class="carousel">
-                            ${carouselData.map(item => `
-                                <a href="/profile/${item.id}" class="carousel-item-link">
-                                    <div class="carousel-item">
-                                        <img src="${item.image_path || '/assets/unknown.jpg'}" />
-                                        <h3>${item.name || 'Unknown'}</h3>
-                                    </div>
-                                </a>
-                            `).join('')}
-                        </div>
-                        <button class="carousel-btn next" id="carousel-next">&gt;</button>`;
-                        const carouselContainerWrapper = createArticleContainer();
-                        carouselContainerWrapper.appendChild(carouselContainer);
-                        section.appendChild(carouselContainerWrapper);
-
-                        initCarousel();
-                    }
-                }
-
-            } else {
-                console.error(data.message);
-            }
-        } catch (error) {
-            console.error('Error loading celebrities:', error);
-        }
-    }
-    document.getElementById("openInput").addEventListener("click", () => {
-        const searchKeywords = document.getElementById("search-keywords").value;
-        window.location.href = `/search?result=${encodeURIComponent(searchKeywords)}`;
-    });
-
-    document.getElementById("search-keywords").addEventListener("keypress", (e) => {
-        if (e.key === "Enter") {
-            e.preventDefault();
-            const searchKeywords = e.target.value;
-            window.location.href = `/search?result=${encodeURIComponent(searchKeywords)}`;
-        }
-    });
-
-
-    function debounce(func, wait) {
-        let timeout;
-        return function (...args) {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func.apply(this, args), wait);
-        };
-    }
-
-    function initCarousel() {
-        const carousel = document.querySelector('.carousel');
-        const prevBtn = document.getElementById('carousel-prev');
-        const nextBtn = document.getElementById('carousel-next');
-
-        if (!carousel || !prevBtn || !nextBtn) {
-            console.error('Carousel elements not found.');
-            return;
-        }
-
-        const articles = Array.from(carousel.children);
-        if (articles.length === 0) return;
-
-        let currentIndex = 0;
-
-        function updateCarouselSettings() {
-            const article = articles[0];
-            const articleWidth = article.getBoundingClientRect().width;
-            const totalWidth = articles.length * articleWidth;
-
-            carousel.style.width = `${totalWidth}px`;
-
-            currentIndex = 0;
-            setCarouselPosition();
-
-            function setCarouselPosition() {
-                const visibleCount = Math.floor(carousel.parentElement.clientWidth / articleWidth);
-                const maxIndex = Math.max(0, articles.length - visibleCount);
-                const newTransformValue = -currentIndex * articleWidth;
-
-                carousel.style.transform = `translateX(${newTransformValue}px)`;
-                prevBtn.style.display = currentIndex === 0 ? 'none' : 'block';
-                nextBtn.style.display = currentIndex >= maxIndex ? 'none' : 'block';
-            }
-
-            setCarouselPosition();
-
-            prevBtn.addEventListener('click', () => {
-                if (currentIndex > 0) {
-                    currentIndex--;
-                    setCarouselPosition();
-                }
-            });
-
-            nextBtn.addEventListener('click', () => {
-                const visibleCount = Math.floor(carousel.parentElement.clientWidth / articleWidth);
-                if (currentIndex < articles.length - visibleCount) {
-                    currentIndex++;
-                    setCarouselPosition();
-                }
-            });
-        }
-
-        updateCarouselSettings();
-        window.addEventListener('resize', debounce(updateCarouselSettings, 250));
-    }
-
-
-    initCarousel();
-
-    window.addEventListener('resize', debounce(() => {
         const section = document.getElementById('celebrity-list');
         section.innerHTML = '';
-        loadCelebrities();
-    }, 250));
 
+        if (data.success) {
+            const positions = data.data;
+            const positionsPerContainer = [2, 5, 6];
+            let containerIndex = 0;
+            let currentContainer = createArticleContainer();
+            section.appendChild(currentContainer);
+            let itemCount = 0;
+            const displayedIds = new Set();
 
-    async function loadFixedTrack() {
-        const trackContent = document.getElementById('track-content');
-        const trackElement = document.getElementById('track');
-        const trackStyle = document.getElementById('track-style');
-        try {
-            const res = await fetch('/api/routes/home/get-fixed-track.php');
-            const data = await res.json();
-
-            if (data.success) {
-                const loaded = data.data;
-
-                if (loaded.enabled) {
-                    trackElement.style.opacity = 1;
+            positions.forEach(({ id, position, name, image_path }) => {
+                if (itemCount >= positionsPerContainer[containerIndex]) {
+                    containerIndex++;
+                    if (containerIndex < positionsPerContainer.length) {
+                        currentContainer = createArticleContainer();
+                        section.appendChild(currentContainer);
+                        itemCount = 0;
+                    } else {
+                        return;
+                    }
                 }
 
-                if (loaded.moving) {
-                    trackStyle.style.textAlign = 'left';
-                    trackStyle.style.animation = `scrollText ${loaded.time}s linear infinite`;
-                }
+                const imagePath = image_path || "/assets/unknown.jpg";
+                const aTag = document.createElement('a');
+                aTag.href = `/profile/${id}`;
+                aTag.className = 'celebrity-link';
+                aTag.innerHTML = `
+                <div class="carousel-item">
+                    <img src="${imagePath}" />
+                    <h3>${name || 'Unknown'}</h3>
+                </div>
+            `;
+                currentContainer.appendChild(aTag);
+                itemCount++;
+                displayedIds.add(id);
+            });
 
-                trackContent.innerText = loaded.content;
-            } else {
-                console.log(data.message);
+            if (positions.length > 6) {
+                const carouselData = await fetchCarouselData(Array.from(displayedIds));
+
+                if (carouselData.length > 0) {
+                    const carouselContainer = document.createElement('div');
+                    carouselContainer.classList.add('carousel-container');
+                    carouselContainer.innerHTML = `
+                    <button class="carousel-btn prev" id="carousel-prev">&lt;</button>
+                    <div class="carousel">
+                        ${carouselData.map(item => `
+                            <a href="/profile/${item.id}" class="carousel-item-link">
+                                <div class="carousel-item">
+                                    <img src="${item.image_path || '/assets/unknown.jpg'}" />
+                                    <h3>${item.name || 'Unknown'}</h3>
+                                </div>
+                            </a>
+                        `).join('')}
+                    </div>
+                    <button class="carousel-btn next" id="carousel-next">&gt;</button>`;
+                    const carouselContainerWrapper = createArticleContainer();
+                    carouselContainerWrapper.appendChild(carouselContainer);
+                    section.appendChild(carouselContainerWrapper);
+
+                    initCarousel();
+                }
             }
-        } catch (error) {
-            console.error('Error loading fixed track:', error);
+
+        } else {
+            console.error(data.message);
         }
+    } catch (error) {
+        console.error('Error loading celebrities:', error);
+    }
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
+function initCarousel() {
+    const carousel = document.querySelector('.carousel');
+    const prevBtn = document.getElementById('carousel-prev');
+    const nextBtn = document.getElementById('carousel-next');
+
+    if (!carousel || !prevBtn || !nextBtn) {
+        console.error('Carousel elements not found.');
+        return;
     }
 
-    loadCelebrities();
+    const articles = Array.from(carousel.children);
+    if (articles.length === 0) return;
 
-    initCarousel();
+    let currentIndex = 0;
 
-    loadFixedTrack();
+    function updateCarouselSettings() {
+        const article = articles[0];
+        const articleWidth = article.getBoundingClientRect().width;
+        const totalWidth = articles.length * articleWidth;
+
+        carousel.style.width = `${totalWidth}px`;
+
+        function setCarouselPosition() {
+            const visibleCount = Math.floor(carousel.parentElement.clientWidth / articleWidth);
+            const maxIndex = Math.max(0, articles.length - visibleCount);
+            const newTransformValue = -currentIndex * articleWidth;
+
+            carousel.style.transform = `translateX(${newTransformValue}px)`;
+            prevBtn.style.display = currentIndex === 0 ? 'none' : 'block';
+            nextBtn.style.display = currentIndex >= maxIndex ? 'none' : 'block';
+        }
+
+        setCarouselPosition();
+
+        prevBtn.addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                setCarouselPosition();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            const visibleCount = Math.floor(carousel.parentElement.clientWidth / articleWidth);
+            if (currentIndex < articles.length - visibleCount) {
+                currentIndex++;
+                setCarouselPosition();
+            }
+        });
+    }
+
+    updateCarouselSettings();
+    window.addEventListener('resize', debounce(updateCarouselSettings, 250));
+}
+
+function handleResize() {
+    window.location.reload();
+}
+
+document.getElementById("openInput").addEventListener("click", () => {
+    const searchKeywords = document.getElementById("search-keywords").value;
+    window.location.href = `/search?result=${encodeURIComponent(searchKeywords)}`;
+});
+
+document.getElementById("search-keywords").addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+        e.preventDefault();
+        const searchKeywords = e.target.value;
+        window.location.href = `/search?result=${encodeURIComponent(searchKeywords)}`;
+    }
+});
+
+window.addEventListener('resize', debounce(handleResize, 250));
+
+async function loadFixedTrack() {
+    const trackContent = document.getElementById('track-content');
+    const trackElement = document.getElementById('track');
+    const trackStyle = document.getElementById('track-style');
+    try {
+        const res = await fetch('/api/routes/home/get-fixed-track.php');
+        const data = await res.json();
+
+        if (data.success) {
+            const loaded = data.data;
+
+            if (loaded.enabled) {
+                trackElement.style.opacity = 1;
+            }
+
+            if (loaded.moving) {
+                trackStyle.style.textAlign = 'left';
+                trackStyle.style.animation = `scrollText ${loaded.time}s linear infinite`;
+            }
+
+            trackContent.innerText = loaded.content;
+        } else {
+            console.log(data.message);
+        }
+    } catch (error) {
+        console.error('Error loading fixed track:', error);
+    }
+}
+
+loadCelebrities();
+
+loadFixedTrack();
 
 </script>
 
