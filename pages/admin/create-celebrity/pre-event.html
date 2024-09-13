@@ -4,7 +4,7 @@
   <div>
     <div class="dashboard__header">
       <h2 id="celebrity-name">Create Celebrity</h2>
-      <a class="btn" href="/dashboard" data-link>Back</a>
+      <a class="btn" id="back-btn" href="/dashboard/create-celebrity/:id/events" data-link>Back</a>
     </div>
     <div class="steps">
       <span class="active-step">1</span>
@@ -104,6 +104,33 @@
     }
   });
 
+  async function backButton() {
+    const backBtn = document.getElementById('back-btn');
+
+    if (backBtn) {
+      try {
+        const params = window.location.pathname.split("/");
+        const id = params[3];
+
+        let linkTemplate = backBtn.getAttribute('href');
+
+        if (linkTemplate) {
+          const link = linkTemplate.replace(':id', id).trim();
+          backBtn.href = link;
+
+        } else {
+          console.error('href attribute not found on Back button');
+        }
+      } catch (error) {
+        console.error('Error setting up back button:', error);
+      }
+    } else {
+      console.error('Back button element not found');
+    }
+  }
+
+  backButton();
+
   async function load() {
     const formData = new FormData();
     formData.append("id", params[3]);
@@ -124,6 +151,7 @@
   }
 
   load();
+
 </script>
 
 <style>
