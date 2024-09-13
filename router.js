@@ -1,3 +1,5 @@
+/* ZDBIST */
+
 document.addEventListener("DOMContentLoaded", async () => {
   const app = document.getElementById("app");
   const loadingEl = document.getElementById("loading");
@@ -76,7 +78,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const routePermissions = {
     "/logout": 1,
     "/change-password": 1,
-    "/shop": 1,
 
     "/dashboard": 3,
     "/dashboard/create-celebrity": 3,
