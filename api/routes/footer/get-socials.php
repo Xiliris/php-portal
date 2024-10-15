@@ -1,18 +1,26 @@
 <?php
-require __DIR__ . '/../../config.php'; // Ensure the path to config.php is correct
+require __DIR__ . '/../../config.php';
 
 $response = ["success" => false, "data" => [], "message" => ""];
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     try {
-        // Prepare the SQL statement to select all records from the socials table
-        $stmt = $pdo->prepare("SELECT name, link FROM socials");
+        $stmt = $pdo->prepare("SELECT name, link, svg_path FROM socials");
         $stmt->execute();
 
-        // Fetch all results as an associative array
         $socials = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         if ($socials) {
+            $defaultIconClass = 'fa-solid fa-globe';
+
+            foreach ($socials as &$social) {
+                if ($social['svg_path']) {
+                    $social['svg_path'] = '/api/storage/socials/' . basename($social['svg_path']);
+                } else {
+                    $social['svg_path'] = $defaultIconClass;
+                }
+            }
+
             $response['success'] = true;
             $response['data'] = $socials;
             $response['message'] = 'Social media links retrieved successfully.';
@@ -26,4 +34,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $response['message'] = 'Invalid request method.';
 }
 
+header('Content-Type: application/json');
 echo json_encode($response);
