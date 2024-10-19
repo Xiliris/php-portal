@@ -39,9 +39,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/dashboard/create-event/:id": `${baseUrl}/pages/admin/create-event/create-event.html`,
     "/dashboard/create-event/:id/:eventId/preview": `${baseUrl}/pages/admin/create-event/preview-event.html`,
     "/dashboard/remove-event": `${baseUrl}/pages/admin/remove-event.html`,
+    "/dashboard/edit-event": `${baseUrl}/pages/admin/edit-event/edit-event.html`,
+    "/dashboard/edit-event/:id": `${baseUrl}/pages/admin/edit-event/edit-event.html`,
+    "/dashboard/edit-profile": `${baseUrl}/pages/admin/edit-profile/edit-profile.html`,
+    "/dashboard/edit-profile/:id": `${baseUrl}/pages/admin/edit-profile/edit-profile.html`,
     "/dashboard/home-position": `${baseUrl}/pages/admin/celebrity-position/home-position.html`,
     "/dashboard/home-position/:id": `${baseUrl}/pages/admin/celebrity-position/finish-position.html`,
-
     "/master-panel": `${baseUrl}/pages/master-panel/master-panel.html`,
     "/master-panel/routes": `${baseUrl}/pages/master-panel/routes.html`,
     "/master-panel/users": `${baseUrl}/pages/master-panel/users.html`,

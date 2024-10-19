@@ -41,8 +41,29 @@
 </main>
 
 <script>
-  const btn = document.getElementById("submit-btn");
   const params = window.location.pathname.split("/");
+
+  function saveToSessionStorage() {
+    const title = document.getElementById("c-title").value;
+    const description = document.getElementById("c-description").value;
+    const datetime = document.getElementById("c-datetime").value;
+
+    sessionStorage.setItem("eventTitle", title);
+    sessionStorage.setItem("eventDescription", description);
+    sessionStorage.setItem("eventDatetime", datetime);
+  }
+
+  function loadFromSessionStorage() {
+    const title = sessionStorage.getItem("eventTitle") || "";
+    const description = sessionStorage.getItem("eventDescription") || "";
+    const datetime = sessionStorage.getItem("eventDatetime") || "";
+
+    document.getElementById("c-title").value = title;
+    document.getElementById("c-description").value = description;
+    document.getElementById("c-datetime").value = datetime;
+  }
+
+  const btn = document.getElementById("submit-btn");
 
   btn.addEventListener("click", async () => {
     const title = document.getElementById("c-title").value;
@@ -54,7 +75,7 @@
     const video = document.getElementById("c-video").files;
 
     if (!title || !description || !datetime) {
-      alert("Title, description and Publish Date and Time are required!");
+      alert("Title, description, and Publish Date and Time are required!");
       return;
     }
 
@@ -104,6 +125,10 @@
     }
   });
 
+  document.getElementById("c-title").addEventListener("input", saveToSessionStorage);
+  document.getElementById("c-description").addEventListener("input", saveToSessionStorage);
+  document.getElementById("c-datetime").addEventListener("change", saveToSessionStorage);
+
   async function backButton() {
     const backBtn = document.getElementById('back-btn');
 
@@ -150,8 +175,8 @@
     }
   }
 
+  loadFromSessionStorage();
   load();
-
 </script>
 
 <style>

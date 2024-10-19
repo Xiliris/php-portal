@@ -1,0 +1,251 @@
+{{navbar}}
+<main id="dashboard">
+  <h1>Dashboard</h1>
+  <div>
+    <div class="dashboard__header">
+      <h2 id="celebrity-name">All Profiles</h2>
+      <a class="btn" href="/dashboard" data-link id="quit">Quit</a>
+    </div>
+
+    <div id="profiles-list-container">
+      <div class="profiles-list" id="profiles-list"></div>
+    </div>
+
+    <div id="edit-profile-container" style="display:none;">
+      <hr />
+      <section class="dashboard__container">
+        <input type="text" placeholder="Name" id="p-name" />
+        <textarea placeholder="Biography" id="p-biography"></textarea>
+        <input type="date" id="p-publish-date" />
+        <div class="div-input">
+          <label for="p-image">IMAGES</label>
+          <input type="file" id="p-image" accept="image/*" multiple />
+        </div>
+        <button class="btn" id="submit-btn">Update Celebrity Profile</button>
+      </section>
+    </div>
+  </div>
+</main>
+
+<script>
+  let currentProfileId = null;
+
+  function getProfileIdFromURL() {
+    const path = window.location.pathname;
+    const regex = /\/dashboard\/edit-profile\/(\d+)/;
+    const match = path.match(regex);
+    return match ? match[1] : null;
+  }
+
+  async function loadProfiles() {
+    const res = await fetch("/api/routes/celebrity/edit-celebrity-profile.php");
+    const data = await res.json();
+
+    const profilesList = document.getElementById("profiles-list");
+    profilesList.innerHTML = "";
+
+    if (data.success) {
+      const profiles = data.data;
+      profiles.forEach(profile => {
+        const profileItem = document.createElement("div");
+        profileItem.classList.add("profile-item");
+        const imageUrl = profile.image_path ? profile.image_path : '/assets/unknown.jpg';
+        profileItem.innerHTML = `
+          <div class="profile-card">
+            <img src="${imageUrl}" alt="${profile.name}'s profile image" class="profile-image" />
+            <div class="profile-info">
+              <h3>${profile.name}</h3>
+              <a class="btn edit-btn" href="/dashboard/edit-profile/${profile.id}" data-id="${profile.id}">Edit Profile</a>
+            </div>
+          </div>
+        `;
+
+        profilesList.appendChild(profileItem);
+      });
+    } else {
+      profilesList.innerHTML = "<p>No profiles found.</p>";
+    }
+  }
+
+  async function loadProfileData(profileId) {
+    const formData = new FormData();
+    formData.append("id", profileId);
+
+    const res = await fetch("/api/routes/celebrity/data/fetch-edit-profile-data.php", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      const profile = data.data[0];
+      document.getElementById("p-name").value = profile.name || '';
+      document.getElementById("p-biography").value = profile.description || '';
+      document.getElementById("p-publish-date").value = profile.publish_date || '';
+
+      currentProfileId = profileId;
+      document.getElementById("profiles-list-container").style.display = "none";
+      document.getElementById("edit-profile-container").style.display = "block";
+    } else {
+      alert(data.message);
+    }
+  }
+
+  document.addEventListener("click", (event) => {
+    if (event.target.classList.contains("edit-btn")) {
+      const profileId = event.target.getAttribute("data-id");
+      loadProfileData(profileId);
+    }
+  });
+
+  document.getElementById("submit-btn").addEventListener("click", async () => {
+    const updatedData = {
+      id: currentProfileId,
+      name: document.getElementById("p-name").value,
+      description: document.getElementById("p-biography").value,
+      publish_date: document.getElementById("p-publish-date").value,
+      image: document.getElementById("p-image").files[0] || null,
+    };
+
+    const formData = new FormData();
+    for (const key in updatedData) {
+      formData.append(key, updatedData[key]);
+    }
+
+    const res = await fetch("/api/routes/celebrity/edit-celebrity-profile.php", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      alert("Profile updated successfully!");
+      loadProfiles();
+      document.getElementById("edit-profile-container").style.display = "none";
+      document.getElementById("profiles-list-container").style.display = "block";
+      window.location.href = "/dashboard/edit-profile";
+    } else {
+      alert(data.message);
+    }
+  });
+
+  loadProfiles();
+
+  const profileId = getProfileIdFromURL();
+  if (profileId) {
+    currentProfileId = profileId;
+    loadProfileData(profileId);
+  }
+</script>
+
+<style>
+  #dashboard {
+    margin: 0 auto;
+    padding: 10em 0;
+    width: 80%;
+    min-height: 100vh;
+    text-align: center;
+  }
+
+  #quit {
+    background-color: red;
+    border: 1px solid red;
+  }
+
+  .btn {
+    padding: 0.5em 1.5em;
+    border-radius: 0.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+    background-color: green;
+    border: 1px solid green;
+    color: white;
+    font-size: 1em;
+    cursor: pointer;
+  }
+
+  .dashboard__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
+
+  .profiles-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5em;
+  }
+
+  .profile-card {
+    padding: 1em;
+    border: 1px solid gray;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .profile-image {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 5%;
+    margin-bottom: 1em;
+  }
+
+  .profile-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .profile-info h3 {
+    margin-bottom: 0.5em;
+  }
+
+  .edit-btn {
+    background-color: green;
+    color: white;
+    padding: 0.5em 1em;
+    text-decoration: none;
+    border-radius: 5px;
+  }
+
+  .dashboard__container {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    margin: 1em 0;
+  }
+
+  .dashboard__container input,
+  .dashboard__container textarea {
+    padding: 0.5em 1em;
+    border: 1px solid gray;
+    border-radius: 5px;
+    resize: none;
+    font-size: 1em;
+  }
+
+  .dashboard__container textarea {
+    height: 200px;
+  }
+
+  .dashboard__container label {
+    text-align: left;
+    margin-bottom: 0em;
+    font-weight: 600;
+  }
+
+  .div-input {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+</style>

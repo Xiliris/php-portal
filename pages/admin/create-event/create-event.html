@@ -3,7 +3,7 @@
   <h1>Dashboard</h1>
   <div>
     <div class="dashboard__header">
-      <h2 id="celebrity-name">Create Celebrity</h2>
+      <h2 id="celebrity-name">Create Event</h2>
       <a class="btn" href="/dashboard" data-link id="quit">Quit</a>
     </div>
     <div class="steps">
@@ -36,31 +36,87 @@
         <input type="datetime-local" name="datetime" id="c-datetime" />
       </div>
       <button class="btn" id="submit-btn">Create</button>
+      <button class="btn" id="back-btn">Back</button>
     </section>
   </div>
 </main>
 
 <script>
+
+  const titleInput = document.getElementById("c-title");
+  const descriptionInput = document.getElementById("c-description");
+  const datetimeInput = document.getElementById("c-datetime");
+
+  function loadValues() {
+    titleInput.value = sessionStorage.getItem("eventTitle") || "";
+    descriptionInput.value = sessionStorage.getItem("eventDescription") || "";
+    datetimeInput.value = sessionStorage.getItem("eventPublishDate") || "";
+  }
+
+  function saveValues() {
+    sessionStorage.setItem("eventTitle", titleInput.value);
+    sessionStorage.setItem("eventDescription", descriptionInput.value);
+    sessionStorage.setItem("eventPublishDate", datetimeInput.value);
+  }
+
+  loadValues();
+
+  titleInput.addEventListener("input", saveValues);
+  descriptionInput.addEventListener("input", saveValues);
+  datetimeInput.addEventListener("input", saveValues);
+
   const btn = document.getElementById("submit-btn");
+  const backBtn = document.getElementById("back-btn");
   const params = window.location.pathname.split("/");
 
   btn.addEventListener("click", async () => {
-    const title = document.getElementById("c-title").value;
-    const description = document.getElementById("c-description").value;
-    const datetime = document.getElementById("c-datetime").value;
+    saveValues();
+
+    const title = titleInput.value;
+    const description = descriptionInput.value;
+    const datetime = datetimeInput.value;
     const images = document.getElementById("c-images").files;
     const documents = document.getElementById("c-documents").files;
     const audio = document.getElementById("c-audio").files;
     const video = document.getElementById("c-video").files;
 
     if (!title || !description || !datetime) {
-      alert("Title, description and Publish Date and Time are required!");
+      alert("Title, description, and Publish Date and Time are required!");
       return;
     }
 
-    const formData = new FormData();
-    console.table(title, params[3], description, datetime);
+    try {
+      const checkTitleRes = await fetch(`/api/routes/celebrity/create-event.php?title=${encodeURIComponent(title)}&celebrityId=${params[3]}`);
+      const checkTitleData = await checkTitleRes.json();
 
+      if (checkTitleData.exists) {
+        const deleteRes = await fetch(`/api/routes/celebrity/delete-event.php?title=${encodeURIComponent(title)}&celebrityId=${params[3]}`, {
+          method: "DELETE",
+        });
+
+        const deleteData = await deleteRes.json();
+        if (!deleteData.success) {
+          console.error("Failed to delete the existing event. Please try again.");
+          return;
+        }
+      }
+
+      await createEvent();
+    } catch (error) {
+      console.error("An error occurred while checking/deleting the event:", error.message);
+    }
+  });
+
+  async function createEvent() {
+    const title = titleInput.value;
+    const description = descriptionInput.value;
+    const datetime = datetimeInput.value;
+    const images = document.getElementById("c-images").files;
+    const documents = document.getElementById("c-documents").files;
+    const audio = document.getElementById("c-audio").files;
+    const video = document.getElementById("c-video").files;
+
+    const formData = new FormData();
     formData.append("title", title);
     formData.append("id", params[3]);
     formData.append("description", description);
@@ -71,19 +127,16 @@
         formData.append("images[]", images[i]);
       }
     }
-
     if (documents.length > 0) {
       for (let i = 0; i < documents.length; i++) {
         formData.append("documents[]", documents[i]);
       }
     }
-
     if (audio.length > 0) {
       for (let i = 0; i < audio.length; i++) {
         formData.append("audio[]", audio[i]);
       }
     }
-
     if (video.length > 0) {
       for (let i = 0; i < video.length; i++) {
         formData.append("video[]", video[i]);
@@ -99,9 +152,12 @@
     if (data.success) {
       window.location.href = `/dashboard/create-event/${params[3]}/${data.id}/preview`;
     } else {
-      alert(data.message);
-      return;
+      console.error(data.message);
     }
+  }
+
+  backBtn.addEventListener("click", () => {
+    window.location.href = "/dashboard/select-celebrity";
   });
 
   async function load() {
@@ -119,7 +175,7 @@
       const celebrity = data.data;
       document.getElementById("celebrity-name").innerHTML = celebrity.name;
     } else {
-      alert(data.message);
+      console.error(data.message);
     }
   }
 
@@ -134,11 +190,11 @@
     min-height: 100vh;
     text-align: center;
   }
+
   #quit {
     background-color: red;
     border: 1px solid red;
   }
-
 
   .btn {
     padding: 0.5em 1.5em;

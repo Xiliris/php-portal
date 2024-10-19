@@ -18,6 +18,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    try {
+        $stmt = $pdo->prepare("SELECT id FROM celebrity_profile WHERE name = ?");
+        $stmt->execute([$name]);
+        $celebrity = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($celebrity) {
+            $celebrityId = $celebrity['id'];
+
+            $deleteStmt = $pdo->prepare("DELETE FROM celebrity_profile WHERE id = ?");
+            $deleteStmt->execute([$celebrityId]);
+        }
+    } catch (PDOException $e) {
+        $response["message"] = "Error checking celebrity: " . $e->getMessage();
+        echo json_encode($response);
+        exit;
+    }
+
     $imagePath = null;
     $storagePath = $protocol . '://' .  $_SERVER["SERVER_NAME"] . '/api/storage/celebrity/image/';
 
