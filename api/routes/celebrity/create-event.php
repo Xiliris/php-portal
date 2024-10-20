@@ -68,6 +68,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    try {
+        $stmt = $pdo->prepare('SELECT id FROM celebrity_event_data WHERE title = ?');
+        $stmt->execute([$title]);
+        $duplicateEventId = $stmt->fetchColumn();
+
+        if ($duplicateEventId) {
+            $deleteStmt = $pdo->prepare('DELETE FROM celebrity_event_data WHERE id = ?');
+            $deleteStmt->execute([$duplicateEventId]);
+        }
+    } catch (PDOException $e) {
+        error_log("Database error: " . $e->getMessage());
+        $response["message"] = "Error: " . $e->getMessage();
+        echo json_encode($response);
+        exit;
+    }
+
     // Insert event data into the database
     try {
         $stmt = $pdo->prepare('INSERT INTO celebrity_event_data (title, description, publish_date, celebrity_profile_id) VALUES (?, ?, ?, ?)');
@@ -89,10 +105,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $file_ext = pathinfo($file_name, PATHINFO_EXTENSION);
             $new_file_name = uniqid() . '.' . $file_ext;
             $destination = $path . '/' . $new_file_name;
-    
+
             if (move_uploaded_file($file_tmp, $destination)) {
                 $file_path = $urlPath . '/' . $new_file_name;
-    
+
                 try {
                     $stmt = $pdo->prepare("INSERT INTO $table (event_id, $column) VALUES (?, ?)");
                     $stmt->execute([$id, $file_path]);
@@ -175,7 +191,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $response["success"] = true;
-    $response["message"] = "Event created successfully";
+    $response["message"] = "Event created successfully.";
 }
 
 echo json_encode($response);

@@ -13,6 +13,7 @@
     </div>
     <hr />
     <section class="dashboard__container">
+      <button class="btn create-events-btn" id="back-btn">Back</button>
       <button class="btn create-events-btn" id="add-event-btn">View</button>
       <button class="btn" id="finish-btn">Finish</button>
     </section>
@@ -23,7 +24,12 @@
   const addEventBtn = document.getElementById("add-event-btn");
   const finishBtn = document.getElementById("finish-btn");
   const quitBtn = document.getElementById("quit");
+  const backBtn = document.getElementById("back-btn");
   const param = window.location.pathname.split("/")[3];
+
+  backBtn.addEventListener("click", () => {
+    window.location.href = `/dashboard/create-celebrity/${param}/events`;
+  });
 
   finishBtn.addEventListener('click', async (e) => {
     const formData = new FormData();
@@ -38,6 +44,13 @@
       const data = await res.json();
 
       if (data.success) {
+        sessionStorage.removeItem("celebrityName");
+        sessionStorage.removeItem("celebrityDescription");
+        sessionStorage.removeItem("publishDate");
+        sessionStorage.removeItem("eventTitle");
+        sessionStorage.removeItem("eventDescription");
+        sessionStorage.removeItem("eventDatetime");
+        
         window.location.href = `/profile/${param}`;
       } else {
         alert(data.message || "An error occurred.");
@@ -79,8 +92,6 @@
   });
 </script>
 
-
-
 <style>
   #dashboard {
     margin: 0 auto;
@@ -116,31 +127,6 @@
     margin-bottom: 1em;
   }
 
-  .dashboard__main-container {
-    margin-top: 5em;
-  }
-
-  #event-container {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .dashboard__container .btn {
-    width: 100%;
-  }
-
-  .dashboard__container h2 {
-    width: 100%;
-    padding: 0.5em;
-    border: 3px solid black;
-    border-radius: 0.5em;
-    font-weight: 600;
-    cursor: pointer;
-    border-left: 10px solid green;
-    transition: all 0.3s ease;
-    text-align: left;
-  }
-
   .dashboard__container {
     display: flex;
     justify-content: space-between;
@@ -148,18 +134,10 @@
     margin: 1em 0;
   }
 
-  .dashboard__container input,
-  .dashboard__container textarea {
-    padding: 0.5em 1em;
-    border: 1px solid gray;
-    border-radius: 5px;
-    resize: none;
-    font-size: 1em;
+  .dashboard__container .btn {
+    width: 100%;
   }
 
-  .dashboard__container textarea {
-    height: 200px;
-  }
   .steps {
     width: 100%;
     display: flex;
@@ -185,7 +163,7 @@
     content: "";
     width: calc(50% - 1em);
     height: 3px;
-    background-color: green;
+    background-color: gray;
     position: absolute;
     top: 50%;
     transform: translateY(-50%);

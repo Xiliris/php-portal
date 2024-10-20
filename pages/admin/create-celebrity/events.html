@@ -14,6 +14,7 @@
     <hr />
     <section class="dashboard__container" id="event-container"></section>
     <section class="dashboard__container">
+      <button class="btn create-events-btn" id="back-btn">Back</button>
       <button class="btn create-events-btn" id="add-event-btn">Add Event</button>
       <button class="btn" id="skip-btn">Next</button>
     </section>
@@ -24,6 +25,7 @@
   const addEvetBtn = document.getElementById("add-event-btn");
   const skipBtn = document.getElementById("skip-btn");
   const quitBtn = document.getElementById("quit");
+  const backBtn = document.getElementById("back-btn");
   const param = window.location.pathname.split("/")[3];
 
   quitBtn.addEventListener("click", async (e) => {
@@ -48,6 +50,10 @@
     } catch (error) {
       console.error("Failed to delete celebrity:", error);
     }
+  });
+
+  backBtn.addEventListener("click", () => {
+    window.location.href = "/dashboard/create-celebrity";
   });
 
   addEvetBtn.addEventListener("click", () => {
