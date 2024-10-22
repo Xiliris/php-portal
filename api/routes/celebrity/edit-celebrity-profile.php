@@ -10,6 +10,8 @@ $uploadDir = __DIR__ . '/../../storage/celebrity/image/';
 $protocol = strtolower(substr($_SERVER["SERVER_PROTOCOL"], 0, 5)) == 'https' ? 'https' : 'http';
 $baseUrl = $protocol . '://' . $_SERVER["SERVER_NAME"] . '/api/storage/celebrity/image';
 
+$maxFileSize = 2 * 1024 * 1024;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['id'])) {
         $id = $_POST['id'];
@@ -31,6 +33,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $fileUploadSuccess = true;
 
             if (isset($_FILES['image'])) {
+                if ($_FILES['image']['size'] > $maxFileSize) {
+                    $response["message"] = "Image file size exceeds the limit of 2MB.";
+                    echo json_encode($response);
+                    exit;
+                }
+
                 $imageData = handleFileUpload($_FILES['image'], $uploadDir, $baseUrl, ['image/jpeg', 'image/png', 'image/gif']);
                 if (is_array($imageData)) {
                     $stmt = $pdo->prepare("UPDATE celebrity_profile SET image_path = :image_path WHERE id = :id");

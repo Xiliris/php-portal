@@ -93,18 +93,33 @@
     const publishDateValue = publishDateInput.value;
 
     if (!nameValue) {
-      alert("Missing name!");
-      return;
+        alert("Missing name!");
+        return;
     }
 
     if (!descriptionValue) {
-      alert("Missing description!");
-      return;
+        alert("Missing description!");
+        return;
     }
 
     if (!publishDateValue) {
-      alert('Missing publish date');
-      return;
+        alert('Missing publish date');
+        return;
+    }
+
+    if (imageValue) {
+        const allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        const maxImageSize = 2 * 1024 * 1024;
+
+        if (!allowedImageTypes.includes(imageValue.type)) {
+            alert('Invalid image type. Allowed types: JPEG, PNG, GIF, WEBP.');
+            return;
+        }
+
+        if (imageValue.size > maxImageSize) {
+            alert('Image file size exceeds the 2 MB limit.');
+            return;
+        }
     }
 
     const formData = new FormData();
@@ -114,22 +129,22 @@
     formData.append('publishDate', publishDateValue);
 
     try {
-      const res = await fetch("/api/routes/celebrity/create-celebrity.php", {
-        method: "POST",
-        body: formData,
-      });
+        const res = await fetch("/api/routes/celebrity/create-celebrity.php", {
+            method: "POST",
+            body: formData,
+        });
 
-      const data = await res.json();
+        const data = await res.json();
 
-      if (res.ok && data.success) {
-        window.location.href = `/dashboard/create-celebrity/${data.id}/events`;
-      } else {
-        alert(data.message || "Failed to create celebrity.");
-      }
+        if (res.ok && data.success) {
+            window.location.href = `/dashboard/create-celebrity/${data.id}/events`;
+        } else {
+            alert(data.message || "Failed to create celebrity.");
+        }
     } catch (error) {
-      alert("An error occurred: " + error.message);
+        alert("An error occurred: " + error.message);
     }
-  }
+}
 </script>
 
 <style>

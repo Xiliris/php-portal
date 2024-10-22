@@ -36,7 +36,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $imagePath = null;
-    $storagePath = $protocol . '://' .  $_SERVER["SERVER_NAME"] . '/api/storage/celebrity/image/';
+    $storageDirectory = __DIR__ . '/../../storage/celebrity/image/';
+    $storageUrl = $protocol . '://' .  $_SERVER["SERVER_NAME"] . '/api/storage/celebrity/image/';
+
+    if (!is_dir($storageDirectory)) {
+        if (!mkdir($storageDirectory, 0777, true)) {
+            $response['message'] = "Failed to create directory for image upload.";
+            echo json_encode($response);
+            exit;
+        }
+    }
 
     if (!empty($_FILES['image']['name'])) {
         $handle = new Upload($_FILES['image']);
@@ -48,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             }
 
-            $maxFileSize = 5 * 1024 * 1024;
+            $maxFileSize = 2 * 1024 * 1024;
             if ($handle->file_src_size > $maxFileSize) {
                 $response['message'] = "File size exceeds the 5MB limit.";
                 echo json_encode($response);
@@ -56,9 +65,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             $handle->file_new_name_body = uniqid();
-            $handle->process(__DIR__ . '/../../storage/celebrity/image');
+            $handle->process($storageDirectory);
             if ($handle->processed) {
-                $imagePath = $storagePath . $handle->file_dst_name;
+                $imagePath = $storageUrl . $handle->file_dst_name;
                 $handle->clean();
             } else {
                 $response['message'] = "File upload failed: " . $handle->error;

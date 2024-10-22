@@ -55,6 +55,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
 
+            $maxFileSizes = [
+                'images' => 5 * 1024 * 1024,
+                'audio' => 10 * 1024 * 1024,
+                'documents' => 10 * 1024 * 1024,
+                'videos' => 50 * 1024 * 1024,
+            ];
+
+            function validateFiles($files, $allowedTypes, $maxSize)
+            {
+                foreach ($files['name'] as $key => $file_name) {
+                    $file_tmp = $files['tmp_name'][$key];
+                    $file_type = mime_content_type($file_tmp);
+                    $file_size = $files['size'][$key];
+
+                    if (!in_array($file_type, $allowedTypes)) {
+                        return "Invalid file type: " . $file_type;
+                    }
+                    if ($file_size > $maxSize) {
+                        return "File size exceeds the maximum limit of " . ($maxSize / 1024 / 1024) . " MB.";
+                    }
+                }
+                return null;
+            }
+
             if (isset($_FILES['video'])) {
                 foreach ($_FILES['video']['tmp_name'] as $key => $tmpName) {
                     $fileData = [

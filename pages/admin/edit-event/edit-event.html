@@ -93,9 +93,17 @@
       document.getElementById("c-datetime").value = event.publish_date || '';
       document.getElementById("events-list-container").style.display = "none";
       document.getElementById("edit-event-container").style.display = "block";
-    } else {
-      alert(data.message);
     }
+  }
+
+  function validateFiles(files, fileType, maxSize) {
+    for (const file of files) {
+      if (file.size > maxSize) {
+        alert(`${fileType} file "${file.name}" exceeds the size limit of ${maxSize / 1024 / 1024}MB.`);
+        return false;
+      }
+    }
+    return true;
   }
 
   document.getElementById("submit-btn").addEventListener("click", async () => {
@@ -108,29 +116,28 @@
       return;
     }
 
+    const imageInput = document.getElementById("c-image").files;
+    const videoInput = document.getElementById("c-video").files;
+    const audioInput = document.getElementById("c-audio").files;
+    const documentInput = document.getElementById("c-document").files;
+
+    if (!validateFiles(imageInput, "Images", 5 * 1024 * 1024) ||
+      !validateFiles(documentInput, "Documents", 10 * 1024 * 1024) ||
+      !validateFiles(audioInput, "Audio", 10 * 1024 * 1024) ||
+      !validateFiles(videoInput, "Video", 50 * 1024 * 1024)) {
+      return;
+    }
+
     const formData = new FormData();
     formData.append("id", currentEventId);
     formData.append("title", title);
     formData.append("description", description);
     formData.append("publish_date", datetime);
 
-    const imageInput = document.getElementById("c-image");
-    const videoInput = document.getElementById("c-video");
-    const audioInput = document.getElementById("c-audio");
-    const documentInput = document.getElementById("c-document");
-
-    if (imageInput.files.length > 0) {
-      Array.from(imageInput.files).forEach(file => formData.append("image[]", file));
-    }
-    if (videoInput.files.length > 0) {
-      Array.from(videoInput.files).forEach(file => formData.append("video[]", file));
-    }
-    if (audioInput.files.length > 0) {
-      Array.from(audioInput.files).forEach(file => formData.append("audio[]", file));
-    }
-    if (documentInput.files.length > 0) {
-      Array.from(documentInput.files).forEach(file => formData.append("document[]", file));
-    }
+    Array.from(imageInput).forEach(file => formData.append("image[]", file));
+    Array.from(videoInput).forEach(file => formData.append("video[]", file));
+    Array.from(audioInput).forEach(file => formData.append("audio[]", file));
+    Array.from(documentInput).forEach(file => formData.append("document[]", file));
 
     const res = await fetch("/api/routes/celebrity/edit-event.php", {
       method: "POST",

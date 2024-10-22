@@ -42,7 +42,6 @@
 </main>
 
 <script>
-
   const titleInput = document.getElementById("c-title");
   const descriptionInput = document.getElementById("c-description");
   const datetimeInput = document.getElementById("c-datetime");
@@ -69,6 +68,10 @@
   const backBtn = document.getElementById("back-btn");
   const params = window.location.pathname.split("/");
 
+  function showAlert(message) {
+    alert(message);
+  }
+
   btn.addEventListener("click", async () => {
     saveValues();
 
@@ -81,7 +84,14 @@
     const video = document.getElementById("c-video").files;
 
     if (!title || !description || !datetime) {
-      alert("Title, description, and Publish Date and Time are required!");
+      showAlert("Title, description, and Publish Date and Time are required!");
+      return;
+    }
+
+    if (!validateFiles(images, "Images", 5 * 1024 * 1024) ||
+      !validateFiles(documents, "Documents", 10 * 1024 * 1024) ||
+      !validateFiles(audio, "Audio", 10 * 1024 * 1024) ||
+      !validateFiles(video, "Video", 50 * 1024 * 1024)) {
       return;
     }
 
@@ -96,7 +106,7 @@
 
         const deleteData = await deleteRes.json();
         if (!deleteData.success) {
-          console.error("Failed to delete the existing event. Please try again.");
+          showAlert("Failed to delete the existing event. Please try again.");
           return;
         }
       }
@@ -104,8 +114,19 @@
       await createEvent();
     } catch (error) {
       console.error("An error occurred while checking/deleting the event:", error.message);
+      showAlert("An error occurred. Please try again.");
     }
   });
+
+  function validateFiles(files, type, maxSize) {
+    for (let i = 0; i < files.length; i++) {
+      if (files[i].size > maxSize) {
+        showAlert(`${type} file "${files[i].name}" exceeds the allowed size of ${maxSize / (1024 * 1024)} MB.`);
+        return false;
+      }
+    }
+    return true;
+  }
 
   async function createEvent() {
     const title = titleInput.value;
@@ -152,7 +173,7 @@
     if (data.success) {
       window.location.href = `/dashboard/create-event/${params[3]}/${data.id}/preview`;
     } else {
-      console.error(data.message);
+      showAlert(data.message || "Failed to create the event. Please try again.");
     }
   }
 
