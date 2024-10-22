@@ -1,9 +1,11 @@
+/* ZDBIST */
+
 document.addEventListener("DOMContentLoaded", async () => {
   const app = document.getElementById("app");
   const loadingEl = document.getElementById("loading");
   let cachedRoute = "/";
 
-  const baseUrl = "http://php-portal.local";
+  const baseUrl = "https://zdbist.ba";
 
   const hrefReplace = {};
 
@@ -79,7 +81,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const routePermissions = {
     "/logout": 1,
     "/change-password": 1,
-    "/shop": 1,
 
     "/dashboard": 3,
     "/dashboard/create-celebrity": 3,
@@ -90,6 +91,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/dashboard/select-celebrity": 3,
     "/dashboard/create-event/:id": 3,
     "/dashboard/create-event/:id/:eventId/preview": 3,
+    "/dashboard/edit-event": 3,
+    "/dashboard/edit-event/:id": 3,
 
     "/preview/:userid": 3,
     "/preview/:userid/:event/documents": 3,
@@ -97,6 +100,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/preview/:userid/:event/audio": 3,
     "/preview/:userid/:event/images": 3,
     "/preview/:userid/:event/releases": 3,
+    "/dashboard/edit-profile": 3,
+    "/dashboard/edit-profile/:id": 3,
+    "/dashboard/home-position": 3,
+    "/dashboard/home-position:id": 3,
 
     "/master-panel": 4,
     "/master-panel/routes": 4,
@@ -207,7 +214,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       app.innerHTML = html;
-      if(window.location.href !== 'http://php-portal.local/#app') {
+      if(window.location.href !== 'https://zdbist.ba/#app') {
         window.scrollTo(0,0)
       }
 

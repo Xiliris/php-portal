@@ -29,6 +29,7 @@
 
 <script>
   let currentProfileId = null;
+  const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
   function getProfileIdFromURL() {
     const path = window.location.pathname;
@@ -100,12 +101,19 @@
   });
 
   document.getElementById("submit-btn").addEventListener("click", async () => {
+    const imageFile = document.getElementById("p-image").files[0];
+
+    if (imageFile && imageFile.size > MAX_FILE_SIZE) {
+      alert("File size exceeds 2MB. Please select a smaller image.");
+      return;
+    }
+
     const updatedData = {
       id: currentProfileId,
       name: document.getElementById("p-name").value,
       description: document.getElementById("p-biography").value,
       publish_date: document.getElementById("p-publish-date").value,
-      image: document.getElementById("p-image").files[0] || null,
+      image: imageFile || null,
     };
 
     const formData = new FormData();

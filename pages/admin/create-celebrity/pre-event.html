@@ -3,8 +3,8 @@
   <h1>Dashboard</h1>
   <div>
     <div class="dashboard__header">
-      <h2 id="celebrity-name">Create Celebrity</h2>
-      <a class="btn" id="back-btn" href="/dashboard/create-celebrity/:id/events" data-link>Back</a>
+      <h2 id="celebrity-name">Create Event</h2>
+      <a class="btn" href="/dashboard" data-link id="quit">Quit</a>
     </div>
     <div class="steps">
       <span class="active-step">1</span>
@@ -36,79 +36,124 @@
         <input type="datetime-local" name="datetime" id="c-datetime" />
       </div>
       <button class="btn" id="submit-btn">Create</button>
+      <button class="btn" id="back-btn">Back</button>
     </section>
   </div>
 </main>
 
 <script>
-  const params = window.location.pathname.split("/");
+  const titleInput = document.getElementById("c-title");
+  const descriptionInput = document.getElementById("c-description");
+  const datetimeInput = document.getElementById("c-datetime");
 
-  function saveToSessionStorage() {
-    const title = document.getElementById("c-title").value;
-    const description = document.getElementById("c-description").value;
-    const datetime = document.getElementById("c-datetime").value;
-
-    sessionStorage.setItem("eventTitle", title);
-    sessionStorage.setItem("eventDescription", description);
-    sessionStorage.setItem("eventDatetime", datetime);
+  function loadValues() {
+    titleInput.value = sessionStorage.getItem("eventTitle") || "";
+    descriptionInput.value = sessionStorage.getItem("eventDescription") || "";
+    datetimeInput.value = sessionStorage.getItem("eventPublishDate") || "";
   }
 
-  function loadFromSessionStorage() {
-    const title = sessionStorage.getItem("eventTitle") || "";
-    const description = sessionStorage.getItem("eventDescription") || "";
-    const datetime = sessionStorage.getItem("eventDatetime") || "";
-
-    document.getElementById("c-title").value = title;
-    document.getElementById("c-description").value = description;
-    document.getElementById("c-datetime").value = datetime;
+  function saveValues() {
+    sessionStorage.setItem("eventTitle", titleInput.value);
+    sessionStorage.setItem("eventDescription", descriptionInput.value);
+    sessionStorage.setItem("eventPublishDate", datetimeInput.value);
   }
+
+  loadValues();
+
+  titleInput.addEventListener("input", saveValues);
+  descriptionInput.addEventListener("input", saveValues);
+  datetimeInput.addEventListener("input", saveValues);
 
   const btn = document.getElementById("submit-btn");
+  const backBtn = document.getElementById("back-btn");
+  const params = window.location.pathname.split("/");
+
+  function showAlert(message) {
+    alert(message);
+  }
 
   btn.addEventListener("click", async () => {
-    const title = document.getElementById("c-title").value;
-    const description = document.getElementById("c-description").value;
-    const datetime = document.getElementById("c-datetime").value;
+    saveValues();
+
+    const title = titleInput.value;
+    const description = descriptionInput.value;
+    const datetime = datetimeInput.value;
     const images = document.getElementById("c-images").files;
     const documents = document.getElementById("c-documents").files;
     const audio = document.getElementById("c-audio").files;
     const video = document.getElementById("c-video").files;
 
     if (!title || !description || !datetime) {
-      alert("Title, description, and Publish Date and Time are required!");
+      showAlert("Title, description, and Publish Date and Time are required!");
       return;
     }
 
-    const formData = new FormData();
-    console.table(title, params[3], description, datetime);
+    if (!validateFiles(images, "Image", 5 * 1024 * 1024) ||
+      !validateFiles(documents, "Document", 10 * 1024 * 1024) ||
+      !validateFiles(audio, "Audio", 10 * 1024 * 1024) ||
+      !validateFiles(video, "Video", 50 * 1024 * 1024)) {
+      return;
+    }
 
+    try {
+      const checkTitleRes = await fetch(`/api/routes/celebrity/create-event.php?title=${encodeURIComponent(title)}&celebrityId=${params[3]}`);
+      const checkTitleData = await checkTitleRes.json();
+
+      if (checkTitleData.exists) {
+        const deleteRes = await fetch(`/api/routes/celebrity/delete-event.php?title=${encodeURIComponent(title)}&celebrityId=${params[3]}`, {
+          method: "DELETE",
+        });
+
+        const deleteData = await deleteRes.json();
+        if (!deleteData.success) {
+          showAlert("Failed to delete the existing event. Please try again.");
+          return;
+        }
+      }
+
+      await createEvent();
+    } catch (error) {
+      console.error("An error occurred while checking/deleting the event:", error.message);
+      showAlert("An error occurred. Please try again.");
+    }
+  });
+
+  function validateFiles(files, type, maxSize) {
+    for (let i = 0; i < files.length; i++) {
+      if (files[i].size > maxSize) {
+        showAlert(`${type} file "${files[i].name}" exceeds the allowed size of ${maxSize / (1024 * 1024)} MB.`);
+        return false;
+      }
+    }
+    return true;
+  }
+
+  async function createEvent() {
+    const title = titleInput.value;
+    const description = descriptionInput.value;
+    const datetime = datetimeInput.value;
+    const images = document.getElementById("c-images").files;
+    const documents = document.getElementById("c-documents").files;
+    const audio = document.getElementById("c-audio").files;
+    const video = document.getElementById("c-video").files;
+
+    const formData = new FormData();
     formData.append("title", title);
     formData.append("id", params[3]);
     formData.append("description", description);
     formData.append("publish_date", datetime);
 
-    if (images.length > 0) {
-      for (let i = 0; i < images.length; i++) {
-        formData.append("images[]", images[i]);
-      }
+    for (let i = 0; i < images.length; i++) {
+      formData.append("images[]", images[i]);
     }
-
-    if (documents.length > 0) {
-      for (let i = 0; i < documents.length; i++) {
-        formData.append("documents[]", documents[i]);
-      }
+    for (let i = 0; i < documents.length; i++) {
+      formData.append("documents[]", documents[i]);
     }
-
-    if (audio.length > 0) {
-      for (let i = 0; i < audio.length; i++) {
-        formData.append("audio[]", audio[i]);
-      }
+    for (let i = 0; i < audio.length; i++) {
+      formData.append("audio[]", audio[i]);
     }
-
-    if (video.length > 0) {
-      for (let i = 0; i < video.length; i++) {
-        formData.append("video[]", video[i]);
-      }
+    for (let i = 0; i < video.length; i++) {
+      formData.append("video[]", video[i]);
     }
 
     const res = await fetch("/api/routes/celebrity/create-event.php", {
@@ -118,43 +163,15 @@
     const data = await res.json();
 
     if (data.success) {
-      window.location.href = `/dashboard/create-celebrity/${params[3]}/events`;
+      window.location.href = `/dashboard/create-event/${params[3]}/${data.id}/preview`;
     } else {
-      alert(data.message);
-      return;
-    }
-  });
-
-  document.getElementById("c-title").addEventListener("input", saveToSessionStorage);
-  document.getElementById("c-description").addEventListener("input", saveToSessionStorage);
-  document.getElementById("c-datetime").addEventListener("change", saveToSessionStorage);
-
-  async function backButton() {
-    const backBtn = document.getElementById('back-btn');
-
-    if (backBtn) {
-      try {
-        const params = window.location.pathname.split("/");
-        const id = params[3];
-
-        let linkTemplate = backBtn.getAttribute('href');
-
-        if (linkTemplate) {
-          const link = linkTemplate.replace(':id', id).trim();
-          backBtn.href = link;
-
-        } else {
-          console.error('href attribute not found on Back button');
-        }
-      } catch (error) {
-        console.error('Error setting up back button:', error);
-      }
-    } else {
-      console.error('Back button element not found');
+      showAlert(data.message || "Failed to create the event. Please try again.");
     }
   }
 
-  backButton();
+  backBtn.addEventListener("click", () => {
+    window.location.href = "/dashboard/select-celebrity";
+  });
 
   async function load() {
     const formData = new FormData();
@@ -171,11 +188,10 @@
       const celebrity = data.data;
       document.getElementById("celebrity-name").innerHTML = celebrity.name;
     } else {
-      alert(data.message);
+      console.error(data.message);
     }
   }
 
-  loadFromSessionStorage();
   load();
 </script>
 
