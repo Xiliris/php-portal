@@ -25,8 +25,8 @@
       const celebrity = data.data;
       const article = document.createElement("article");
 
-      if(celebrity.preview) {
-        overlayProfileContainer.style.display = 'flex'
+      if (celebrity.preview) {
+        overlayProfileContainer.style.display = "flex";
       }
 
       let imagePath = celebrity.image_path || "/assets/unknown.jpg";
@@ -56,17 +56,19 @@
     if (data.success) {
       for (const event of data.data) {
         const article = document.createElement("article");
-        article.id = event.id;
+        article.id = event.slug;
         const itemsContainer = document.createElement("div");
         itemsContainer.className = "items_container";
 
-        if (event.id == params[3]) {
+        if (event.slug == params[3]) {
           article.innerHTML = `
             <a class="current-active">${event.title}</a>
             <i class="fa-solid fa-chevron-up"></i>
           `;
 
-          const audioRes = await fetch(`/api/routes/celebrity/data/audio.php?id=${event.id}`);
+          const audioRes = await fetch(
+            `/api/routes/celebrity/data/audio.php?id=${event.slug}`
+          );
           const audioData = await audioRes.json();
           let audioArr = "";
 
@@ -104,9 +106,9 @@
           this.querySelector("i").classList.toggle("active");
 
           if (article.id == params[3]) {
-            window.location.href = `/profile/${params[2]}`;
+            window.location.href = `/person-of-interest/${params[2]}`;
           } else {
-            window.location.href = `/profile/${params[2]}/${event.id}/releases`;
+            window.location.href = `/person-of-interest/${params[2]}/${event.slug}/releases`;
           }
         });
 
@@ -114,35 +116,38 @@
           const target = e.target;
 
           // Handle click on <li> elements
-          if (target.tagName === "LI" || target.parentElement.tagName === "LI") {
-            const clickedItem = target.tagName === "LI" ? target : target.parentElement;
+          if (
+            target.tagName === "LI" ||
+            target.parentElement.tagName === "LI"
+          ) {
+            const clickedItem =
+              target.tagName === "LI" ? target : target.parentElement;
             const id = clickedItem.id;
             switch (id) {
               case "releases":
-                window.location.href = `/profile/${params[2]}/${event.id}/releases`;
+                window.location.href = `/person-of-interest/${params[2]}/${event.slug}/releases`;
                 break;
               case "documents":
-                window.location.href = `/profile/${params[2]}/${event.id}/documents`;
+                window.location.href = `/person-of-interest/${params[2]}/${event.slug}/documents`;
                 break;
               case "images":
-                window.location.href = `/profile/${params[2]}/${event.id}/images`;
+                window.location.href = `/person-of-interest/${params[2]}/${event.slug}/images`;
                 break;
               case "audio":
-                window.location.href = `/profile/${params[2]}/${event.id}/audio`;
+                window.location.href = `/person-of-interest/${params[2]}/${event.slug}/audio`;
                 break;
               case "video":
-                window.location.href = `/profile/${params[2]}/${event.id}/video`;
+                window.location.href = `/person-of-interest/${params[2]}/${event.slug}/video`;
                 break;
               default:
                 console.log("Unknown item clicked");
             }
           }
         });
-        if(!event.preview) {
+        if (!event.preview) {
           eventContainer.append(article);
           eventContainer.append(itemsContainer);
         }
-
       }
     } else {
       alert(data.message);
@@ -194,7 +199,7 @@
     word-break: break-all;
     hyphens: auto;
     overflow-wrap: break-word;
-    width: 80vw
+    width: 80vw;
   }
 
   #celebrity__event-container {
@@ -282,62 +287,61 @@
     font-size: 1.2em;
     line-height: 1.5em;
   }
-  
+
   @media (max-width: 768px) {
+    #celebrity__event-container {
+      width: 80vw;
+    }
+    #celebrity__event-container article {
+      font-size: 0.9em;
+    }
 
-#celebrity__event-container {
-    width: 80vw;
+    .items_container ul {
+      flex-direction: column;
+      width: 100%;
+      align-items: flex-start;
+    }
+
+    .items_container ul li {
+      padding: 0.5em;
+      text-align: center;
+    }
+
+    .items_container div p {
+      font-size: 0.9em;
+    }
+
+    .profile-container {
+      margin-top: 8em;
+      margin-bottom: 3em;
+    }
+
+    #celebrity__container {
+      width: 80vw;
+      flex-direction: column;
+    }
+
+    #celebrity__container article {
+      padding-bottom: 2em;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      width: 100%;
+    }
+
+    #celebrity__container article img {
+      width: 150px;
+      height: 200px;
+      align-self: flex-start;
+    }
+
+    #celebrity__container article p {
+      font-size: 0.9em;
+      line-height: 1.3em;
+      word-break: break-all;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      margin: 0;
+    }
   }
-#celebrity__event-container article {
-    font-size: 0.9em;
-  }
-
-.items_container ul {
-    flex-direction: column;
-    width: 100%;
-    align-items: flex-start;
-  }
-
-.items_container ul li {
-    padding: 0.5em;
-    text-align: center;
-  }
-
-.items_container div p {
-    font-size: 0.9em;
-  }
-
-.profile-container {
-margin-top: 8em;
-margin-bottom: 3em;
-}
-
-#celebrity__container {
-width: 80vw;
-flex-direction: column;
-}
-
-#celebrity__container article {
-padding-bottom: 2em;
-display: flex;
-flex-direction: column;
-align-items: flex-start;
-width: 100%;
-}
-
-#celebrity__container article img {
-width: 150px;
-height: 200px;
-align-self: flex-start;
-}
-
-#celebrity__container article p {
-font-size: 0.9em;
-line-height: 1.3em;
-word-break: break-all;
-hyphens: auto;
-overflow-wrap: break-word;
-margin: 0;
-}
-}
 </style>

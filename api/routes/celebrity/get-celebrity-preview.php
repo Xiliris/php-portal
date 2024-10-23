@@ -12,7 +12,7 @@ if ($_SERVER["REQUEST_METHOD"] === 'POST') {
     } else {
         try {
 
-            $stmt = $pdo->prepare("SELECT * FROM celebrity_profile WHERE slug = ?");
+            $stmt = $pdo->prepare("SELECT * FROM celebrity_profile WHERE id = ?");
             $stmt->execute([$id]);
 
 
