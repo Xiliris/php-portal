@@ -13,21 +13,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        // Query the celebrity_profile by slug
-        $stmt = $pdo->prepare("SELECT * FROM celebrity_profile WHERE slug = :slug");
-        $stmt->execute(['slug' => $id]);
-        $profile = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        // Check if the profile was found
-        if (!$profile) {
-            $response["message"] = "No profile found for the given slug.";
-            echo json_encode($response);
-            exit;
-        }
-
         // Prepare and execute query to search by celebrity_profile_id
         $stmt = $pdo->prepare("SELECT * FROM celebrity_event_data WHERE celebrity_profile_id = :id ORDER BY created_at ASC");
-        $stmt->execute(['id' => $profile["id"]]);
+        $stmt->execute(['id' => $id]);
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $currentDateTime = new DateTime();
@@ -40,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Check if any results were found
         if (empty($filteredResults)) {
-            $response["message"] = "No events found for the given profile or all events are in the future.";
+            $response["message"] = "No events found for the given ID or all events are in the future.";
         } else {
             $response["success"] = true;
             $response["message"] = "Data retrieved successfully";

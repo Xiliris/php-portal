@@ -4,9 +4,9 @@ require __DIR__ . '/../../../config.php';
 $response = ["success" => false, "message" => "", "data" => []];
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $eventId = intval($_GET['id']);
+    $eventId = $_GET['id'];
 
-    if ($eventId <= 0) {
+    if (!$eventId) {
         $response["message"] = "Valid Event ID is required";
         echo json_encode($response);
         exit;
@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     try {
         // Fetch event data first
-        $stmt = $pdo->prepare("SELECT * FROM celebrity_event_data WHERE id = ?");
+        $stmt = $pdo->prepare("SELECT * FROM celebrity_event_data WHERE slug = ?");
         $stmt->execute([$eventId]);
         $event = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
         // Fetch only audio paths from celebrity_event_audio
         $stmt = $pdo->prepare("SELECT audio_path FROM celebrity_event_audios WHERE event_id = ?");
-        $stmt->execute([$eventId]);
+        $stmt->execute([$event['id']]);
         $audioPaths = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
         if (empty($audioPaths)) {

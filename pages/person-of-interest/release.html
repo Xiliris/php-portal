@@ -25,9 +25,10 @@
       const celebrity = data.data;
       const article = document.createElement("article");
 
-      if(celebrity.preview) {
-        overlayProfileContainer.style.display = 'flex'
+      if (celebrity.preview) {
+        overlayProfileContainer.style.display = "flex";
       }
+
       let imagePath = celebrity.image_path || "/assets/unknown.jpg";
 
       article.innerHTML = `
@@ -55,55 +56,61 @@
     if (data.success) {
       for (const event of data.data) {
         const article = document.createElement("article");
-        article.id = event.id;
+        article.id = event.slug;
         const itemsContainer = document.createElement("div");
+
+        const publishDate = new Date(event.publish_date);
+        const day = String(publishDate.getDate()).padStart(2, "0");
+        const month = String(publishDate.getMonth() + 1).padStart(2, "0");
+        const year = publishDate.getFullYear();
+        const hours = String(publishDate.getHours()).padStart(2, "0");
+        const minutes = String(publishDate.getMinutes()).padStart(2, "0");
+
+        const formattedDate = `${day}/${month}/${year}`;
+        const formattedTime = `${hours}:${minutes}`;
+
         itemsContainer.className = "items_container";
 
-        if (event.id == params[3]) {
+        if (event.slug == params[3]) {
           article.innerHTML = `
-            <a class="current-active">${event.title}</a>
-            <i class="fa-solid fa-chevron-up"></i>
+          <a class="current-active">${event.title}</a>
+          <i class="fa-solid fa-chevron-${
+            event.slug == params[3] ? "up" : "down"
+          }"></i>
           `;
 
-          console.log(event.id);
-          const videoRes = await fetch(`/api/routes/celebrity/data/videos.php?id=${event.id}`);
-          const videoData = await videoRes.json();
-          let videoContent = "";
-
-          if (videoData.success) {
-            for (const video of videoData.data) {
-              videoContent += `
-                <video controls>
-                  <source src="${video}" type="video/mp4"/>
-                </video>
-              `;
-            }
-          }
-
-          itemsContainer.innerHTML = `
-            <ul>
-              <li id="releases">Releases <i class="fa-solid fa-chevron-down"></i></li>
-              <li id="documents">Documents <i class="fa-solid fa-chevron-down"></i></li>
-              <li id="images">Images <i class="fa-solid fa-chevron-down"></i></li>
-              <li id="audio">Audio <i class="fa-solid fa-chevron-down"></i></li>
-              <li id="video" class="active-item">Video <i class="fa-solid fa-chevron-down"></i></li>
-            </ul>
-            <div>${videoContent}</div>
-          `;
+          itemsContainer.innerHTML = ` 
+          <ul>
+            <li id="releases" class="active-item">Releases <i class="fa-solid fa-chevron-down"></i></li>
+            <li id="documents">Documents <i class="fa-solid fa-chevron-down"></i></li>
+            <li id="images">Images <i class="fa-solid fa-chevron-down"></i></li>
+            <li id="audio">Audio <i class="fa-solid fa-chevron-down"></i></li>
+            <li id="video">Video <i class="fa-solid fa-chevron-down"></i></li>
+          </ul>
+      <div>
+        <p>${event.description}</p>
+      </div>
+      <p id="event_status">
+        <span>${event.views}</span>
+        <i class="fa-solid fa-eye"></i> 
+        <span class="publish_date">${formattedTime}</span>
+        <span class="publish_date">${formattedDate}</span>
+      </p>
+    `;
         } else {
           article.innerHTML = `
-            <a>${event.title}</a>
-            <i class="fa-solid fa-chevron-down"></i>
-          `;
+          <a>${event.title}</a> 
+          <i class="fa-solid fa-chevron-down"></i>
+        `;
         }
 
         article.addEventListener("click", function () {
           this.querySelector("i").classList.toggle("active");
 
           if (article.id == params[3]) {
-            window.location.href = `/profile/${params[2]}`;
+            window.location.href = `/person-of-interest/${params[2]}`;
           } else {
-            window.location.href = `/profile/${params[2]}/${event.id}/releases`;
+            window.location.href = `/person-of-interest/${params[2]}/${event.slug}/releases`;
           }
         });
 
@@ -111,24 +118,28 @@
           const target = e.target;
 
           // Handle click on <li> elements
-          if (target.tagName === "LI" || target.parentElement.tagName === "LI") {
-            const clickedItem = target.tagName === "LI" ? target : target.parentElement;
+          if (
+            target.tagName === "LI" ||
+            target.parentElement.tagName === "LI"
+          ) {
+            const clickedItem =
+              target.tagName === "LI" ? target : target.parentElement;
             const id = clickedItem.id;
             switch (id) {
               case "releases":
-                window.location.href = `/profile/${params[2]}/${event.id}/releases`;
+                window.location.href = `/person-of-interest/${params[2]}/${event.slug}/releases`;
                 break;
               case "documents":
-                window.location.href = `/profile/${params[2]}/${event.id}/documents`;
+                window.location.href = `/person-of-interest/${params[2]}/${event.slug}/documents`;
                 break;
               case "images":
-                window.location.href = `/profile/${params[2]}/${event.id}/images`;
+                window.location.href = `/person-of-interest/${params[2]}/${event.slug}/images`;
                 break;
               case "audio":
-                window.location.href = `/profile/${params[2]}/${event.id}/audio`;
+                window.location.href = `/person-of-interest/${params[2]}/${event.slug}/audio`;
                 break;
               case "video":
-                window.location.href = `/profile/${params[2]}/${event.id}/video`;
+                window.location.href = `/person-of-interest/${params[2]}/${event.slug}/video`;
                 break;
               default:
                 console.log("Unknown item clicked");
@@ -136,7 +147,7 @@
           }
         });
 
-        if(!event.preview) {
+        if (!event.preview) {
           eventContainer.append(article);
           eventContainer.append(itemsContainer);
         }
@@ -146,8 +157,36 @@
     }
   }
 
+  async function handleViews() {
+    const eventId = window.location.pathname.split("/")[3];
+    const formData = new FormData();
+    formData.append("id", eventId);
+
+    try {
+      // Check if the event has already been visited
+      if (!localStorage.getItem(eventId)) {
+        // Send a POST request to the server to register the view
+        const response = await fetch("/api/routes/celebrity/add-view.php", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        localStorage.setItem(eventId, "visited");
+      } else {
+        console.log("Visited Already");
+      }
+    } catch (error) {
+      console.error("Error handling views:", error);
+    }
+  }
+
   loadEvents();
   loadProfile();
+  handleViews();
 </script>
 
 <style>
@@ -191,7 +230,7 @@
     word-break: break-all;
     hyphens: auto;
     overflow-wrap: break-word;
-    width: 80vw
+    width: 80vw;
   }
 
   #celebrity__event-container {
@@ -275,67 +314,85 @@
     margin-top: 1em;
   }
 
-  .items_container div video {
-    width: 100%;
-    max-width: 350px;
-    height: auto;
-  }
-  
-  @media (max-width: 768px) {
-
-#celebrity__event-container {
-    width: 80vw;
-  }
-#celebrity__event-container article {
-    font-size: 0.9em;
+  .items_container div p {
+    font-size: 1.2em;
+    line-height: 1.5em;
+    width: 70vw;
+    word-break: break-all;
+    hyphens: auto;
+    overflow-wrap: break-word;
   }
 
-.items_container ul {
-    flex-direction: column;
-    width: 100%;
-    align-items: flex-start;
+  #event_status {
+    font-weight: bold;
+    text-align: right;
+    margin-top: 1em;
+    width: 70vw;
   }
 
-.items_container ul li {
-    padding: 0.5em;
-    text-align: center;
+  #event_status i {
+    margin-left: 0.5em;
+    margin-right: 0.5em;
   }
 
-.items_container div p {
-    font-size: 0.9em;
+  #event_status .publish_date {
+    margin-right: 0.5em;
   }
 
-.profile-container {
-margin-top: 8em;
-margin-bottom: 3em;
-}
+  @media (max-width: 950px) {
+    #celebrity__event-container {
+      width: 80vw;
+    }
+    #celebrity__event-container article {
+      font-size: 0.9em;
+    }
 
-#celebrity__container {
-width: 80vw;
-flex-direction: column;
-}
+    .items_container ul {
+      flex-direction: column;
+      width: 100%;
+      align-items: flex-start;
+    }
 
-#celebrity__container article {
-padding-bottom: 2em;
-display: flex;
-flex-direction: column;
-align-items: flex-start;
-width: 100%;
-}
+    .items_container ul li {
+      padding: 0.5em;
+      text-align: center;
+    }
 
-#celebrity__container article img {
-width: 150px;
-height: 200px;
-align-self: flex-start;
-}
+    .items_container div p {
+      font-size: 0.9em;
+    }
 
-#celebrity__container article p {
-font-size: 0.9em;
-line-height: 1.3em;
-word-break: break-all;
-hyphens: auto;
-overflow-wrap: break-word;
-margin: 0;
-}
-}
+    .profile-container {
+      margin-top: 8em;
+      margin-bottom: 3em;
+    }
+
+    #celebrity__container {
+      width: 80vw;
+      flex-direction: column;
+    }
+
+    #celebrity__container article {
+      padding-bottom: 2em;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      width: 100%;
+    }
+
+    #celebrity__container article img {
+      width: 150px;
+      height: 200px;
+      align-self: flex-start;
+    }
+
+    #celebrity__container article p {
+      font-size: 0.9em;
+      line-height: 1.3em;
+      word-break: break-all;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      margin: 0;
+    }
+  }
 </style>

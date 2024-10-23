@@ -1,0 +1,272 @@
+{{navbar}}
+<main id="dashboard">
+  <h1>Dashboard</h1>
+  <div>
+    <div class="dashboard__header">
+      <h2 id="celebrity-name">All Events</h2>
+      <a class="btn" href="/dashboard" data-link id="quit">Quit</a>
+    </div>
+    <div id="events-list-container">
+      <div class="events-list" id="events-list"></div>
+    </div>
+
+    <div id="edit-event-container" style="display:none;">
+      <hr />
+      <section class="dashboard__container">
+        <input type="text" placeholder="Title" id="c-title" />
+        <textarea placeholder="Description" id="c-description"></textarea>
+        <div class="div-input">
+          <label for="datetime">PUBLISH DATE AND TIME</label>
+          <input type="datetime-local" name="datetime" id="c-datetime" />
+        </div>
+        <div class="div-input">
+          <label for="c-image">IMAGES</label>
+          <input type="file" id="c-image" accept="image/*" multiple />
+        </div>
+        <div class="div-input">
+          <label for="c-video">VIDEO</label>
+          <input type="file" id="c-video" accept="video/*" multiple />
+        </div>
+        <div class="div-input">
+          <label for="c-audio">AUDIO</label>
+          <input type="file" id="c-audio" accept="audio/*" multiple />
+        </div>
+        <div class="div-input">
+          <label for="c-document">DOCUMENTS</label>
+          <input type="file" id="c-document" accept=".pdf,.doc,.docx" multiple />
+        </div>
+        <button class="btn" id="submit-btn">Update Event</button>
+      </section>
+    </div>
+  </div>
+</main>
+
+<script>
+  let currentEventId = null;
+
+  function getEventIdFromURL() {
+    const path = window.location.pathname;
+    const regex = /\/dashboard\/edit-event\/(\d+)/;
+    const match = path.match(regex);
+    return match ? match[1] : null;
+  }
+
+  async function loadEvents() {
+    const res = await fetch("/api/routes/celebrity/edit-event.php");
+    const data = await res.json();
+
+    const eventsList = document.getElementById("events-list");
+    eventsList.innerHTML = "";
+
+    if (data.success) {
+      const events = data.data;
+      events.forEach(event => {
+        const eventItem = document.createElement("div");
+        eventItem.classList.add("event-card");
+        eventItem.innerHTML = `
+          <h3>${event.title}</h3>
+          <p>Publish Date: ${new Date(event.publish_date).toLocaleString()}</p>
+          <a class="btn edit-btn" href="/dashboard/edit-event/${event.id}" data-id="${event.id}">Edit Event</a>
+        `;
+        eventsList.appendChild(eventItem);
+      });
+    } else {
+      eventsList.innerHTML = "<p>No events found.</p>";
+    }
+  }
+
+  async function loadEventData(eventId) {
+    const formData = new FormData();
+    formData.append("id", eventId);
+
+    const res = await fetch("/api/routes/celebrity/data/fetch-edit-events.php", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      const event = data.data[0];
+      document.getElementById("c-title").value = event.title || '';
+      document.getElementById("c-description").value = event.description || '';
+      document.getElementById("c-datetime").value = event.publish_date || '';
+      document.getElementById("events-list-container").style.display = "none";
+      document.getElementById("edit-event-container").style.display = "block";
+    }
+  }
+
+  function validateFiles(files, fileType, maxSize) {
+    for (const file of files) {
+      if (file.size > maxSize) {
+        alert(`${fileType} file "${file.name}" exceeds the size limit of ${maxSize / 1024 / 1024}MB.`);
+        return false;
+      }
+    }
+    return true;
+  }
+
+  document.getElementById("submit-btn").addEventListener("click", async () => {
+    const title = document.getElementById("c-title").value;
+    const description = document.getElementById("c-description").value;
+    const datetime = document.getElementById("c-datetime").value;
+
+    if (!title || !description || !datetime) {
+      alert("Title, description, and Publish Date and Time are required!");
+      return;
+    }
+
+    const imageInput = document.getElementById("c-image").files;
+    const videoInput = document.getElementById("c-video").files;
+    const audioInput = document.getElementById("c-audio").files;
+    const documentInput = document.getElementById("c-document").files;
+
+    if (!validateFiles(imageInput, "Images", 5 * 1024 * 1024) ||
+      !validateFiles(documentInput, "Documents", 10 * 1024 * 1024) ||
+      !validateFiles(audioInput, "Audio", 10 * 1024 * 1024) ||
+      !validateFiles(videoInput, "Video", 50 * 1024 * 1024)) {
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("id", currentEventId);
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("publish_date", datetime);
+
+    Array.from(imageInput).forEach(file => formData.append("image[]", file));
+    Array.from(videoInput).forEach(file => formData.append("video[]", file));
+    Array.from(audioInput).forEach(file => formData.append("audio[]", file));
+    Array.from(documentInput).forEach(file => formData.append("document[]", file));
+
+    const res = await fetch("/api/routes/celebrity/edit-event.php", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      alert("Event updated successfully!");
+      loadEvents();
+      document.getElementById("edit-event-container").style.display = "none";
+      document.getElementById("events-list-container").style.display = "block";
+      window.location.href = "/dashboard/edit-event";
+    } else {
+      alert(data.message);
+    }
+  });
+
+  loadEvents();
+
+  const eventId = getEventIdFromURL();
+  if (eventId) {
+    currentEventId = eventId;
+    loadEventData(eventId);
+  }
+</script>
+
+<style>
+  #dashboard {
+    margin: 0 auto;
+    padding: 10em 0;
+    width: 80%;
+    min-height: 100vh;
+    text-align: center;
+  }
+
+  #quit {
+    background-color: red;
+    border: 1px solid red;
+  }
+
+  .btn {
+    padding: 0.5em 1.5em;
+    border-radius: 0.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+    background-color: green;
+    border: 1px solid green;
+    color: white;
+    font-size: 1em;
+    cursor: pointer;
+  }
+
+  .dashboard__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    margin-top: 1em;
+    margin-bottom: 1em;
+  }
+
+  .events-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1em;
+    justify-content: flex-start;
+    align-items: flex-start;
+  }
+
+  .event-card {
+    background-color: white;
+    border: 1px solid gray;
+    border-radius: 5px;
+    padding: 1em;
+    width: 250px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .event-card h3 {
+    margin-bottom: 0.5em;
+  }
+
+  .event-card p {
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+  }
+
+  .edit-btn {
+    background-color: green;
+    color: white;
+    padding: 0.5em 1em;
+    text-decoration: none;
+    border-radius: 5px;
+    display: inline-block;
+    margin-top: 1em;
+  }
+
+  .dashboard__container {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    margin: 1em 0;
+  }
+
+  .dashboard__container input,
+  .dashboard__container textarea {
+    padding: 0.5em 1em;
+    border: 1px solid gray;
+    border-radius: 5px;
+    resize: none;
+    font-size: 1em;
+  }
+
+  .dashboard__container textarea {
+    height: 200px;
+  }
+
+  .dashboard__container label {
+    text-align: left;
+    margin-bottom: 0em;
+    font-weight: 600;
+  }
+
+  .div-input {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+</style>

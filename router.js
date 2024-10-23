@@ -1,3 +1,5 @@
+/* ZDBIST */
+
 document.addEventListener("DOMContentLoaded", async () => {
   const app = document.getElementById("app");
   const loadingEl = document.getElementById("loading");
@@ -39,9 +41,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/dashboard/create-event/:id": `${baseUrl}/pages/admin/create-event/create-event.html`,
     "/dashboard/create-event/:id/:eventId/preview": `${baseUrl}/pages/admin/create-event/preview-event.html`,
     "/dashboard/remove-event": `${baseUrl}/pages/admin/remove-event.html`,
+    "/dashboard/edit-event": `${baseUrl}/pages/admin/edit-event/edit-event.html`,
+    "/dashboard/edit-event/:id": `${baseUrl}/pages/admin/edit-event/edit-event.html`,
+    "/dashboard/edit-profile": `${baseUrl}/pages/admin/edit-profile/edit-profile.html`,
+    "/dashboard/edit-profile/:id": `${baseUrl}/pages/admin/edit-profile/edit-profile.html`,
     "/dashboard/home-position": `${baseUrl}/pages/admin/celebrity-position/home-position.html`,
     "/dashboard/home-position/:id": `${baseUrl}/pages/admin/celebrity-position/finish-position.html`,
-
     "/master-panel": `${baseUrl}/pages/master-panel/master-panel.html`,
     "/master-panel/routes": `${baseUrl}/pages/master-panel/routes.html`,
     "/master-panel/users": `${baseUrl}/pages/master-panel/users.html`,
@@ -58,12 +63,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     "/news/:id": `${baseUrl}/pages/news.html`,
     "/coming-soon/:id": `${baseUrl}/pages/coming.html`,
-    "/profile/:userid": `${baseUrl}/pages/profile/main.html`,
-    "/profile/:userid/:event/documents": `${baseUrl}/pages/profile/documents.html`,
-    "/profile/:userid/:event/video": `${baseUrl}/pages/profile/video.html`,
-    "/profile/:userid/:event/audio": `${baseUrl}/pages/profile/audio.html`,
-    "/profile/:userid/:event/images": `${baseUrl}/pages/profile/image.html`,
-    "/profile/:userid/:event/releases": `${baseUrl}/pages/profile/release.html`,
+    "/person-of-interest/:userid": `${baseUrl}/pages/person-of-interest/main.html`,
+    "/person-of-interest/:userid/:event/documents": `${baseUrl}/pages/person-of-interest/documents.html`,
+    "/person-of-interest/:userid/:event/video": `${baseUrl}/pages/person-of-interest/video.html`,
+    "/person-of-interest/:userid/:event/audio": `${baseUrl}/pages/person-of-interest/audio.html`,
+    "/person-of-interest/:userid/:event/images": `${baseUrl}/pages/person-of-interest/image.html`,
+    "/person-of-interest/:userid/:event/releases": `${baseUrl}/pages/person-of-interest/release.html`,
 
     "/preview/:userid": `${baseUrl}/pages/preview/main.html`,
     "/preview/:userid/:event/documents": `${baseUrl}/pages/preview/documents.html`,
@@ -76,7 +81,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   const routePermissions = {
     "/logout": 1,
     "/change-password": 1,
-    "/shop": 1,
 
     "/dashboard": 3,
     "/dashboard/create-celebrity": 3,
@@ -87,6 +91,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/dashboard/select-celebrity": 3,
     "/dashboard/create-event/:id": 3,
     "/dashboard/create-event/:id/:eventId/preview": 3,
+    "/dashboard/edit-event": 3,
+    "/dashboard/edit-event/:id": 3,
 
     "/preview/:userid": 3,
     "/preview/:userid/:event/documents": 3,
@@ -94,6 +100,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/preview/:userid/:event/audio": 3,
     "/preview/:userid/:event/images": 3,
     "/preview/:userid/:event/releases": 3,
+    "/dashboard/edit-profile": 3,
+    "/dashboard/edit-profile/:id": 3,
+    "/dashboard/home-position": 3,
+    "/dashboard/home-position:id": 3,
 
     "/master-panel": 4,
     "/master-panel/routes": 4,
@@ -139,7 +149,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const matchRoute = (path) => {
     const routeKeys = Object.keys(routes);
     for (const route of routeKeys) {
-      const routePattern = new RegExp("^" + route.replace(/:\w+/g, "([\\w-]+)").replace(/\//g, "\\/") + "$");
+      const routePattern = new RegExp(
+        "^" + route.replace(/:\w+/g, "([\\w-]+)").replace(/\//g, "\\/") + "$"
+      );
       const match = path.match(routePattern);
       if (match) {
         return { route, params: match.slice(1) };
@@ -187,7 +199,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       let html = await fetchAndCache(request);
 
       params.forEach((param, index) => {
-        html = html.replace(new RegExp(`\\$\\{param${index + 1}\\}`, "g"), param);
+        html = html.replace(
+          new RegExp(`\\$\\{param${index + 1}\\}`, "g"),
+          param
+        );
       });
 
       for (const [component, componentPath] of Object.entries(components)) {
@@ -196,7 +211,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       for (const [color, value] of Object.entries(colors)) {
-        html = html.replace(new RegExp(color.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1"), "g"), value);
+        html = html.replace(
+          new RegExp(color.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1"), "g"),
+          value
+        );
       }
 
       for (const [oldHref, newHref] of Object.entries(hrefReplace)) {
@@ -204,8 +222,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       app.innerHTML = html;
-      if(window.location.href !== 'http://php-portal.local/#app') {
-        window.scrollTo(0,0)
+      if (window.location.href !== "https://zdbist.ba/#app") {
+        window.scrollTo(0, 0);
       }
 
       loadingEl.style.display = "none";

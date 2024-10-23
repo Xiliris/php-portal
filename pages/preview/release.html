@@ -12,26 +12,24 @@
   </article>
 </section>
 
-
 <script>
-  const backToUploadBtn = document.getElementById('back-to-upload');
-  const reqType = localStorage.getItem("type")
-  const reqId = localStorage.getItem('id');
+  const backToUploadBtn = document.getElementById("back-to-upload");
+  const reqType = localStorage.getItem("type");
+  const reqId = localStorage.getItem("id");
 
-  if(reqType) {
-    document.getElementById('type').innerText = 'event'
+  if (reqType) {
+    document.getElementById("type").innerText = "event";
   }
 
-  backToUploadBtn.addEventListener('click', () => {
+  backToUploadBtn.addEventListener("click", () => {
     const params = window.location.pathname.split("/");
 
-    if(reqType) {
-       window.location.href = `/dashboard/create-event/${params[2]}/${reqId}/preview`
-    }  else {
-      window.location.href = `/dashboard/create-celebrity/${params[2]}/preview`
+    if (reqType) {
+      window.location.href = `/dashboard/create-event/${params[2]}/${reqId}/preview`;
+    } else {
+      window.location.href = `/dashboard/create-celebrity/${params[2]}/preview`;
     }
-  })
-
+  });
 
   const container = document.getElementById("celebrity__container");
   const eventContainer = document.getElementById("celebrity__event-container");
@@ -41,10 +39,13 @@
     const formData = new FormData();
     formData.append("id", params[2]);
 
-    const response = await fetch("/api/routes/celebrity/get-celebrity.php", {
-      method: "POST",
-      body: formData,
-    });
+    const response = await fetch(
+      "/api/routes/celebrity/get-celebrity-preview.php",
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
 
     const data = await response.json();
 
@@ -69,7 +70,7 @@
     const formData = new FormData();
     formData.append("id", params[2]);
 
-    const response = await fetch("/api/routes/celebrity/data/events.php", {
+    const response = await fetch("/api/routes/celebrity/preview/events.php", {
       method: "POST",
       body: formData,
     });
@@ -82,24 +83,26 @@
         const itemsContainer = document.createElement("div");
 
         const publishDate = new Date(event.publish_date);
-        const day = String(publishDate.getDate()).padStart(2, '0');
-        const month = String(publishDate.getMonth() + 1).padStart(2, '0');
+        const day = String(publishDate.getDate()).padStart(2, "0");
+        const month = String(publishDate.getMonth() + 1).padStart(2, "0");
         const year = publishDate.getFullYear();
-        const hours = String(publishDate.getHours()).padStart(2, '0');
-        const minutes = String(publishDate.getMinutes()).padStart(2, '0');
+        const hours = String(publishDate.getHours()).padStart(2, "0");
+        const minutes = String(publishDate.getMinutes()).padStart(2, "0");
 
         const formattedDate = `${day}/${month}/${year}`;
         const formattedTime = `${hours}:${minutes}`;
 
-          itemsContainer.className = "items_container";
+        itemsContainer.className = "items_container";
 
         if (event.id == params[3]) {
           article.innerHTML = `
           <a class="current-active">${event.title}</a>
-          <i class="fa-solid fa-chevron-${event.id == params[3] ? 'up' : 'down'}"></i>
+          <i class="fa-solid fa-chevron-${
+            event.id == params[3] ? "up" : "down"
+          }"></i>
           `;
 
-    itemsContainer.innerHTML = ` 
+          itemsContainer.innerHTML = ` 
           <ul>
             <li id="releases" class="active-item">Releases <i class="fa-solid fa-chevron-down"></i></li>
             <li id="documents">Documents <i class="fa-solid fa-chevron-down"></i></li>
@@ -122,7 +125,6 @@
           <a>${event.title}</a> 
           <i class="fa-solid fa-chevron-down"></i>
         `;
-
         }
 
         article.addEventListener("click", function () {
@@ -139,8 +141,12 @@
           const target = e.target;
 
           // Handle click on <li> elements
-          if (target.tagName === "LI" || target.parentElement.tagName === "LI") {
-            const clickedItem = target.tagName === "LI" ? target : target.parentElement;
+          if (
+            target.tagName === "LI" ||
+            target.parentElement.tagName === "LI"
+          ) {
+            const clickedItem =
+              target.tagName === "LI" ? target : target.parentElement;
             const id = clickedItem.id;
             switch (id) {
               case "releases":
@@ -355,60 +361,59 @@
   }
 
   @media (max-width: 950px) {
-
     #celebrity__event-container {
-        width: 80vw;
-      }
+      width: 80vw;
+    }
     #celebrity__event-container article {
-        font-size: 0.9em;
-      }
+      font-size: 0.9em;
+    }
 
     .items_container ul {
-        flex-direction: column;
-        width: 100%;
-        align-items: flex-start;
-      }
+      flex-direction: column;
+      width: 100%;
+      align-items: flex-start;
+    }
 
     .items_container ul li {
-        padding: 0.5em;
-        text-align: center;
-      }
+      padding: 0.5em;
+      text-align: center;
+    }
 
     .items_container div p {
-        font-size: 0.9em;
-      }
-    
+      font-size: 0.9em;
+    }
+
     .profile-container {
-    margin-top: 8em;
-    margin-bottom: 3em;
-  }
+      margin-top: 8em;
+      margin-bottom: 3em;
+    }
 
     #celebrity__container {
-    width: 80vw;
-    flex-direction: column;
-  }
+      width: 80vw;
+      flex-direction: column;
+    }
 
     #celebrity__container article {
-    padding-bottom: 2em;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    width: 100%;
-  }
+      padding-bottom: 2em;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      width: 100%;
+    }
 
     #celebrity__container article img {
-    width: 150px;
-    height: 200px;
-    align-self: flex-start;
-  }
+      width: 150px;
+      height: 200px;
+      align-self: flex-start;
+    }
 
     #celebrity__container article p {
-    font-size: 0.9em;
-    line-height: 1.3em;
-    word-break: break-all;
-    hyphens: auto;
-    overflow-wrap: break-word;
-    margin: 0;
+      font-size: 0.9em;
+      line-height: 1.3em;
+      word-break: break-all;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      margin: 0;
+    }
   }
-}
 </style>

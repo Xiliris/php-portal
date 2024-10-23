@@ -37,4 +37,4 @@ INSERT INTO socials (name, link)
 VALUES ('telegram', "https://adnanskopljak.com/1"),
 VALUES ('twitter', "https://adnanskopljak.com/2"),
 VALUES ('facebook', "https://adnanskopljak.com/3"),
-VALUES ('instagram', "https://adnanskopljak.com/4";
+VALUES ('instagram', "https://adnanskopljak.com/4");

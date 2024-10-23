@@ -1,145 +1,160 @@
 {{navbar}}
 <div class="track" id="track">
-    <div class="track-content" id="track-style">
-        <p id="track-content"></p>
-    </div>
+  <div class="track-content" id="track-style">
+    <p id="track-content"></p>
+  </div>
 </div>
 <main id="home">
-    <div class="input-search">
-        <input placeholder="Search Keywords" type="text" id="search-keywords" />
-        <i class="fa-solid fa-magnifying-glass" id="openInput"></i>
+  <div class="input-search">
+    <input placeholder="Search Keywords" type="text" id="search-keywords" />
+    <i class="fa-solid fa-magnifying-glass" id="openInput"></i>
+  </div>
+  <section id="celebrity-list">
+    <div class="carousel-container">
+      <button class="carousel-btn prev" id="carousel-prev">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+      <div class="carousel"></div>
+      <button class="carousel-btn next" id="carousel-next">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
     </div>
-    <section id="celebrity-list">
-        <div class="carousel-container">
-            <button class="carousel-btn prev" id="carousel-prev">
-                <i class="fa-solid fa-chevron-left"></i>
-            </button>
-            <div class="carousel"></div>
-            <button class="carousel-btn next" id="carousel-next">
-                <i class="fa-solid fa-chevron-right"></i>
-            </button>
-        </div>
-    </section>
+  </section>
 </main>
 {{footer}}
 
 <script>
-function createArticleContainer() {
-    const container = document.createElement('div');
-    container.className = 'article-container';
+  function createArticleContainer() {
+    const container = document.createElement("div");
+    container.className = "article-container";
     return container;
-}
+  }
 
-async function fetchCarouselData(excludedIds) {
+  async function fetchCarouselData(excludedIds) {
     try {
-        const res = await fetch('/api/routes/celebrity/list-celebrity.php');
-        const data = await res.json();
+      const res = await fetch("/api/routes/celebrity/list-celebrity.php");
+      const data = await res.json();
 
-        if (!data.success) {
-            throw new Error(data.message);
-        }
-        return data.data.filter(item => !excludedIds.includes(item.id));
+      if (!data.success) {
+        throw new Error(data.message);
+      }
+      return data.data.filter((item) => !excludedIds.includes(item.id));
     } catch (error) {
-        console.error('Error fetching carousel data:', error);
-        return [];
+      console.error("Error fetching carousel data:", error);
+      return [];
     }
-}
+  }
 
-async function loadCelebrities() {
+  async function loadCelebrities() {
     try {
-        const res = await fetch('/api/routes/celebrity/get-celebrity-position.php');
-        const data = await res.json();
+      const res = await fetch(
+        "/api/routes/celebrity/get-celebrity-position.php"
+      );
+      const data = await res.json();
 
-        const section = document.getElementById('celebrity-list');
-        section.innerHTML = '';
+      const section = document.getElementById("celebrity-list");
+      section.innerHTML = "";
 
-        if (data.success) {
-            const positions = data.data;
-            const positionsPerContainer = [2, 5, 6];
-            let containerIndex = 0;
-            let currentContainer = createArticleContainer();
-            section.appendChild(currentContainer);
-            let itemCount = 0;
-            const displayedIds = new Set();
+      if (data.success) {
+        const positions = data.data;
+        const positionsPerContainer = [2, 5, 6];
+        let containerIndex = 0;
+        let currentContainer = createArticleContainer();
+        section.appendChild(currentContainer);
+        let itemCount = 0;
+        const displayedIds = new Set();
 
-            positions.forEach(({ id, position, name, image_path }) => {
-                if (itemCount >= positionsPerContainer[containerIndex]) {
-                    containerIndex++;
-                    if (containerIndex < positionsPerContainer.length) {
-                        currentContainer = createArticleContainer();
-                        section.appendChild(currentContainer);
-                        itemCount = 0;
-                    } else {
-                        return;
-                    }
-                }
+        positions.forEach(({ id, position, name, image_path }) => {
+          if (itemCount >= positionsPerContainer[containerIndex]) {
+            containerIndex++;
+            if (containerIndex < positionsPerContainer.length) {
+              currentContainer = createArticleContainer();
+              section.appendChild(currentContainer);
+              itemCount = 0;
+            } else {
+              return;
+            }
+          }
 
-                const imagePath = image_path || "/assets/unknown.jpg";
-                const aTag = document.createElement('a');
-                aTag.href = `/profile/${id}`;
-                aTag.className = 'celebrity-link';
-                aTag.innerHTML = `
+          const imagePath = image_path || "/assets/unknown.jpg";
+          const aTag = document.createElement("a");
+          const slug = decodeURIComponent(name)
+            .toLowerCase()
+            .replaceAll(" ", "-");
+
+          aTag.href = `/person-of-interest/${slug}`;
+          aTag.className = "celebrity-link";
+          aTag.innerHTML = `
                 <div class="carousel-item">
                     <img src="${imagePath}" />
-                    <h3>${name || 'Unknown'}</h3>
+                    <h3>${name || "Unknown"}</h3>
                 </div>
             `;
-                currentContainer.appendChild(aTag);
-                itemCount++;
-                displayedIds.add(id);
-            });
+          currentContainer.appendChild(aTag);
+          itemCount++;
+          displayedIds.add(id);
+        });
 
-            if (positions.length > 6) {
-                const carouselData = await fetchCarouselData(Array.from(displayedIds));
+        if (positions.length > 6) {
+          const carouselData = await fetchCarouselData(
+            Array.from(displayedIds)
+          );
 
-                if (carouselData.length > 0) {
-                    const carouselContainer = document.createElement('div');
-                    carouselContainer.classList.add('carousel-container');
-                    carouselContainer.innerHTML = `
+          if (carouselData.length > 0) {
+            const carouselContainer = document.createElement("div");
+            carouselContainer.classList.add("carousel-container");
+            carouselContainer.innerHTML = `
                     <button class="carousel-btn prev" id="carousel-prev">&lt;</button>
                     <div class="carousel">
-                        ${carouselData.map(item => `
-                            <a href="/profile/${item.id}" class="carousel-item-link">
+                        ${carouselData
+                          .map(
+                            (item) => `
+                            <a href="/person-of-interest/${
+                              item.id
+                            }" class="carousel-item-link">
                                 <div class="carousel-item">
-                                    <img src="${item.image_path || '/assets/unknown.jpg'}" />
-                                    <h3>${item.name || 'Unknown'}</h3>
+                                    <img src="${
+                                      item.image_path || "/assets/unknown.jpg"
+                                    }" />
+                                    <h3>${item.name || "Unknown"}</h3>
                                 </div>
                             </a>
-                        `).join('')}
+                        `
+                          )
+                          .join("")}
                     </div>
                     <button class="carousel-btn next" id="carousel-next">&gt;</button>`;
-                    const carouselContainerWrapper = createArticleContainer();
-                    carouselContainerWrapper.appendChild(carouselContainer);
-                    section.appendChild(carouselContainerWrapper);
+            const carouselContainerWrapper = createArticleContainer();
+            carouselContainerWrapper.appendChild(carouselContainer);
+            section.appendChild(carouselContainerWrapper);
 
-                    initCarousel();
-                }
-            }
-
-        } else {
-            console.error(data.message);
+            initCarousel();
+          }
         }
+      } else {
+        console.error(data.message);
+      }
     } catch (error) {
-        console.error('Error loading celebrities:', error);
+      console.error("Error loading celebrities:", error);
     }
-}
+  }
 
-function debounce(func, wait) {
+  function debounce(func, wait) {
     let timeout;
     return function (...args) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), wait);
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), wait);
     };
-}
+  }
 
-function initCarousel() {
-    const carousel = document.querySelector('.carousel');
-    const prevBtn = document.getElementById('carousel-prev');
-    const nextBtn = document.getElementById('carousel-next');
+  function initCarousel() {
+    const carousel = document.querySelector(".carousel");
+    const prevBtn = document.getElementById("carousel-prev");
+    const nextBtn = document.getElementById("carousel-next");
 
     if (!carousel || !prevBtn || !nextBtn) {
-        console.error('Carousel elements not found.');
-        return;
+      console.error("Carousel elements not found.");
+      return;
     }
 
     const articles = Array.from(carousel.children);
@@ -148,486 +163,509 @@ function initCarousel() {
     let currentIndex = 0;
 
     function updateCarouselSettings() {
-        const article = articles[0];
-        const articleWidth = article.getBoundingClientRect().width;
-        const totalWidth = articles.length * articleWidth;
+      const article = articles[0];
+      const articleWidth = article.getBoundingClientRect().width;
+      const totalWidth = articles.length * articleWidth;
 
-        carousel.style.width = `${totalWidth}px`;
+      carousel.style.width = `${totalWidth}px`;
 
-        function setCarouselPosition() {
-            const visibleCount = Math.floor(carousel.parentElement.clientWidth / articleWidth);
-            const maxIndex = Math.max(0, articles.length - visibleCount);
-            const newTransformValue = -currentIndex * articleWidth;
+      function setCarouselPosition() {
+        const visibleCount = Math.floor(
+          carousel.parentElement.clientWidth / articleWidth
+        );
+        const maxIndex = Math.max(0, articles.length - visibleCount);
+        const newTransformValue = -currentIndex * articleWidth;
 
-            carousel.style.transform = `translateX(${newTransformValue}px)`;
-            prevBtn.style.display = currentIndex === 0 ? 'none' : 'block';
-            nextBtn.style.display = currentIndex >= maxIndex ? 'none' : 'block';
+        carousel.style.transform = `translateX(${newTransformValue}px)`;
+        prevBtn.style.display = currentIndex === 0 ? "none" : "block";
+        nextBtn.style.display = currentIndex >= maxIndex ? "none" : "block";
+      }
+
+      setCarouselPosition();
+
+      prevBtn.addEventListener("click", () => {
+        if (currentIndex > 0) {
+          currentIndex--;
+          setCarouselPosition();
         }
+      });
 
-        setCarouselPosition();
-
-        prevBtn.addEventListener('click', () => {
-            if (currentIndex > 0) {
-                currentIndex--;
-                setCarouselPosition();
-            }
-        });
-
-        nextBtn.addEventListener('click', () => {
-            const visibleCount = Math.floor(carousel.parentElement.clientWidth / articleWidth);
-            if (currentIndex < articles.length - visibleCount) {
-                currentIndex++;
-                setCarouselPosition();
-            }
-        });
+      nextBtn.addEventListener("click", () => {
+        const visibleCount = Math.floor(
+          carousel.parentElement.clientWidth / articleWidth
+        );
+        if (currentIndex < articles.length - visibleCount) {
+          currentIndex++;
+          setCarouselPosition();
+        }
+      });
     }
 
     updateCarouselSettings();
-    window.addEventListener('resize', debounce(updateCarouselSettings, 250));
-}
+    window.addEventListener("resize", debounce(updateCarouselSettings, 250));
+  }
 
-function handleResize() {
+  function handleResize() {
     window.location.reload();
-}
+  }
 
-document.getElementById("openInput").addEventListener("click", () => {
+  const searchInput = document.getElementById("search-keywords");
+  let resizeDisabled = false;
+
+  searchInput.addEventListener("focus", () => {
+    resizeDisabled = true;
+  });
+
+  searchInput.addEventListener("blur", () => {
+    resizeDisabled = false;
+  });
+
+  window.addEventListener(
+    "resize",
+    debounce(() => {
+      if (!resizeDisabled) {
+        handleResize();
+      }
+    }, 250)
+  );
+
+  document.getElementById("openInput").addEventListener("click", () => {
     const searchKeywords = document.getElementById("search-keywords").value;
-    window.location.href = `/search?result=${encodeURIComponent(searchKeywords)}`;
-});
+    window.location.href = `/search?result=${encodeURIComponent(
+      searchKeywords
+    )}`;
+  });
 
-document.getElementById("search-keywords").addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
+  document
+    .getElementById("search-keywords")
+    .addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
         e.preventDefault();
         const searchKeywords = e.target.value;
-        window.location.href = `/search?result=${encodeURIComponent(searchKeywords)}`;
-    }
-});
+        window.location.href = `/search?result=${encodeURIComponent(
+          searchKeywords
+        )}`;
+      }
+    });
 
-window.addEventListener('resize', debounce(handleResize, 250));
-
-async function loadFixedTrack() {
-    const trackContent = document.getElementById('track-content');
-    const trackElement = document.getElementById('track');
-    const trackStyle = document.getElementById('track-style');
+  async function loadFixedTrack() {
+    const trackContent = document.getElementById("track-content");
+    const trackElement = document.getElementById("track");
+    const trackStyle = document.getElementById("track-style");
     try {
-        const res = await fetch('/api/routes/home/get-fixed-track.php');
-        const data = await res.json();
+      const res = await fetch("/api/routes/home/get-fixed-track.php");
+      const data = await res.json();
 
-        if (data.success) {
-            const loaded = data.data;
+      if (data.success) {
+        const loaded = data.data;
 
-            if (loaded.enabled) {
-                trackElement.style.opacity = 1;
-            }
-
-            if (loaded.moving) {
-                trackStyle.style.textAlign = 'left';
-                trackStyle.style.animation = `scrollText ${loaded.time}s linear infinite`;
-            }
-
-            trackContent.innerText = loaded.content;
-        } else {
-            console.log(data.message);
+        if (loaded.enabled) {
+          trackElement.style.opacity = 1;
         }
+
+        if (loaded.moving) {
+          trackStyle.style.textAlign = "left";
+          trackStyle.style.animation = `scrollText ${loaded.time}s linear infinite`;
+        }
+
+        trackContent.innerText = loaded.content;
+      } else {
+        console.log(data.message);
+      }
     } catch (error) {
-        console.error('Error loading fixed track:', error);
+      console.error("Error loading fixed track:", error);
     }
-}
+  }
 
-loadCelebrities();
+  loadCelebrities();
 
-loadFixedTrack();
-
+  loadFixedTrack();
 </script>
 
-
 <style>
-    .track {
-        width: 100vw;
-        margin-top: 80px;
-        height: 40px;
-        background-color: red;
-        display: flex;
-        opacity: 0;
-        align-items: center;
-        overflow: hidden;
-        position: relative;
+  .track {
+    width: 100vw;
+    margin-top: 80px;
+    height: 40px;
+    background-color: red;
+    display: flex;
+    opacity: 0;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .track-content {
+    min-width: 100%;
+    white-space: nowrap;
+    display: inline-block;
+    text-align: center;
+  }
+
+  .track-content p {
+    display: inline-block;
+    color: white;
+    font-weight: bold;
+    margin: 0;
+    padding: 0 1em;
+    white-space: nowrap;
+  }
+
+  @keyframes scrollText {
+    0% {
+      transform: translateX(100%);
     }
 
-    .track-content {
-        min-width: 100%;
-        white-space: nowrap;
-        display: inline-block;
-        text-align: center;
+    100% {
+      transform: translateX(-100%);
     }
+  }
 
-    .track-content p {
-        display: inline-block;
-        color: white;
-        font-weight: bold;
-        margin: 0;
-        padding: 0 1em;
-        white-space: nowrap;
-    }
+  iframe {
+    width: 100%;
+    height: 100vh;
+  }
 
-    @keyframes scrollText {
-        0% {
-            transform: translateX(100%);
-        }
+  #home {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    padding-top: 7em;
+  }
 
-        100% {
-            transform: translateX(-100%);
-        }
-    }
+  #home .input-search {
+    width: 40vw;
+    padding: 0.4em 0.9em;
+    font-size: 1.2em;
+    border: 1px solid gray;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1em;
+  }
 
-    iframe {
-        width: 100%;
-        height: 100vh;
-    }
+  #home .input-search input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: none;
+    font-size: 1.2em;
+    color: gray;
+  }
 
-    #home {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto;
-        padding-top: 7em;
-    }
+  #home .input-search i {
+    cursor: pointer;
+  }
 
+  #home section {
+    margin-top: 6em;
+    margin-bottom: 10em;
+    width: 100%;
+  }
+
+  #celebrity-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1em;
+  }
+
+  #celebrity-list .article-container {
+    margin: 1em auto;
+    width: 70%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1em;
+  }
+
+  #celebrity-list .article-container a {
+    position: relative;
+    border-radius: 5px;
+    overflow: hidden;
+    height: 250px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    text-decoration: none;
+    display: flex;
+    gap: 1em;
+    will-change: transform;
+  }
+
+  #celebrity-list .article-container a:hover {
+    transform: scale(1.05);
+  }
+
+  #celebrity-list .article-container a img {
+    width: 200px;
+    height: 250px;
+    object-fit: cover;
+  }
+
+  #celebrity-list .article-container a h3 {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 0.5em;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-size: 1.2em;
+    text-align: center;
+  }
+
+  .carousel-container {
+    display: flex;
+    position: relative;
+    width: 1200px;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+  }
+
+  .carousel {
+    display: flex;
+    gap: 1em;
+    transition: transform 0.3s ease-in-out;
+    will-change: transform;
+  }
+
+  .carousel-item {
+    position: relative;
+    border-radius: 5px;
+    overflow: hidden;
+    width: 200px;
+    height: 250px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    text-decoration: none;
+    overflow: hidden;
+  }
+
+  .carousel-item img {
+    width: 200px;
+    height: 250px;
+    object-fit: cover;
+  }
+
+  .carousel-item h3 {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 0.5em;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    font-size: 1.2em;
+    text-align: center;
+  }
+
+  .carousel-btn {
+    background: rgba(92, 114, 125, 0.8);
+    border: none;
+    color: white;
+    font-size: 2.5em;
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+  }
+
+  .carousel-btn.prev {
+    left: 0;
+  }
+
+  .carousel-btn.next {
+    right: 0;
+  }
+
+  @media (min-width: 300px) and (max-width: 699px) {
     #home .input-search {
-        width: 40vw;
-        padding: 0.4em 0.9em;
-        font-size: 1.2em;
-        border: 1px solid gray;
-        border-radius: 5px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 1em;
-    }
-
-    #home .input-search input {
-        width: 100%;
-        height: 100%;
-        border: none;
-        outline: none;
-        font-size: 1.2em;
-        color: gray;
-    }
-
-    #home .input-search i {
-        cursor: pointer;
-    }
-
-    #home section {
-        margin-top: 6em;
-        margin-bottom: 10em;
-        width: 100%;
-    }
-
-    #celebrity-list {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 1em;
+      width: 75vw;
     }
 
     #celebrity-list .article-container {
-        margin: 1em auto;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 1em;
-        transition: transform 0.3s ease-in-out;
-        will-change: transform;
-        flex-shrink: 0;
-        flex-grow: 0;
-    }
-
-    #celebrity-list .article-container a {
-        position: relative;
-        border-radius: 5px;
-        overflow: hidden;
-        height: 250px;
-        cursor: pointer;
-        transition: transform 0.3s ease;
-        text-decoration: none;
-        display: flex;
-        gap: 1em;
-        will-change: transform;
-    }
-
-    #celebrity-list .article-container a:hover {
-        transform: scale(1.05);
-    }
-
-    #celebrity-list .article-container a img {
-        width: 200px;
-        height: 250px;
-        object-fit: cover;
-    }
-
-    #celebrity-list .article-container a h3 {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        padding: 0.5em;
-        background-color: rgba(0, 0, 0, 0.5);
-        color: white;
-        font-size: 1.2em;
-        text-align: center;
+      flex-direction: column;
+      width: 60%;
     }
 
     .carousel-container {
-        display: flex;
-        position: relative;
-        width: 1200px;
-        overflow: hidden;
-        margin: 0;
-        padding: 0;
+      width: 200px;
+      display: flex;
+      transition: transform 0.3s ease-in-out;
+      will-change: transform;
     }
 
     .carousel {
-        display: flex;
-        gap: 1em;
-        transition: transform 0.3s ease-in-out;
-        will-change: transform;
+      display: flex;
+      gap: 0;
+      transition: transform 0.3s ease-in-out;
+      will-change: transform;
+    }
+  }
+
+  @media (max-width: 468px) {
+    #home .input-search {
+      width: 85vw;
     }
 
-    .carousel-item {
-        position: relative;
-        border-radius: 5px;
-        overflow: hidden;
-        width: 200px;
-        height: 250px;
-        cursor: pointer;
-        transition: transform 0.3s ease;
-        text-decoration: none;
-        overflow: hidden;
+    #celebrity-list .article-container {
+      flex-direction: column;
+      width: 58%;
     }
 
-    .carousel-item img {
-        width: 200px;
-        height: 250px;
-        object-fit: cover;
+    .carousel-container {
+      width: 200px;
+      display: flex;
+      transition: transform 0.3s ease-in-out;
+      will-change: transform;
     }
 
-    .carousel-item h3 {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        padding: 0.5em;
-        background-color: rgba(0, 0, 0, 0.5);
-        color: white;
-        font-size: 1.2em;
-        text-align: center;
+    .carousel {
+      display: flex;
+      gap: 0;
+      transition: transform 0.3s ease-in-out;
+      will-change: transform;
+    }
+  }
+
+  @media (min-width: 700px) and (max-width: 819px) {
+    #home .input-search {
+      width: 70vw;
     }
 
-    .carousel-btn {
-        background: rgba(92, 114, 125, 0.8);
-        border: none;
-        color: white;
-        font-size: 2.5em;
-        cursor: pointer;
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        z-index: 1;
+    #celebrity-list .article-container {
+      flex-direction: column;
+      width: 91%;
     }
 
-    .carousel-btn.prev {
-        left: 0;
+    .carousel-container {
+      width: 600px;
+      display: flex;
+      transition: transform 0.3s ease-in-out;
+      will-change: transform;
     }
 
-    .carousel-btn.next {
-        right: 0;
+    .carousel {
+      display: flex;
+      gap: 1em;
+      transition: transform 0.3s ease-in-out;
+      will-change: transform;
+    }
+  }
+
+  @media (min-width: 820px) and (max-width: 852px) {
+    #home .input-search {
+      width: 65vw;
     }
 
-    @media (min-width: 300px) and (max-width: 699px) {
-        #home .input-search {
-            width: 75vw;
-        }
-
-        #celebrity-list .article-container {
-            flex-direction: column;
-            width: 60%;
-        }
-
-        .carousel-container {
-            width: 200px;
-            display: flex;
-            transition: transform 0.3s ease-in-out;
-            will-change: transform;
-        }
-
-        .carousel {
-            display: flex;
-            gap: 0;
-            transition: transform 0.3s ease-in-out;
-            will-change: transform;
-        }
+    #celebrity-list .article-container {
+      flex-direction: column;
+      width: 73%;
     }
 
-    @media (max-width: 468px) {
-        #home .input-search {
-            width: 85vw;
-        }
-
-        #celebrity-list .article-container {
-            flex-direction: column;
-            width: 58%;
-        }
-
-        .carousel-container {
-            width: 200px;
-            display: flex;
-            transition: transform 0.3s ease-in-out;
-            will-change: transform;
-        }
-
-        .carousel {
-            display: flex;
-            gap: 0;
-            transition: transform 0.3s ease-in-out;
-            will-change: transform;
-        }
+    .carousel-container {
+      width: 600px;
+      display: flex;
+      transition: transform 0.3s ease-in-out;
+      will-change: transform;
     }
 
-    @media (min-width: 700px) and (max-width: 819px) {
-        #home .input-search {
-            width: 70vw;
-        }
+    .carousel {
+      display: flex;
+      gap: 1em;
+      transition: transform 0.3s ease-in-out;
+      will-change: transform;
+    }
+  }
 
-        #celebrity-list .article-container {
-            flex-direction: column;
-            width: 91%;
-        }
-
-        .carousel-container {
-            width: 600px;
-            display: flex;
-            transition: transform 0.3s ease-in-out;
-            will-change: transform;
-        }
-
-        .carousel {
-            display: flex;
-            gap: 1em;
-            transition: transform 0.3s ease-in-out;
-            will-change: transform;
-        }
+  @media (min-width: 853px) and (max-width: 900px) {
+    #home .input-search {
+      width: 65vw;
     }
 
-    @media (min-width: 820px) and (max-width: 852px) {
-        #home .input-search {
-            width: 65vw;
-        }
-
-        #celebrity-list .article-container {
-            flex-direction: column;
-            width: 73%;
-        }
-
-        .carousel-container {
-            width: 600px;
-            display: flex;
-            transition: transform 0.3s ease-in-out;
-            will-change: transform;
-        }
-
-        .carousel {
-            display: flex;
-            gap: 1em;
-            transition: transform 0.3s ease-in-out;
-            will-change: transform;
-        }
+    #celebrity-list .article-container {
+      flex-direction: column;
+      width: 70%;
     }
 
-    @media (min-width: 853px) and (max-width: 900px) {
-        #home .input-search {
-            width: 65vw;
-        }
+    .carousel-container {
+      width: 600px;
+      display: flex;
+      transition: transform 0.3s ease-in-out;
+      will-change: transform;
+    }
+  }
 
-        #celebrity-list .article-container {
-            flex-direction: column;
-            width: 70%;
-        }
-
-        .carousel-container {
-            width: 600px;
-            display: flex;
-            transition: transform 0.3s ease-in-out;
-            will-change: transform;
-        }
+  @media (min-width: 901px) and (max-width: 1023px) {
+    #home .input-search {
+      width: 65vw;
     }
 
-    @media (min-width: 901px) and (max-width: 1023px) {
-        #home .input-search {
-            width: 65vw;
-        }
-
-        #celebrity-list .article-container {
-            flex-direction: column;
-            width: 70%;
-        }
-
-        .carousel-container {
-            width: 600px;
-            display: flex;
-            transition: transform 0.3s ease-in-out;
-            will-change: transform;
-        }
+    #celebrity-list .article-container {
+      flex-direction: column;
+      width: 70%;
     }
 
-    @media (min-width: 1024px) and (max-width: 1280px) {
-        #home .input-search {
-            width: 65vw;
-        }
+    .carousel-container {
+      width: 600px;
+      display: flex;
+      transition: transform 0.3s ease-in-out;
+      will-change: transform;
+    }
+  }
 
-        #celebrity-list .article-container {
-            flex-direction: column;
-            width: 63%;
-        }
-
-        .carousel-container {
-            width: 600px;
-            display: flex;
-            transition: transform 0.3s ease-in-out;
-            will-change: transform;
-        }
-
-        .carousel {
-            display: flex;
-            gap: 1em;
-            transition: transform 0.3s ease-in-out;
-            will-change: transform;
-        }
+  @media (min-width: 1024px) and (max-width: 1280px) {
+    #home .input-search {
+      width: 65vw;
     }
 
-    @media (min-width: 1024px) and (max-width: 1024px) and (max-height: 600px) {
-        #home .input-search {
-            width: 65vw;
-        }
-
-        #celebrity-list .article-container {
-            flex-direction: column;
-            width: 69%;
-        }
-
-        .carousel-container {
-            width: 600px;
-            display: flex;
-            transition: transform 0.3s ease-in-out;
-            will-change: transform;
-        }
-
-        .carousel {
-            display: flex;
-            gap: 1em;
-            transition: transform 0.3s ease-in-out;
-            will-change: transform;
-        }
+    #celebrity-list .article-container {
+      flex-direction: column;
+      width: 63%;
     }
+
+    .carousel-container {
+      width: 600px;
+      display: flex;
+      transition: transform 0.3s ease-in-out;
+      will-change: transform;
+    }
+
+    .carousel {
+      display: flex;
+      gap: 1em;
+      transition: transform 0.3s ease-in-out;
+      will-change: transform;
+    }
+  }
+
+  @media (min-width: 1024px) and (max-width: 1024px) and (max-height: 600px) {
+    #home .input-search {
+      width: 65vw;
+    }
+
+    #celebrity-list .article-container {
+      flex-direction: column;
+      width: 69%;
+    }
+
+    .carousel-container {
+      width: 600px;
+      display: flex;
+      transition: transform 0.3s ease-in-out;
+      will-change: transform;
+    }
+
+    .carousel {
+      display: flex;
+      gap: 1em;
+      transition: transform 0.3s ease-in-out;
+      will-change: transform;
+    }
+  }
 </style>
