@@ -82,13 +82,13 @@
         article.innerHTML = `
           <a title="${event.title}">${event.title}</a>
           <i class="fa-solid fa-chevron-${
-            event.id == params[3] ? "up" : "down"
+            event.slug == params[3] ? "up" : "down"
           }"></i>
         `;
 
         article.addEventListener("click", function () {
           this.querySelector("i").classList.toggle("active");
-          window.location.href = `/preview/${params[2]}/${event.id}/releases`;
+          window.location.href = `/preview/${params[2]}/${event.slug}/releases`;
         });
 
         eventContainer.append(article);

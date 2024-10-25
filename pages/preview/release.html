@@ -79,7 +79,7 @@
     if (data.success) {
       for (const event of data.data) {
         const article = document.createElement("article");
-        article.id = event.id;
+        article.id = event.slug;
         const itemsContainer = document.createElement("div");
 
         const publishDate = new Date(event.publish_date);
@@ -94,11 +94,11 @@
 
         itemsContainer.className = "items_container";
 
-        if (event.id == params[3]) {
+        if (event.slug == params[3]) {
           article.innerHTML = `
           <a class="current-active">${event.title}</a>
           <i class="fa-solid fa-chevron-${
-            event.id == params[3] ? "up" : "down"
+            event.slug == params[3] ? "up" : "down"
           }"></i>
           `;
 
@@ -130,10 +130,10 @@
         article.addEventListener("click", function () {
           this.querySelector("i").classList.toggle("active");
 
-          if (article.id == params[3]) {
+          if (article.slug == params[3]) {
             window.location.href = `/preview/${params[2]}`;
           } else {
-            window.location.href = `/preview/${params[2]}/${event.id}/releases`;
+            window.location.href = `/preview/${params[2]}/${event.slug}/releases`;
           }
         });
 
@@ -150,19 +150,19 @@
             const id = clickedItem.id;
             switch (id) {
               case "releases":
-                window.location.href = `/preview/${params[2]}/${event.id}/releases`;
+                window.location.href = `/preview/${params[2]}/${event.slug}/releases`;
                 break;
               case "documents":
-                window.location.href = `/preview/${params[2]}/${event.id}/documents`;
+                window.location.href = `/preview/${params[2]}/${event.slug}/documents`;
                 break;
               case "images":
-                window.location.href = `/preview/${params[2]}/${event.id}/images`;
+                window.location.href = `/preview/${params[2]}/${event.slug}/images`;
                 break;
               case "audio":
-                window.location.href = `/preview/${params[2]}/${event.id}/audio`;
+                window.location.href = `/preview/${params[2]}/${event.slug}/audio`;
                 break;
               case "video":
-                window.location.href = `/preview/${params[2]}/${event.id}/video`;
+                window.location.href = `/preview/${params[2]}/${event.slug}/video`;
                 break;
               default:
                 console.log("Unknown item clicked");

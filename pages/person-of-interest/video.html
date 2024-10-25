@@ -67,7 +67,7 @@
 
           console.log(event.slug);
           const videoRes = await fetch(
-            `/api/routes/celebrity/data/videos.php?id=${event.id}`
+            `/api/routes/celebrity/data/videos.php?id=${event.slug}`
           );
           const videoData = await videoRes.json();
           let videoContent = "";
