@@ -25,35 +25,33 @@
 
 <script>
   function createArticleContainer() {
-    const container = document.createElement("div");
-    container.className = "article-container";
+    const container = document.createElement('div');
+    container.className = 'article-container';
     return container;
   }
 
   async function fetchCarouselData(excludedIds) {
     try {
-      const res = await fetch("/api/routes/celebrity/list-celebrity.php");
+      const res = await fetch('/api/routes/celebrity/list-celebrity.php');
       const data = await res.json();
 
       if (!data.success) {
         throw new Error(data.message);
       }
-      return data.data.filter((item) => !excludedIds.includes(item.id));
+      return data.data.filter(item => !excludedIds.includes(item.id));
     } catch (error) {
-      console.error("Error fetching carousel data:", error);
+      console.error('Error fetching carousel data:', error);
       return [];
     }
   }
 
   async function loadCelebrities() {
     try {
-      const res = await fetch(
-        "/api/routes/celebrity/get-celebrity-position.php"
-      );
+      const res = await fetch('/api/routes/celebrity/get-celebrity-position.php');
       const data = await res.json();
 
-      const section = document.getElementById("celebrity-list");
-      section.innerHTML = "";
+      const section = document.getElementById('celebrity-list');
+      section.innerHTML = '';
 
       if (data.success) {
         const positions = data.data;
@@ -77,17 +75,16 @@
           }
 
           const imagePath = image_path || "/assets/unknown.jpg";
-          const aTag = document.createElement("a");
+          const aTag = document.createElement('a');
           const slug = decodeURIComponent(name)
             .toLowerCase()
             .replaceAll(" ", "-");
-
           aTag.href = `/person-of-interest/${slug}`;
-          aTag.className = "celebrity-link";
+          aTag.className = 'celebrity-link';
           aTag.innerHTML = `
                 <div class="carousel-item">
                     <img src="${imagePath}" />
-                    <h3>${name || "Unknown"}</h3>
+                    <h3>${name || 'Unknown'}</h3>
                 </div>
             `;
           currentContainer.appendChild(aTag);
@@ -96,32 +93,22 @@
         });
 
         if (positions.length > 6) {
-          const carouselData = await fetchCarouselData(
-            Array.from(displayedIds)
-          );
+          const carouselData = await fetchCarouselData(Array.from(displayedIds));
 
           if (carouselData.length > 0) {
-            const carouselContainer = document.createElement("div");
-            carouselContainer.classList.add("carousel-container");
+            const carouselContainer = document.createElement('div');
+            carouselContainer.classList.add('carousel-container');
             carouselContainer.innerHTML = `
                     <button class="carousel-btn prev" id="carousel-prev">&lt;</button>
                     <div class="carousel">
-                        ${carouselData
-                          .map(
-                            (item) => `
-                            <a href="/person-of-interest/${
-                              item.id
-                            }" class="carousel-item-link">
+                        ${carouselData.map(item => `
+                            <a href="/person-of-interest/${item.slug}" class="carousel-item-link">
                                 <div class="carousel-item">
-                                    <img src="${
-                                      item.image_path || "/assets/unknown.jpg"
-                                    }" />
-                                    <h3>${item.name || "Unknown"}</h3>
+                                    <img src="${item.image_path || '/assets/unknown.jpg'}" />
+                                    <h3>${item.name || 'Unknown'}</h3>
                                 </div>
                             </a>
-                        `
-                          )
-                          .join("")}
+                        `).join('')}
                     </div>
                     <button class="carousel-btn next" id="carousel-next">&gt;</button>`;
             const carouselContainerWrapper = createArticleContainer();
@@ -131,11 +118,12 @@
             initCarousel();
           }
         }
+
       } else {
         console.error(data.message);
       }
     } catch (error) {
-      console.error("Error loading celebrities:", error);
+      console.error('Error loading celebrities:', error);
     }
   }
 
@@ -148,12 +136,12 @@
   }
 
   function initCarousel() {
-    const carousel = document.querySelector(".carousel");
-    const prevBtn = document.getElementById("carousel-prev");
-    const nextBtn = document.getElementById("carousel-next");
+    const carousel = document.querySelector('.carousel');
+    const prevBtn = document.getElementById('carousel-prev');
+    const nextBtn = document.getElementById('carousel-next');
 
     if (!carousel || !prevBtn || !nextBtn) {
-      console.error("Carousel elements not found.");
+      console.error('Carousel elements not found.');
       return;
     }
 
@@ -170,30 +158,26 @@
       carousel.style.width = `${totalWidth}px`;
 
       function setCarouselPosition() {
-        const visibleCount = Math.floor(
-          carousel.parentElement.clientWidth / articleWidth
-        );
+        const visibleCount = Math.floor(carousel.parentElement.clientWidth / articleWidth);
         const maxIndex = Math.max(0, articles.length - visibleCount);
         const newTransformValue = -currentIndex * articleWidth;
 
         carousel.style.transform = `translateX(${newTransformValue}px)`;
-        prevBtn.style.display = currentIndex === 0 ? "none" : "block";
-        nextBtn.style.display = currentIndex >= maxIndex ? "none" : "block";
+        prevBtn.style.display = currentIndex === 0 ? 'none' : 'block';
+        nextBtn.style.display = currentIndex >= maxIndex ? 'none' : 'block';
       }
 
       setCarouselPosition();
 
-      prevBtn.addEventListener("click", () => {
+      prevBtn.addEventListener('click', () => {
         if (currentIndex > 0) {
           currentIndex--;
           setCarouselPosition();
         }
       });
 
-      nextBtn.addEventListener("click", () => {
-        const visibleCount = Math.floor(
-          carousel.parentElement.clientWidth / articleWidth
-        );
+      nextBtn.addEventListener('click', () => {
+        const visibleCount = Math.floor(carousel.parentElement.clientWidth / articleWidth);
         if (currentIndex < articles.length - visibleCount) {
           currentIndex++;
           setCarouselPosition();
@@ -202,11 +186,21 @@
     }
 
     updateCarouselSettings();
-    window.addEventListener("resize", debounce(updateCarouselSettings, 250));
+    window.addEventListener('resize', debounce(updateCarouselSettings, 250));
   }
 
+  let initialWidth = window.innerWidth;
+  let initialHeight = window.innerHeight;
+
   function handleResize() {
-    window.location.reload();
+    const widthDiff = Math.abs(window.innerWidth - initialWidth);
+    const heightDiff = Math.abs(window.innerHeight - initialHeight);
+
+    if (widthDiff > 100 || heightDiff > 100) {
+      window.location.reload();
+      initialWidth = window.innerWidth;
+      initialHeight = window.innerHeight;
+    }
   }
 
   const searchInput = document.getElementById("search-keywords");
@@ -231,29 +225,23 @@
 
   document.getElementById("openInput").addEventListener("click", () => {
     const searchKeywords = document.getElementById("search-keywords").value;
-    window.location.href = `/search?result=${encodeURIComponent(
-      searchKeywords
-    )}`;
+    window.location.href = `/search?result=${encodeURIComponent(searchKeywords)}`;
   });
 
-  document
-    .getElementById("search-keywords")
-    .addEventListener("keypress", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        const searchKeywords = e.target.value;
-        window.location.href = `/search?result=${encodeURIComponent(
-          searchKeywords
-        )}`;
-      }
-    });
+  document.getElementById("search-keywords").addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const searchKeywords = e.target.value;
+      window.location.href = `/search?result=${encodeURIComponent(searchKeywords)}`;
+    }
+  });
 
   async function loadFixedTrack() {
-    const trackContent = document.getElementById("track-content");
-    const trackElement = document.getElementById("track");
-    const trackStyle = document.getElementById("track-style");
+    const trackContent = document.getElementById('track-content');
+    const trackElement = document.getElementById('track');
+    const trackStyle = document.getElementById('track-style');
     try {
-      const res = await fetch("/api/routes/home/get-fixed-track.php");
+      const res = await fetch('/api/routes/home/get-fixed-track.php');
       const data = await res.json();
 
       if (data.success) {
@@ -264,7 +252,7 @@
         }
 
         if (loaded.moving) {
-          trackStyle.style.textAlign = "left";
+          trackStyle.style.textAlign = 'left';
           trackStyle.style.animation = `scrollText ${loaded.time}s linear infinite`;
         }
 
@@ -273,14 +261,16 @@
         console.log(data.message);
       }
     } catch (error) {
-      console.error("Error loading fixed track:", error);
+      console.error('Error loading fixed track:', error);
     }
   }
 
   loadCelebrities();
 
   loadFixedTrack();
+
 </script>
+
 
 <style>
   .track {
@@ -375,11 +365,14 @@
 
   #celebrity-list .article-container {
     margin: 1em auto;
-    width: 70%;
     display: flex;
     justify-content: center;
     align-items: center;
     gap: 1em;
+    transition: transform 0.3s ease-in-out;
+    will-change: transform;
+    flex-shrink: 0;
+    flex-grow: 0;
   }
 
   #celebrity-list .article-container a {
@@ -412,7 +405,7 @@
     width: 100%;
     padding: 0.5em;
     background-color: rgba(0, 0, 0, 0.5);
-    color: white;
+    color: red;
     font-size: 1.2em;
     text-align: center;
   }

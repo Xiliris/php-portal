@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const loadingEl = document.getElementById("loading");
   let cachedRoute = "/";
 
-  const baseUrl = "http://php-portal.local";
+  const baseUrl = "https://zdbist.ba";
 
   const hrefReplace = {};
 
