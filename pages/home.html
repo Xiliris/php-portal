@@ -32,7 +32,7 @@
 
   async function fetchCarouselData(excludedIds) {
     try {
-      const res = await fetch('/api/routes/celebrity/list-celebrity.php');
+      const res = await fetch("/api/routes/celebrity/list-celebrity.php");
       const data = await res.json();
 
       if (!data.success) {
@@ -47,7 +47,7 @@
 
   async function loadCelebrities() {
     try {
-      const res = await fetch('/api/routes/celebrity/get-celebrity-position.php');
+      const res = await fetch("/api/routes/celebrity/get-celebrity-position.php");
       const data = await res.json();
 
       const section = document.getElementById('celebrity-list');
