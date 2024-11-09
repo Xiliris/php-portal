@@ -13,7 +13,7 @@ $uploadDirs = [
     'document' => __DIR__ . '/../../storage/celebrity/data/documents/',
 ];
 
-$protocol = strtolower(substr($_SERVER["SERVER_PROTOCOL"], 0, 5)) == 'https' ? 'https' : 'http';
+$protocol = 'https';
 $baseUrl = $protocol . '://' . $_SERVER["SERVER_NAME"] . '/api/storage/celebrity/data';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -176,22 +176,19 @@ function handleFileUpload($file, $uploadDir, $urlPath, $allowedMimeTypes)
         return "File upload error: " . $file['error'];
     }
 
-    $fileMimeType = mime_content_type($file['tmp_name']);
-    error_log("Uploaded file: " . $file['name'] . " | Detected MIME type: " . $fileMimeType);
-
-    if (!in_array($fileMimeType, $allowedMimeTypes)) {
-        error_log("Invalid file type detected: " . $fileMimeType);
-        return "Invalid file type: " . $fileMimeType;
-    }
-
-    $filename = basename($file['name']);
     $uniqueId = uniqid();
-    $targetFilePath = $uploadDir . $uniqueId . "_" . $filename;
+    $filename = str_replace(' ', '_', $file['name']);
+    $fileExtension = pathinfo($filename, PATHINFO_EXTENSION);
+    $targetFilePath = $uploadDir . '/' . $uniqueId . "_" . $filename;
+
+    if (!in_array($file['type'], $allowedMimeTypes)) {
+        return "Invalid file type. Allowed types: " . implode(", ", $allowedMimeTypes);
+    }
 
     if (move_uploaded_file($file['tmp_name'], $targetFilePath)) {
         return [
             'path' => $urlPath . '/' . $uniqueId . "_" . $filename,
-            'type' => pathinfo($filename, PATHINFO_EXTENSION),
+            'type' => $fileExtension,
             'original_name' => $filename
         ];
     }
