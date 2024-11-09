@@ -79,7 +79,9 @@
 
               if (doc_type === "pdf") {
                 doc_image_path = "/assets/pdf.png";
-                doc_view_path = document_path;
+                doc_view_path = `/person-of-interest/${params[2]}/${
+                  params[3]
+                }/documents/${original_name.replace(".pdf", "")}`;
               } else if (doc_type === "docx") {
                 doc_image_path = "/assets/docx.png";
                 doc_view_path = `https://docs.google.com/viewer?url=${document_path}`;
@@ -88,7 +90,7 @@
               }
 
               docContent += `
-                <a class="doc-item" href="${doc_view_path}" target="_blank" rel="openner noopenner">
+                <a class="doc-item" href="${doc_view_path}" rel="openner noopenner">
                   <img src="${doc_image_path}" alt="doc_type"/>
                   <p>${original_name}</p>  
                 </a>
