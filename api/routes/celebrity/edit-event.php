@@ -120,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (isset($_FILES['document'])) {
                 foreach ($_FILES['document']['tmp_name'] as $key => $tmpName) {
                     $fileData = [
-                        'name' => $_FILES['document']['name'][$key],
+                        'name' => str_replace(' ', '_', $_FILES['document']['name'][$key]),
                         'type' => $_FILES['document']['type'][$key],
                         'tmp_name' => $tmpName,
                         'error' => $_FILES['document']['error'][$key],

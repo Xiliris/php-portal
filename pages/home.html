@@ -127,13 +127,7 @@
     }
   }
 
-  function debounce(func, wait) {
-    let timeout;
-    return function (...args) {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => func.apply(this, args), wait);
-    };
-  }
+
 
   function initCarousel() {
     const carousel = document.querySelector('.carousel');
@@ -186,21 +180,6 @@
     }
 
     updateCarouselSettings();
-    window.addEventListener('resize', debounce(updateCarouselSettings, 250));
-  }
-
-  let initialWidth = window.innerWidth;
-  let initialHeight = window.innerHeight;
-
-  function handleResize() {
-    const widthDiff = Math.abs(window.innerWidth - initialWidth);
-    const heightDiff = Math.abs(window.innerHeight - initialHeight);
-
-    if (widthDiff > 100 || heightDiff > 100) {
-      window.location.reload();
-      initialWidth = window.innerWidth;
-      initialHeight = window.innerHeight;
-    }
   }
 
   const searchInput = document.getElementById("search-keywords");
@@ -213,15 +192,6 @@
   searchInput.addEventListener("blur", () => {
     resizeDisabled = false;
   });
-
-  window.addEventListener(
-    "resize",
-    debounce(() => {
-      if (!resizeDisabled) {
-        handleResize();
-      }
-    }, 250)
-  );
 
   document.getElementById("openInput").addEventListener("click", () => {
     const searchKeywords = document.getElementById("search-keywords").value;
