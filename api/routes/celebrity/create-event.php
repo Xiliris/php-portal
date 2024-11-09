@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $publish_date = isset($_POST['publish_date']) ? $_POST['publish_date'] : null;
     $slug = $_POST['slug'];
     $storagePath = __DIR__ . '/../../storage/celebrity/data';
-    $storageUrl = 'http://' . $_SERVER["SERVER_NAME"] . '/api/storage/celebrity/data';
+    $storageUrl = 'https://' . $_SERVER["SERVER_NAME"] . '/api/storage/celebrity/data';
 
     $images = isset($_FILES['images']) && is_array($_FILES['images']['name']) ? $_FILES['images'] : null;
     $documents = isset($_FILES['documents']) && is_array($_FILES['documents']['name']) ? $_FILES['documents'] : null;
