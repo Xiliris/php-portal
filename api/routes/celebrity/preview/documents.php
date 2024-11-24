@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     try {
         // Fetch event data first
-        $stmt = $pdo->prepare("SELECT * FROM celebrity_event_data WHERE id = ?");
+        $stmt = $pdo->prepare("SELECT * FROM celebrity_event_data WHERE slug = ?");
         $stmt->execute([$eventId]);
         $event = $stmt->fetch(PDO::FETCH_ASSOC);
 

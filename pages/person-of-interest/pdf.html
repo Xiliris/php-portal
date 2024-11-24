@@ -1,0 +1,32 @@
+<iframe id="pdf-canvas"></iframe>
+
+<script>
+  const canvas = document.getElementById("pdf-canvas");
+  const docName = window.location.pathname.split("/")[5];
+
+  async function getName() {
+    const response = await fetch(
+      `/api/routes/celebrity/data/get-document.php?name=${docName}.pdf`
+    );
+
+    const data = await response.json();
+
+    canvas.src = data.data.document_path;
+    canvas.style.display = "block";
+  }
+
+  getName();
+</script>
+
+<style>
+  #pdf-canvas {
+    border: 1px solid black;
+    width: 100vw;
+    height: 100vh;
+  }
+
+  #app {
+    overflow: hidden;
+    height: 100vh;
+  }
+</style>

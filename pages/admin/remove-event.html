@@ -81,7 +81,7 @@
         const formData = new FormData();
         formData.append('id', celebrity.id)
 
-        const response = await fetch("/api/routes/celebrity/data/events.php", {
+        const response = await fetch("/api/routes/celebrity/data/events-id.php", {
           method: "POST",
           body: formData,
         });

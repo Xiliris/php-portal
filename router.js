@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const loadingEl = document.getElementById("loading");
   let cachedRoute = "/";
 
-  const baseUrl = "http://php-portal.local";
+  const baseUrl = "https://zdbist.ba";
 
   const hrefReplace = {};
 
@@ -69,6 +69,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     "/person-of-interest/:userid/:event/audio": `${baseUrl}/pages/person-of-interest/audio.html`,
     "/person-of-interest/:userid/:event/images": `${baseUrl}/pages/person-of-interest/image.html`,
     "/person-of-interest/:userid/:event/releases": `${baseUrl}/pages/person-of-interest/release.html`,
+    "/person-of-interest/:userid/:event/documents/:document": `${baseUrl}/pages/person-of-interest/pdf.html`,
 
     "/preview/:userid": `${baseUrl}/pages/preview/main.html`,
     "/preview/:userid/:event/documents": `${baseUrl}/pages/preview/documents.html`,

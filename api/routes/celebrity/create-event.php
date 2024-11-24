@@ -156,6 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Upload documents
     if ($documents) {
         foreach ($documents['name'] as $key => $doc_name) {
+            $doc_name = str_replace(' ', '_', $doc_name);
             $doc_tmp = $documents['tmp_name'][$key];
             $doc_error = $documents['error'][$key];
 
