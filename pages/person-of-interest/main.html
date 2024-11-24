@@ -5,7 +5,7 @@
 </main>
 {{footer}}
 <script>
-   const container = document.getElementById("celebrity__container");
+  const container = document.getElementById("celebrity__container");
   const eventContainer = document.getElementById("celebrity__event-container");
   async function loadProfile() {
     const params = window.location.pathname.split("/");
@@ -21,13 +21,13 @@
 
     if (data.success) {
       const celebrity = data.data;
-      if(celebrity.preview) {
-          window.location.href = '/404'
-        }
+      if (celebrity.preview) {
+        window.location.href = "/404";
+      }
 
       const article = document.createElement("article");
-      if(celebrity.preview) {
-        overlayProfileContainer.style.display = 'flex'
+      if (celebrity.preview) {
+        overlayProfileContainer.style.display = "flex";
       }
 
       let imagePath = celebrity.image_path || "/assets/unknown.jpg";
@@ -57,23 +57,25 @@
     if (data.success) {
       for (const event of data.data) {
         const article = document.createElement("article");
-        let pendingClass = '';
+        let pendingClass = "";
 
-        if(event.preview) {
-          article.style.display = 'none'
+        if (event.preview) {
+          article.style.display = "none";
         }
 
         article.innerHTML = `
           <a title="${event.title}">${event.title}</a>
-          <i class="fa-solid fa-chevron-${event.id == params[3] ? 'up' : 'down'}"></i>
+          <i class="fa-solid fa-chevron-${
+            event.slug == params[3] ? "up" : "down"
+          }"></i>
         `;
 
         article.addEventListener("click", function () {
           this.querySelector("i").classList.toggle("active");
-          window.location.href = `/profile/${params[2]}/${event.id}/releases`;
+          window.location.href = `/person-of-interest/${params[2]}/${event.slug}/releases`;
         });
 
-        if(!event.preview) {
+        if (!event.preview) {
           eventContainer.append(article);
         }
       }
@@ -168,30 +170,30 @@
   }
 
   @media (max-width: 768px) {
-  .profile-container {
-    margin-top: 8em;
-    margin-bottom: 3em;
-  }
+    .profile-container {
+      margin-top: 8em;
+      margin-bottom: 3em;
+    }
 
-  #celebrity__container {
-    width: 80vw;
-    flex-direction: column;
-  }
+    #celebrity__container {
+      width: 80vw;
+      flex-direction: column;
+    }
 
-  #celebrity__container article {
-    padding-bottom: 2em;
-    flex-direction: column;
-    align-items: flex-start;
-  }
+    #celebrity__container article {
+      padding-bottom: 2em;
+      flex-direction: column;
+      align-items: flex-start;
+    }
 
-  #celebrity__container article img {
-    width: 150px;
-    height: 200px;
-  }
+    #celebrity__container article img {
+      width: 150px;
+      height: 200px;
+    }
 
-  #celebrity__container article p {
-    font-size: 0.9em;
-    line-height: 1.3em;
+    #celebrity__container article p {
+      font-size: 0.9em;
+      line-height: 1.3em;
+    }
   }
-}
 </style>

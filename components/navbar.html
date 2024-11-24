@@ -10,6 +10,7 @@
     </div>
     <div class="button-section" id="nav-options">
       <a class="button secondary" href="/donate" data-link>Donate</a>
+      <a href="/shop" class="button primary" data-link>Shop</a>
     </div>
     <i class="fa-solid fa-bars" id="menu"></i>
   </section>
@@ -25,6 +26,7 @@
   </section>
   <section id="aside-options">
     <a href="/donate" class="button secondary">Donate</a>
+    <a href="/shop" class="button primary" data-link>Shop</a>
   </section>
 </aside>
 
@@ -58,15 +60,6 @@
       const role = data.user.role;
       const navOptions = document.getElementById("nav-options");
       const asideOptions = document.getElementById("aside-options");
-
-      if (permissionLevel[role] >= permissionLevel["user"]) {
-        navOptions.innerHTML += `
-          <a class="button primary" href="/shop" data-link>Shop</a>
-        `;
-        asideOptions.innerHTML += `
-          <a class="button primary" href="/shop" data-link>Shop</a>
-        `;
-      }
 
       if (permissionLevel[role] >= permissionLevel["admin"]) {
         navOptions.innerHTML += `

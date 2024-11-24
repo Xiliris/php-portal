@@ -4,9 +4,9 @@ require __DIR__ . '/../../../config.php';
 $response = ["success" => false, "message" => "", "data" => []];
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $eventId = $_GET['id'];
+    $eventId = intval($_GET['id']);
 
-    if (!$eventId) {
+    if ($eventId <= 0) {
         $response["message"] = "Valid Event ID is required";
         echo json_encode($response);
         exit;
@@ -34,20 +34,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             exit;
         }
 
-        // Fetch only video paths from celebrity_event_videos
-        $stmt = $pdo->prepare("SELECT video_path FROM celebrity_event_videos WHERE event_id = ?");
-        $stmt->execute([$event["id"]]);
-        $videoPaths = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        // Fetch only image paths from celebrity_event_images
+        $stmt = $pdo->prepare("SELECT image_path FROM celebrity_event_images WHERE event_id = ?");
+        $stmt->execute([$eventId]);
+        $images = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-        if (empty($videoPaths)) {
-            $response["message"] = "No video files found for the specified event";
+        if (empty($images)) {
+            $response["message"] = "No images found for the specified event";
             echo json_encode($response);
             exit;
         }
 
         $response["success"] = true;
-        $response["message"] = "Video paths retrieved successfully";
-        $response["data"] = $videoPaths;
+        $response["message"] = "Image paths retrieved successfully";
+        $response["data"] = $images;
     } catch (PDOException $e) {
         $response["message"] = "Database error: " . $e->getMessage();
         echo json_encode($response);

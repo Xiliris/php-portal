@@ -17,19 +17,43 @@
       <textarea placeholder="Description" id="c-description"></textarea>
       <div class="div-input">
         <label for="images">IMAGES</label>
-        <input type="file" name="images" id="c-images" accept="image/*" multiple />
+        <input
+          type="file"
+          name="images"
+          id="c-images"
+          accept="image/*"
+          multiple
+        />
       </div>
       <div class="div-input">
         <label for="documents">DOCUMENTS</label>
-        <input type="file" name="documents" id="c-documents" accept=".pdf,.doc,.docx" multiple />
+        <input
+          type="file"
+          name="documents"
+          id="c-documents"
+          accept=".pdf,.doc,.docx"
+          multiple
+        />
       </div>
       <div class="div-input">
         <label for="audio">AUDIO</label>
-        <input type="file" name="audio" id="c-audio" accept="audio/*" multiple />
+        <input
+          type="file"
+          name="audio"
+          id="c-audio"
+          accept="audio/*"
+          multiple
+        />
       </div>
       <div class="div-input">
         <label for="video">VIDEO</label>
-        <input type="file" name="video" id="c-video" accept="video/*" multiple />
+        <input
+          type="file"
+          name="video"
+          id="c-video"
+          accept="video/*"
+          multiple
+        />
       </div>
       <div class="div-input">
         <label for="datetime">Publish Date and Time</label>
@@ -88,21 +112,32 @@
       return;
     }
 
-    if (!validateFiles(images, "Images", 5 * 1024 * 1024) ||
+    if (
+      !validateFiles(images, "Images", 5 * 1024 * 1024) ||
       !validateFiles(documents, "Documents", 10 * 1024 * 1024) ||
       !validateFiles(audio, "Audio", 10 * 1024 * 1024) ||
-      !validateFiles(video, "Video", 50 * 1024 * 1024)) {
+      !validateFiles(video, "Video", 50 * 1024 * 1024)
+    ) {
       return;
     }
 
     try {
-      const checkTitleRes = await fetch(`/api/routes/celebrity/create-event.php?title=${encodeURIComponent(title)}&celebrityId=${params[3]}`);
+      const checkTitleRes = await fetch(
+        `/api/routes/celebrity/create-event.php?title=${encodeURIComponent(
+          title
+        )}&celebrityId=${params[3]}`
+      );
       const checkTitleData = await checkTitleRes.json();
 
       if (checkTitleData.exists) {
-        const deleteRes = await fetch(`/api/routes/celebrity/delete-event.php?title=${encodeURIComponent(title)}&celebrityId=${params[3]}`, {
-          method: "DELETE",
-        });
+        const deleteRes = await fetch(
+          `/api/routes/celebrity/delete-event.php?title=${encodeURIComponent(
+            title
+          )}&celebrityId=${params[3]}`,
+          {
+            method: "DELETE",
+          }
+        );
 
         const deleteData = await deleteRes.json();
         if (!deleteData.success) {
@@ -113,7 +148,10 @@
 
       await createEvent();
     } catch (error) {
-      console.error("An error occurred while checking/deleting the event:", error.message);
+      console.error(
+        "An error occurred while checking/deleting the event:",
+        error.message
+      );
       showAlert("An error occurred. Please try again.");
     }
   });
@@ -121,7 +159,11 @@
   function validateFiles(files, type, maxSize) {
     for (let i = 0; i < files.length; i++) {
       if (files[i].size > maxSize) {
-        showAlert(`${type} file "${files[i].name}" exceeds the allowed size of ${maxSize / (1024 * 1024)} MB.`);
+        showAlert(
+          `${type} file "${files[i].name}" exceeds the allowed size of ${
+            maxSize / (1024 * 1024)
+          } MB.`
+        );
         return false;
       }
     }
@@ -137,10 +179,13 @@
     const audio = document.getElementById("c-audio").files;
     const video = document.getElementById("c-video").files;
 
+    const slug = decodeURIComponent(title).toLowerCase().replaceAll(" ", "-");
+
     const formData = new FormData();
     formData.append("title", title);
     formData.append("id", params[3]);
     formData.append("description", description);
+    formData.append("slug", slug);
     formData.append("publish_date", datetime);
 
     if (images.length > 0) {
@@ -173,7 +218,9 @@
     if (data.success) {
       window.location.href = `/dashboard/create-event/${params[3]}/${data.id}/preview`;
     } else {
-      showAlert(data.message || "Failed to create the event. Please try again.");
+      showAlert(
+        data.message || "Failed to create the event. Please try again."
+      );
     }
   }
 

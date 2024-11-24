@@ -33,7 +33,8 @@
 
   function loadValues() {
     nameInput.value = sessionStorage.getItem("celebrityName") || "";
-    descriptionInput.value = sessionStorage.getItem("celebrityDescription") || "";
+    descriptionInput.value =
+      sessionStorage.getItem("celebrityDescription") || "";
     publishDateInput.value = sessionStorage.getItem("publishDate") || "";
   }
 
@@ -45,10 +46,12 @@
 
   loadValues();
 
-  document.getElementById("create-celebrity-btn").addEventListener("click", async () => {
-    saveValues();
-    await checkCelebrityExistsAndCreate();
-  });
+  document
+    .getElementById("create-celebrity-btn")
+    .addEventListener("click", async () => {
+      saveValues();
+      await checkCelebrityExistsAndCreate();
+    });
 
   async function checkCelebrityExistsAndCreate() {
     const nameValue = nameInput.value;
@@ -59,7 +62,11 @@
     }
 
     try {
-      const res = await fetch(`/api/routes/celebrity/create-celebrity.php?name=${encodeURIComponent(nameValue)}`);
+      const res = await fetch(
+        `/api/routes/celebrity/create-celebrity.php?name=${encodeURIComponent(
+          nameValue
+        )}`
+      );
       const data = await res.json();
 
       if (data.exists) {
@@ -67,15 +74,21 @@
       }
       await createCelebrity();
     } catch (error) {
-      alert("An error occurred while checking for existing celebrity: " + error.message);
+      alert(
+        "An error occurred while checking for existing celebrity: " +
+          error.message
+      );
     }
   }
 
   async function deleteCelebrity(id) {
     try {
-      const res = await fetch(`/api/routes/celebrity/delete-celebrity.php?id=${id}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `/api/routes/celebrity/delete-celebrity.php?id=${id}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (!res.ok) {
         const data = await res.json();
@@ -93,58 +106,68 @@
     const publishDateValue = publishDateInput.value;
 
     if (!nameValue) {
-        alert("Missing name!");
-        return;
+      alert("Missing name!");
+      return;
     }
 
     if (!descriptionValue) {
-        alert("Missing description!");
-        return;
+      alert("Missing description!");
+      return;
     }
 
     if (!publishDateValue) {
-        alert('Missing publish date');
-        return;
+      alert("Missing publish date");
+      return;
     }
 
     if (imageValue) {
-        const allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        const maxImageSize = 2 * 1024 * 1024;
+      const allowedImageTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/gif",
+        "image/webp",
+      ];
+      const maxImageSize = 2 * 1024 * 1024;
 
-        if (!allowedImageTypes.includes(imageValue.type)) {
-            alert('Invalid image type. Allowed types: JPEG, PNG, GIF, WEBP.');
-            return;
-        }
+      if (!allowedImageTypes.includes(imageValue.type)) {
+        alert("Invalid image type. Allowed types: JPEG, PNG, GIF, WEBP.");
+        return;
+      }
 
-        if (imageValue.size > maxImageSize) {
-            alert('Image file size exceeds the 2 MB limit.');
-            return;
-        }
+      if (imageValue.size > maxImageSize) {
+        alert("Image file size exceeds the 2 MB limit.");
+        return;
+      }
     }
+
+    const slug = decodeURIComponent(nameValue)
+      .toLowerCase()
+      .replaceAll(" ", "-");
 
     const formData = new FormData();
     formData.append("name", nameValue);
     formData.append("description", descriptionValue);
     formData.append("image", imageValue);
-    formData.append('publishDate', publishDateValue);
+    formData.append("slug", slug);
+    formData.append("publishDate", publishDateValue);
 
     try {
-        const res = await fetch("/api/routes/celebrity/create-celebrity.php", {
-            method: "POST",
-            body: formData,
-        });
+      const res = await fetch("/api/routes/celebrity/create-celebrity.php", {
+        method: "POST",
+        body: formData,
+      });
 
-        const data = await res.json();
+      const data = await res.json();
 
-        if (res.ok && data.success) {
-            window.location.href = `/dashboard/create-celebrity/${data.id}/events`;
-        } else {
-            alert(data.message || "Failed to create celebrity.");
-        }
+      if (res.ok && data.success) {
+        window.location.href = `/dashboard/create-celebrity/${data.id}/events`;
+      } else {
+        alert(data.message || "Failed to create celebrity.");
+      }
     } catch (error) {
-        alert("An error occurred: " + error.message);
+      alert("An error occurred: " + error.message);
     }
-}
+  }
 </script>
 
 <style>

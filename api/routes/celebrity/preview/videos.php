@@ -4,9 +4,9 @@ require __DIR__ . '/../../../config.php';
 $response = ["success" => false, "message" => "", "data" => []];
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $eventId = $_GET['id'];
+    $eventId = intval($_GET['id']);
 
-    if (!$eventId) {
+    if ($eventId <= 0) {
         $response["message"] = "Valid Event ID is required";
         echo json_encode($response);
         exit;
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
         // Fetch only video paths from celebrity_event_videos
         $stmt = $pdo->prepare("SELECT video_path FROM celebrity_event_videos WHERE event_id = ?");
-        $stmt->execute([$event["id"]]);
+        $stmt->execute([$eventId]);
         $videoPaths = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
         if (empty($videoPaths)) {

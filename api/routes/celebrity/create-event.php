@@ -12,6 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = isset($_POST['title']) ? $_POST['title'] : null;
     $description = isset($_POST['description']) ? $_POST['description'] : null;
     $publish_date = isset($_POST['publish_date']) ? $_POST['publish_date'] : null;
+    $slug = $_POST['slug'];
     $storagePath = __DIR__ . '/../../storage/celebrity/data';
     $storageUrl = 'https://' . $_SERVER["SERVER_NAME"] . '/api/storage/celebrity/data';
 
@@ -103,8 +104,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Insert event data into the database
     try {
-        $stmt = $pdo->prepare('INSERT INTO celebrity_event_data (title, description, publish_date, celebrity_profile_id) VALUES (?, ?, ?, ?)');
-        $stmt->execute([$title, $description, $publish_date, $id]);
+        $stmt = $pdo->prepare('INSERT INTO celebrity_event_data (title, description, publish_date, celebrity_profile_id, slug) VALUES (?, ?, ?, ?, ?)');
+        $stmt->execute([$title, $description, $publish_date, $id, $slug]);
         $newEventId = $pdo->lastInsertId();
         $id = $newEventId; // Use this ID for further operations
         $response["id"] = $id; // Set the ID in the response
@@ -155,6 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Upload documents
     if ($documents) {
         foreach ($documents['name'] as $key => $doc_name) {
+            $doc_name = str_replace(' ', '_', $doc_name);
             $doc_tmp = $documents['tmp_name'][$key];
             $doc_error = $documents['error'][$key];
 

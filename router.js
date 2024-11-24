@@ -63,12 +63,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     "/news/:id": `${baseUrl}/pages/news.html`,
     "/coming-soon/:id": `${baseUrl}/pages/coming.html`,
-    "/profile/:userid": `${baseUrl}/pages/profile/main.html`,
-    "/profile/:userid/:event/documents": `${baseUrl}/pages/profile/documents.html`,
-    "/profile/:userid/:event/video": `${baseUrl}/pages/profile/video.html`,
-    "/profile/:userid/:event/audio": `${baseUrl}/pages/profile/audio.html`,
-    "/profile/:userid/:event/images": `${baseUrl}/pages/profile/image.html`,
-    "/profile/:userid/:event/releases": `${baseUrl}/pages/profile/release.html`,
+    "/person-of-interest/:userid": `${baseUrl}/pages/person-of-interest/main.html`,
+    "/person-of-interest/:userid/:event/documents": `${baseUrl}/pages/person-of-interest/documents.html`,
+    "/person-of-interest/:userid/:event/video": `${baseUrl}/pages/person-of-interest/video.html`,
+    "/person-of-interest/:userid/:event/audio": `${baseUrl}/pages/person-of-interest/audio.html`,
+    "/person-of-interest/:userid/:event/images": `${baseUrl}/pages/person-of-interest/image.html`,
+    "/person-of-interest/:userid/:event/releases": `${baseUrl}/pages/person-of-interest/release.html`,
+    "/person-of-interest/:userid/:event/documents/:document": `${baseUrl}/pages/person-of-interest/pdf.html`,
 
     "/preview/:userid": `${baseUrl}/pages/preview/main.html`,
     "/preview/:userid/:event/documents": `${baseUrl}/pages/preview/documents.html`,
@@ -149,7 +150,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const matchRoute = (path) => {
     const routeKeys = Object.keys(routes);
     for (const route of routeKeys) {
-      const routePattern = new RegExp("^" + route.replace(/:\w+/g, "([\\w-]+)").replace(/\//g, "\\/") + "$");
+      const routePattern = new RegExp(
+        "^" + route.replace(/:\w+/g, "([\\w-]+)").replace(/\//g, "\\/") + "$"
+      );
       const match = path.match(routePattern);
       if (match) {
         return { route, params: match.slice(1) };
@@ -197,7 +200,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       let html = await fetchAndCache(request);
 
       params.forEach((param, index) => {
-        html = html.replace(new RegExp(`\\$\\{param${index + 1}\\}`, "g"), param);
+        html = html.replace(
+          new RegExp(`\\$\\{param${index + 1}\\}`, "g"),
+          param
+        );
       });
 
       for (const [component, componentPath] of Object.entries(components)) {
@@ -206,7 +212,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       for (const [color, value] of Object.entries(colors)) {
-        html = html.replace(new RegExp(color.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1"), "g"), value);
+        html = html.replace(
+          new RegExp(color.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1"), "g"),
+          value
+        );
       }
 
       for (const [oldHref, newHref] of Object.entries(hrefReplace)) {
@@ -214,8 +223,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
 
       app.innerHTML = html;
-      if(window.location.href !== 'https://zdbist.ba/#app') {
-        window.scrollTo(0,0)
+      if (window.location.href !== "https://zdbist.ba/#app") {
+        window.scrollTo(0, 0);
       }
 
       loadingEl.style.display = "none";

@@ -36,7 +36,11 @@
     for (const celebrity of list) {
       if (!celebrity.preview) {
         const article = document.createElement("a");
-        article.href = `/profile/${celebrity.id}`;
+        const slug = decodeURIComponent(celebrity.name)
+          .toLowerCase()
+          .replaceAll(" ", "-");
+
+        article.href = `/person-of-interest/${slug}`;
 
         let imagePath = celebrity.image_path || "/assets/unknown.jpg";
 
@@ -51,7 +55,6 @@
   }
 
   loadCards();
-
 </script>
 
 <style>

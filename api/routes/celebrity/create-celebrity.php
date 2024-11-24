@@ -10,9 +10,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = $_POST['name'];
     $description = $_POST['description'];
     $publishDate = $_POST['publish_date'] ?? null;
+    $slug = $_POST['slug'];
     $protocol = strtolower(substr($_SERVER["SERVER_PROTOCOL"], 0, 5)) == 'https' ? 'https' : 'http';
 
-    if (empty($name) || empty($description)) {
+    if (empty($name) || empty($description) || empty($slug)) {
         $response["message"] = "Please fill in all fields";
         echo json_encode($response);
         exit;
@@ -24,10 +25,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $celebrity = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($celebrity) {
-            $celebrityId = $celebrity['id'];
-
-            $deleteStmt = $pdo->prepare("DELETE FROM celebrity_profile WHERE id = ?");
-            $deleteStmt->execute([$celebrityId]);
+    
+            $response["message"] = "A celebrity with the same name already exists.";
+            echo json_encode($response);
+            exit;
         }
     } catch (PDOException $e) {
         $response["message"] = "Error checking celebrity: " . $e->getMessage();
@@ -37,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $imagePath = null;
     $storageDirectory = __DIR__ . '/../../storage/celebrity/image/';
-    $storageUrl = $protocol . '://' .  $_SERVER["SERVER_NAME"] . '/api/storage/celebrity/image/';
+    $storageUrl = $protocol . '://' . $_SERVER["SERVER_NAME"] . '/api/storage/celebrity/image/';
 
     if (!is_dir($storageDirectory)) {
         if (!mkdir($storageDirectory, 0777, true)) {
@@ -59,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $maxFileSize = 2 * 1024 * 1024;
             if ($handle->file_src_size > $maxFileSize) {
-                $response['message'] = "File size exceeds the 5MB limit.";
+                $response['message'] = "File size exceeds the 2MB limit.";
                 echo json_encode($response);
                 exit;
             }
@@ -82,8 +83,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        $stmt = $pdo->prepare("INSERT INTO celebrity_profile (name, description, image_path, publish_date) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$name, $description, $imagePath, $publishDate]);
+        // Insert a new celebrity profile including the slug
+        $stmt = $pdo->prepare("INSERT INTO celebrity_profile (name, description, image_path, publish_date, slug) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$name, $description, $imagePath, $publishDate, $slug]);
 
         // Retrieve the last inserted ID
         $lastInsertedId = $pdo->lastInsertId();

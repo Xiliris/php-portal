@@ -31,14 +31,14 @@
     window.location.href = `/dashboard/create-celebrity/${param}/events`;
   });
 
-  finishBtn.addEventListener('click', async (e) => {
+  finishBtn.addEventListener("click", async (e) => {
     const formData = new FormData();
-    formData.append('id', param);
+    formData.append("id", param);
 
     try {
       const res = await fetch("/api/routes/celebrity/finish-celebrity.php", {
         method: "POST",
-        body: formData
+        body: formData,
       });
 
       const data = await res.json();
@@ -50,8 +50,8 @@
         sessionStorage.removeItem("eventTitle");
         sessionStorage.removeItem("eventDescription");
         sessionStorage.removeItem("eventDatetime");
-        
-        window.location.href = `/profile/${param}`;
+
+        window.location.href = `/person-of-interest`;
       } else {
         alert(data.message || "An error occurred.");
       }
